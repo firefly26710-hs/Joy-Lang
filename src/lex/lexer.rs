@@ -361,7 +361,7 @@ impl Lexer{
 	self.current >= self.input.len().try_into().unwrap()
     }
 
-    fn print_output(&mut self){
+    pub fn print_output(&mut self){
 	println!("Tokens   : {:?}", &self.tokens);
 	println!("Lines    : {:?}", &self.lines);
 	println!("Itervals : {:?}", &self.itervals);
@@ -369,7 +369,7 @@ impl Lexer{
 	    let (start, end) = self.itervals[i];
 	    let (s, e) = (as_usize(start), as_usize(end));
 	    let slice = &self.input[s..e];
-	    print!("{slice} ");
+	    println!("{slice} ");
 	}
     }
 
