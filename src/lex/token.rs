@@ -1,3 +1,4 @@
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token{
 
@@ -13,6 +14,7 @@ pub enum Token{
     Div,
     Mod,
     Equel,
+    NotEq,
     PlusEq,
     MinusEq,
     MulEq,
@@ -23,15 +25,23 @@ pub enum Token{
     GrtEq,
     Les,
     LesEq,
+    CmpAnd,
+    CmpOr,
+    CmpNot,
+    Bang,
     Lparen,
     Rparen,
     Lbrace,
     Rbrace,
+    Lbracket,
+    Rbracket,
     Arrow,
     Vartical,
     Colon,
     Comma,
     Dot,
+    Scolon,
+    
 
     //keyword
     Let,
@@ -42,16 +52,26 @@ pub enum Token{
     If,
     Elif,
     Else,
-    CmpNot,
-    CmpAnd,
-    CmpOr,
     True,
     False,
     Ret,
     Brk,
     Ctn,
-
+   
+    //Statment Kind
+    LetStmt,
+    ForStmt,
+    BrkStmt,
+    CtnStmt,
+    WhileStmt,
+    FuncStmt,
+    RetStmt,
+    BlockStmt,
+    CallStmt,
+    ChangeStmt,
     
+    
+    Program,
     EOF
 
 

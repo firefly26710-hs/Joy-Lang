@@ -1,0 +1,19 @@
+use crate::lex::token::Token;
+use crate::par::node::Node;
+use crate::par::ty::Type;
+
+pub struct Parser{
+    pub source   : String,
+    pub nodes    : Vec<Node>,
+    pub tokens   : Vec<Token>,
+    pub lines    : Vec<u32>,
+    pub types    : Vec<Type>,
+    pub itervals : Vec<(u32, u32)>,
+    edges        : Vec<u32>,
+}
+
+impl{
+
+
+    
+}
