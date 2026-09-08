@@ -1,15 +1,15 @@
 use crate::lex::token::Token;
-
+use crate::lex::iterval::Iterval;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Lexer{
     pub input    : String,
-    pub itervals : Vec<(u32, u32)>,
+    pub itervals : Vec<Iterval>, // start, end
     pub tokens   : Vec<Token>,
     pub lines    : Vec<u32>,
-    start    : u32,
-    current  : u32,
-    line     : u32
+    start        : u32,
+    current      : u32,
+    line         : u32
 }
 
 impl Lexer{
@@ -39,12 +39,12 @@ impl Lexer{
 	    "+" => {
 		if matches!(self.peek(), "="){
                     self.tokens.push(Token::PlusEq);
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.current += 1;
                     self.lines.push(self.line);
                 } else{
                     self.tokens.push(Token::Plus);
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 }
             },
@@ -53,16 +53,16 @@ impl Lexer{
                 if matches!(self.peek(), "="){
                     self.tokens.push(Token::MinusEq);
                     self.current += 1;
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 } else if matches!(self.peek(), ">"){
 		    self.tokens.push(Token::Arrow);
 		    self.current += 1;
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
 		    self.lines.push(self.line);
 		} else{
                     self.tokens.push(Token::Minus);
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 }
             },
@@ -71,11 +71,11 @@ impl Lexer{
 		if matches!(self.peek(), "="){
                     self.tokens.push(Token::MulEq);
                     self.current += 1;
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 } else{
                     self.tokens.push(Token::Mul);
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 }
             }, 
@@ -83,11 +83,11 @@ impl Lexer{
 		if matches!(self.peek(), "="){
                     self.tokens.push(Token::DivEq);
                     self.current += 1;
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 } else{
                     self.tokens.push(Token::Div);
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 }
             },
@@ -95,11 +95,11 @@ impl Lexer{
 		if matches!(self.peek(), "="){
                     self.tokens.push(Token::ModEq);
                     self.current += 1;
-                    self.itervals.push((self.start, self.current));
+                    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 } else{
                     self.tokens.push(Token::Mod);
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 }
             },
@@ -107,11 +107,11 @@ impl Lexer{
                  if matches!(self.peek(), "="){
                      self.tokens.push(Token::EqEq);
                      self.current += 1;
-		     self.itervals.push((self.start, self.current));
+		     self.itervals.push(Iterval::init(self.start, self.current));
                      self.lines.push(self.line);
                 } else{
                      self.tokens.push(Token::Equel);
-                     self.itervals.push((self.start, self.current));
+                     self.itervals.push(Iterval::init(self.start, self.current));
                      self.lines.push(self.line);
                 }
 
@@ -120,11 +120,11 @@ impl Lexer{
                 if matches!(self.peek(), "="){
                     self.tokens.push(Token::GrtEq);
                     self.current += 1;
-		    self.itervals.push((self.start, self.current));
+		    self.itervals.push(Iterval::init(self.start, self.current));
 		    self.lines.push(self.line);
                 } else{
                     self.tokens.push(Token::Grt);
-                    self.itervals.push((self.start, self.current));
+                    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
                 }
             },
@@ -132,11 +132,11 @@ impl Lexer{
 		 if matches!(self.peek(), "="){
                      self.tokens.push(Token::LesEq);
 		     self.current += 1;
-                     self.itervals.push((self.start, self.current));
+                     self.itervals.push(Iterval::init(self.start, self.current));
                      self.lines.push(self.line);
                  } else{
 		     self.tokens.push(Token::Les);
-		     self.itervals.push((self.start, self.current));
+		     self.itervals.push(Iterval::init(self.start, self.current));
                      self.lines.push(self.line);
                  }
             },
@@ -144,7 +144,7 @@ impl Lexer{
 		if matches!(self.peek(), "="){
 		    self.tokens.push(Token::NotEq);
                     self.current += 1;
-                    self.itervals.push((self.start, self.current));
+                    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
 		} else{
 		    panic!("[Line {:?}] '!' must combine with '=' ", self.line)
@@ -152,57 +152,57 @@ impl Lexer{
 	    },
 	    "(" => {
 		self.tokens.push(Token::Lparen);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
 		self.lines.push(self.line);
 	    },
 	    ")" => {
 		self.tokens.push(Token::Rparen);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    "{" => {
 		self.tokens.push(Token::Lbrace);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
 		self.lines.push(self.line);
 	    },
 	    "}" => {
 		self.tokens.push(Token::Rbrace);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
 		self.lines.push(self.line);
 	    },
 	    ":" => {
 		self.tokens.push(Token::Colon);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    ";" => {
 		self.tokens.push(Token::Scolon);
-                self.itervals.push((self.start, self.current));
+                self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    "," => {
 		self.tokens.push(Token::Comma);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
 		self.lines.push(self.line);
 	    },
 	    "." => {
 		self.tokens.push(Token::Dot);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    "[" => {
 		self.tokens.push(Token::Lbracket);
-                self.itervals.push((self.start, self.current));
+                self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    "]" => {
 		self.tokens.push(Token::Rbracket);
-                self.itervals.push((self.start, self.current));
+                self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    "|" => {
 		self.tokens.push(Token::Vartical);
-                self.itervals.push((self.start, self.current));
+                self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    },
 	    
@@ -228,14 +228,14 @@ impl Lexer{
 	    
 
 	    self.tokens.push(Token::Int);
-            self.itervals.push((self.start, self.current));
+            self.itervals.push(Iterval::init(self.start, self.current));
             self.lines.push(self.line);
 	    
 	   
 	} else{
 
 	    self.tokens.push(Token::Int);
-            self.itervals.push((self.start, self.current));
+            self.itervals.push(Iterval::init(self.start, self.current));
             self.lines.push(self.line);
 	}
     }
@@ -247,87 +247,87 @@ impl Lexer{
 	match slice{
 	    "let"      => {
 		self.tokens.push(Token::Let);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "for"      => {
 		self.tokens.push(Token::For);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "in"       => {
 		self.tokens.push(Token::In);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "while"    => {
 		self.tokens.push(Token::While);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "continue" =>{
 		self.tokens.push(Token::Ctn);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    } 
 	    "break"    => {
 		self.tokens.push(Token::Brk);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "if"       => {
 		self.tokens.push(Token::If);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "elif"     => {
 		self.tokens.push(Token::Elif);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));;
                 self.lines.push(self.line);
 	    }
 	    "else"     => {
 		self.tokens.push(Token::Else);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "not"      => {
 		self.tokens.push(Token::CmpNot);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "and"      => {
 		self.tokens.push(Token::CmpAnd);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "or"       => {
 		self.tokens.push(Token::CmpOr);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "fn"       => {
 		self.tokens.push(Token::Func);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "return"   => {
 		self.tokens.push(Token::Ret);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "true"     => {
 		self.tokens.push(Token::True);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "false"     => {
 		self.tokens.push(Token::False);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    _          => {
 		self.tokens.push(Token::Ident);
-		self.itervals.push((self.start, self.current));
+		self.itervals.push(Iterval::init(self.start, self.current));
 		self.lines.push(self.line);
 	    }
 	    
@@ -365,10 +365,10 @@ impl Lexer{
 	println!("Tokens   : {:?}", &self.tokens);
 	println!("Lines    : {:?}", &self.lines);
 	println!("Itervals : {:?}", &self.itervals);
-	for (i, _) in self.itervals.iter().enumerate(){
-	    let (start, end) = self.itervals[i];
-	    let (s, e) = (as_usize(start), as_usize(end));
-	    let slice = &self.input[s..e];
+	for (_, iterval) in self.itervals.iter().enumerate(){
+	    let start = iterval.start as usize;
+	    let end   = iterval.end   as usize;
+	    let slice = &self.input[start..end];
 	    println!("{slice} ");
 	}
     }
