@@ -13,15 +13,16 @@ pub struct Parser{
     pub itervals       : Vec<Iterval>,
     pub types          : Vec<Type>,
     pub edges          : Vec<u32>,
-
     pub nodes          : Vec<Node>, 
-    pub key_checker    : Vec<u32>,
+    pub idx_key_checker: Vec<u32>,
     pub l_type_idx     : Vec<u32>,
     pub r_type_idx     : Vec<u32>,
 
     var_scope_stack    : Vec<u32>,
     func_scope_stack   : Vec<u32>,
 
+    recorder           : Vec<u32>,
+    ret_type           : Type,
     loop_counter       : u32,
     current            : u32
     
@@ -29,54 +30,145 @@ pub struct Parser{
 
 impl Parser{
     pub fn init(
-            input     : String,
-	    tokens    : Vec<Token>,
-	    lines     : Vec<u32>,
-	    itervals  : Vec<Iterval>
-        ) -> Self{
-	    Parser{
-	        input,
-	        tokens,
-	        lines,
-	        itervals,
-	        types              : Vec::new(),
-	        edges              : Vec::new(),
-	        nodes              : Vec::new(),
-		key_checker        : Vec::new(),
-		l_type_idx         : Vec::new(),
-		r_type_idx         : Vec::new(),
+	input     : String,
+	tokens    : Vec<Token>,
+	lines     : Vec<u32>,
+	itervals  : Vec<Iterval>
+    ) -> Self{
+	Parser{
+	    input,
+	    tokens,
+	    lines,
+	    itervals,
+	    types              : Vec::new(),
+	    edges              : Vec::new(),
+	    nodes              : Vec::new(),
+	    idx_key_checker    : Vec::new(),
+	    l_type_idx         : Vec::new(),
+	    r_type_idx         : Vec::new(),
+	    
+	    var_scope_stack    : Vec::new(),
+	    func_scope_stack   : Vec::new(),
 
-		var_scope_stack    : Vec::new(),
-		func_scope_stack   : Vec::new(),
-
-		loop_counter       : 0,
-		current            : 0 
-	    }
+	    recorder           : Vec::new(),
+	    ret_type           : Type::Void,
+	    loop_counter       : 0,
+	    current            : 0 
+	}
     }
 
-
+    //var_scope_stack, func_scope_stack and types
     fn func_stmt(&mut self) -> u32{
-	todo!()
-    }
+	let mut func_recorder = Vec::new();
+	
+	self.eat();
+	
+	let func_name_key = self.current;
+	self.eat();
 
+
+	match self.peek(){
+	    Token::Lparen => self.eat(),
+	    _ => panic!("[Line {:?}]", self.lines[self.current as usize])
+	};
+
+	
+	loop{
+	    match self.peek(){
+		Token::Ident =>{
+		    let func_ident_key = self.current;
+		    let func_ident_tok = self.eat();
+
+		    let func_ident_l_edge_idx = self.edges.len() as u32;
+		    self.edges.push(NONE);
+		    self.edges.push(NONE);
+		    let func_ident_r_edge_idx = self.edges.len() as u32;
+
+		    let func_ident_node = Node::init(
+			func_ident_tok.clone(), func_ident_key,
+			func_ident_l_edge_idx, func_ident_r_edge_idx
+		    );
+		    self.nodes.push(func_ident_node);
+
+		    let func_name_node_idx = self.nodes.len() - 1;
+		    func_recorder.push(func_name_node_idx as u32);
+		}
+		_ => {
+		    panic!("[Line {:?}] Expected an Identifier", self.lines[self.current as usize])
+		}
+	    };
+
+	    match self.peek(){
+		Token::Colon => self.eat(),
+		_ => panic!("[Line {}] Expected ':'", self.lines[self.current as usize])
+	    };
+
+	    // todo! : type mapping and record
+	    match self.peek(){
+		Token::Ident => {
+		    self.eat()
+		}
+		_ => unreachable!()
+	    };
+
+	    match self.peek(){
+		Token::Rparen => break,
+		Token::Comma => self.eat(),
+		_ => break,
+	    };
+	    
+	}
+	match self.peek(){
+	    Token::Rparen => self.eat(),
+	    _ => {
+		panic!("[Line {:?}] Expected ')' ", self.lines[self.current as usize])
+	    }
+	};
+	let block_idx = self.block_stmt();
+	func_recorder.push(block_idx);
+
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.extend(func_recorder);
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+
+	let func_node = Node::init(Token::FuncStmt, func_name_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(func_node);
+
+	(self.nodes.len() - 1) as u32
+
+	
+
+    }
+    
     fn match_stmt(&mut self) -> u32{
 	match self.peek(){
 	    Token::Let => self.let_stmt(),
 	    Token::For => self.for_stmt(),
 	    Token::While => self.while_stmt(),
-	    Token::Brk   => todo!(),
-	    Token::Ctn   => todo!(),
-	    Token::If    => todo!(),
-	    Token::Ident => todo!(),
-	    Token::Ret   => todo!(),
-	    _ => todo!()
+	    Token::If    => self.if_stmt(),
+	    Token::Brk   => self.brk_stmt(),
+	    Token::Ctn   => self.ctn_stmt(),
+	    Token::Ret   => self.ret_stmt(),
+	    Token::Ident => self.func_call_stmt(),
+	    Token::Func  =>{
+		panic!(
+		    "[Line {:?}] Function shouldn't on other function",
+		    self.lines[self.current as usize]
+		)
+	    } 
+	    _ => panic!(
+		"[Line {:?}] This Statment token isn't exist",
+		self.lines[self.current as usize]
+	    )
 	};
 	
 	(self.nodes.len() - 1) as u32
-
+	    
 	
     }
 
+    
+    //todo! : Type Check
     fn let_stmt(&mut self) -> u32{
 	let let_key = self.current;
 	
@@ -93,14 +185,14 @@ impl Parser{
 		self.nodes.push(name_node);
 		(self.nodes.len() - 1) as u32
 	    }
-
+	    
 	    t            =>{
 		panic!(	"[Line {:?}] Invaild Variable Name : {:?}",
 			  self.lines[(self.current) as usize], t)
 		}
-		
-	    };
-
+	    
+	};
+	
 	match self.peek(){
 	    Token::Equel => {
 		self.eat()
@@ -134,7 +226,7 @@ impl Parser{
 
 
 
-
+    // todo! :  loop_counter for brk_stmt and ctn_stmt
     fn for_stmt(&mut self)->u32{
 	let for_key = self.current;
 
@@ -143,12 +235,12 @@ impl Parser{
 	let ident_idx = match self.peek(){
 	    Token::Ident => {
 		let ident_key = self.current;
-		self.eat();
+		let ident_tok = self.eat();
 		let l_edge_idx = self.edges.len() as u32;
 		self.edges.push(NONE);
 		self.edges.push(NONE);
 		let r_edge_idx = (self.edges.len() - 1) as u32;
-		let node = Node::init(Token::Ident, ident_key, l_edge_idx, r_edge_idx);
+		let node = Node::init(ident_tok, ident_key, l_edge_idx, r_edge_idx);
 		self.nodes.push(node);
 		(self.nodes.len() - 1) as u32
 	    },
@@ -175,23 +267,23 @@ impl Parser{
 	    }
 	};
 
-	// todo! : Add Expr and function call support
+	// todo! : Add Expr, type checker, function call support(using integer)
 	let start_number_idx = match self.peek(){
 	    Token::Int | Token::Ident => {
 		let start_number_key = self.current;
-		self.eat();
+		let start_number_tok = self.eat();
 		let l_edge_idx = self.edges.len() as u32;
 		self.edges.push(NONE);
 		self.edges.push(NONE);
 		let r_edge_idx = (self.edges.len() - 1) as u32;
                 let start_number_node = Node::init(
- 		    Token::Int, start_number_key, l_edge_idx, r_edge_idx
+ 		    start_number_tok, start_number_key, l_edge_idx, r_edge_idx
 		);
                 self.nodes.push(start_number_node);
                 (self.nodes.len() - 1) as u32
 	    },
 	    _ => {
-		panic!("[Line {:?}] Start part must an integer", self.lines[(self.current) as usize])
+		panic!("[Line {:?}] Start number must an integer", self.lines[(self.current) as usize])
 	    }
 	};
 
@@ -204,43 +296,45 @@ impl Parser{
 	    }
 	}
 
-	// todo! : Add Expr and function call support
+	// todo! : Add Expr, type checker, function call support(using integer)
 	let end_number_idx = match self.peek(){
 	    Token::Int => {
 		let end_number_key = self.current;
-		self.eat();
+		let end_number_tok = self.eat();
 		let l_edge_idx = self.edges.len() as u32;
 		self.edges.push(NONE);
 		self.edges.push(NONE);
 		let r_edge_idx = (self.edges.len() - 1) as u32;
                 let end_number_node = Node::init(
-		    Token::Int, end_number_key, l_edge_idx, r_edge_idx
+		    end_number_tok, end_number_key, l_edge_idx, r_edge_idx
 		);
                 self.nodes.push(end_number_node);
                 (self.nodes.len() - 1) as u32
 	    },
+
+	    // todo! : replace by integer check and function call support
 	    Token::Ident  => {
 		todo!();
 	    },
 	    _             => {
-		panic!("[Line {:?}] End part Expected an integer", self.lines[(self.current) as usize])
+		panic!("[Line {:?}] End number Expected an integer", self.lines[(self.current) as usize])
 	    }
 	};
 
-	// todo! : Add Expr and function call support
+	// todo! : Add Expr, type checker, function call support(using integer)
 	let step_number_idx = match self.peek(){
 	    Token::Vartical =>{
 		self.eat();
 		match self.peek(){
 		    Token::Int => {
 			let step_number_key = self.current;
-			self.eat();
+			let step_number_tok = self.eat();
 			let l_edge_idx = self.edges.len() as u32;
 			self.edges.push(NONE);
 			self.edges.push(NONE);
 			let r_edge_idx = (self.edges.len() - 1) as u32;
 			let vartical_node = Node::init(
-			    Token::Int, step_number_key, l_edge_idx, r_edge_idx
+			    step_number_tok, step_number_key, l_edge_idx, r_edge_idx
 			);
 			self.nodes.push(vartical_node);
 			(self.nodes.len() - 1) as u32
@@ -319,6 +413,242 @@ impl Parser{
 	(self.nodes.len() - 1) as u32
     }
 
+    // add loop checker
+    fn brk_stmt(&mut self) -> u32{
+	
+	let brk_key = self.current;
+	let brk_tok = self.eat();
+
+	match self.peek(){
+	    Token::Scolon =>{
+		self.eat()
+	    },
+	    _ => {
+		panic!("[Line {:?}] expected ';' ", self.lines[self.current as usize])
+	    }
+	};
+	
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.push(NONE);
+	self.edges.push(NONE);
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+	
+	let brk_node = Node::init(brk_tok, brk_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(brk_node);
+	
+	(self.nodes.len() - 1) as u32
+    }
+
+
+    // add loop checker
+    fn ctn_stmt(&mut self) -> u32{
+	
+	let ctn_key = self.current;
+	let ctn_tok = self.eat();
+
+	match self.peek(){
+	    Token::Scolon =>{
+		self.eat()
+	    },
+	    _ => {
+		panic!("[Line {:?}] expected ';' ", self.lines[self.current as usize])
+	    }
+	};
+	
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.push(NONE);
+	self.edges.push(NONE);
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+	
+	let ctn_node = Node::init(ctn_tok, ctn_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(ctn_node);
+	
+	(self.nodes.len() - 1) as u32
+    }
+
+
+    // todo! : func stack check and, record to types
+    fn func_call_stmt(&mut self) -> u32{
+	self.recorder.clear();
+
+	let func_name_key = self.current;
+
+	
+	match self.peek(){
+	    Token::Lparen => {
+		self.eat()
+	    },
+	    _ => {
+		panic!("[Line {:?}] Expected '(' ", self.lines[self.current as usize])
+	    }
+	};
+
+	
+	loop{
+	    let expr_idx = self.expr(0.0);
+	    self.recorder.push(expr_idx);
+
+	    match self.peek(){
+		Token::Rparen => break,
+		Token::Comma  => self.eat(),
+		_ => break,
+	    };
+	    
+	}
+
+	match self.peek(){
+	    Token::Rparen => self.eat(),
+	    _ =>{
+		panic!("[Line {:?}] Expected ')' ", self.lines[self.current as usize])
+	    }
+	};
+
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.extend(self.recorder.clone());
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+	
+	let func_call_node = Node::init(Token::CallStmt, func_name_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(func_call_node);
+	
+	(self.nodes.len() - 1) as u32
+    }
+
+    //todo! : add expr type check, also void means don't need any return expr
+    fn ret_stmt(&mut self) -> u32{
+	
+	let ret_key = self.current;
+	let ret_tok = self.eat();
+	let expr_idx = self.expr(0.0);
+	
+	match self.peek(){
+	    Token::Scolon => {
+		self.eat()
+	    },
+	    _ => {
+		panic!("[Line {:?}] Expected ';'", self.lines[self.current as usize])
+	    }
+	};
+	
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.push(NONE);
+	self.edges.push(expr_idx);
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+
+	let ret_node = Node::init(ret_tok, ret_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(ret_node);
+
+	
+	(self.nodes.len() - 1) as u32
+    }
+
+    fn if_stmt(&mut self) -> u32{
+	let if_key = self.current;
+	let mut branch_idx_recorder = Vec::new();
+	self.record_branch_idx(&mut branch_idx_recorder);
+	
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.extend(self.recorder.clone());
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+
+	let if_node = Node::init(Token::IfStmt, if_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(if_node);
+
+	
+	(self.nodes.len() - 1) as u32
+    }
+ 
+    
+    fn record_branch_idx(&mut self, branch_idx_recorder : &mut Vec<u32>){
+	match self.peek(){
+	    Token::If   => {
+		self.eat();
+		match self.peek(){
+		    Token::Lparen =>{
+			self.eat();
+		    },
+		    _ => {
+			panic!("[Line {}] Expected '('", self.lines[(self.current) as usize])
+		    }
+		};
+		
+		let cond_idx = self.condition();
+		
+		match self.peek(){
+		    Token::Rparen =>{
+			self.eat();
+		    },
+		    _ => {
+			panic!("[Line {}] Expected ')'", self.lines[(self.current) as usize])
+		    }
+		};
+
+		self.recorder.clear();
+		let block_idx = self.block_stmt();
+		branch_idx_recorder.push(cond_idx);
+		branch_idx_recorder.push(block_idx);
+	    },
+	    Token::Elif => {
+		if self.recorder.len() < 2{
+		    panic!(
+			"[Line {:?}] Expected 'if' token, but found 'elif'",
+			self.lines[self.current as usize]
+		    )
+		}
+
+		self.eat();
+
+		match self.peek(){
+		    Token::Lparen =>{
+			self.eat();
+		    },
+		    _ => {
+			panic!("[Line {}] Expected '(' ", self.lines[(self.current) as usize])
+		    }
+		};
+
+		let cond_idx = self.condition();
+
+		match self.peek(){
+		    Token::Rparen =>{
+			self.eat();
+		    },
+		    _ => {
+			panic!("[Line {}] Expected ')' ", self.lines[(self.current) as usize])
+		    }
+		};
+
+		let block_idx = self.block_stmt();
+
+		self.recorder.clear();
+		branch_idx_recorder.push(cond_idx);
+		branch_idx_recorder.push(block_idx);
+	    },
+	    Token::Else => {
+		if self.recorder.len() < 2{
+		    panic!(
+			"[Line {:?}] Expected 'if' token, but found 'else'",
+			self.lines[self.current as usize]
+		    )
+		}
+		
+		self.eat();
+		let block_idx = self.block_stmt();
+
+		self.recorder.clear();
+		branch_idx_recorder.push(NONE);
+		branch_idx_recorder.push(block_idx);
+	    }
+	    _ => unreachable!()
+	};
+
+	match self.peek(){
+	    Token::Elif | Token::Else => self.record_branch_idx(branch_idx_recorder),
+	    _ => return
+	}
+    }
+
+    
+
     fn block_stmt(&mut self)->u32{
 	let block_key = self.current;
 	
@@ -326,15 +656,15 @@ impl Parser{
 	    Token::Lbrace => {
 		self.eat()
 	    },
+	    
 	    _ => {
-		panic!("[Line {}] Expected '{}' ", self.lines[as_usize(self.current)], '{')
+		panic!("[Line {}] Expected '{}' ", self.lines[self.current as usize], '{')
 	    }
 	};
 
-	let mut recorder = Vec::new();
 	while self.peek() != Token::Rbrace{
 	    let stmt_idx = self.match_stmt();
-	    recorder.push(stmt_idx);
+	    self.recorder.push(stmt_idx);
 	}
 	
 
@@ -344,15 +674,16 @@ impl Parser{
 		self.eat()
 	    },
 	    _ => {
-		panic!("[Line {}] Expected '{}' ", self.lines[as_usize(self.current)], '}')
+		panic!("[Line {}] Expected {} ", self.lines[self.current as usize], '}')
 	    }
 	};
 
 	let l_edge_idx = (self.edges.len()) as u32;
-	self.edges.extend(recorder);
+	self.edges.extend(self.recorder.clone());
 	let r_edge_idx = (self.edges.len() - 1) as u32;
+	
 	self.nodes.push(Node::init(Token::BlockStmt, block_key, l_edge_idx, r_edge_idx));
-	as_u32(self.nodes.len() - 1)
+	(self.nodes.len() - 1) as u32
     }
 
 
@@ -411,9 +742,9 @@ impl Parser{
 		let lhs_idx = self.expr(0.0);
 		match self.peek(){
 		    Token::Rparen => self.eat(),
-		    _ => panic!("[Line {}] Expected  ')' ", self.lines[as_usize(self.current)])
+		    _ => panic!("[Line {}] Expected  ')' ", self.lines[self.current as usize])
 		};
-		as_usize(lhs_idx)
+		lhs_idx as usize
 	    },
 	    Token::CmpNot => {
 		let cmp_not_key = self.current - 1;
@@ -426,7 +757,7 @@ impl Parser{
 		    _ => {
 			panic!(
 			    "[Line {}] 'not' must combine with '(' ",
-			    self.lines[as_usize(self.current)]
+			    self.lines[self.current as usize]
 			)
 		    }
 		};
@@ -440,12 +771,13 @@ impl Parser{
 		self.nodes.push(node);
 		self.nodes.len() - 1
 	    }
-	    _ => panic!("wth")
+	    _ => panic!("[Line {:?}] Expected a expression", self.lines[self.current as usize])
 	};
 
 	loop{
 	    let op_token = match self.peek(){
-		Token::EOF | Token::Scolon | Token::Rparen=> break,
+		Token::EOF | Token::Scolon | Token::Rparen | Token::Comma => break,
+		
 		_true => self.peek().clone()
 	    };
 	    
@@ -461,7 +793,7 @@ impl Parser{
 	    let rhs_idx = self.expr(r_bp);
 
             let l_edge_idx = self.edges.len() as u32;
-            self.edges.push(as_u32(lhs_idx));
+            self.edges.push(lhs_idx as u32);
 
 	    self.edges.push(rhs_idx);
 
@@ -479,23 +811,33 @@ impl Parser{
 
 	    lhs_idx = self.nodes.len() - 1;
 	}
-	as_u32(lhs_idx)
+	lhs_idx as u32
 	
     }
 
+
+    fn type_check(&mut self){
+	todo!()
+    }
+    
+    // todo! : Replace for if stmt
+    fn integer(&mut self) -> u32{
+	self.expr(0.0)
+    }
+
+    // todo! : Add is bool type check
     fn condition(&mut self) -> u32{
-	// todo! : Add is bool type check
 	self.expr(0.0)
     }
 
     fn eat(&mut self) -> Token{
-	let curr = as_usize(self.current);
+	let tok = self.tokens[self.current as usize].clone();
 	self.current += 1;
-	self.tokens[curr].clone()
+	tok
     }
 
     fn peek(&mut self) -> Token{
-	self.tokens[as_usize(self.current)].clone()
+	self.tokens[self.current as usize].clone()
     }
 
 
@@ -505,7 +847,9 @@ impl Parser{
 	    println!("Node : {:?}", node);
 	    let l_idx = (node.l_edge_idx) as usize;
 	    let r_idx = (node.r_edge_idx) as usize;
+	    
 	    println!("Edge : {:?}", &self.edges[l_idx..=r_idx ]);
+	    
 	    let key = node.key;
 	    let iterval = &self.itervals[key as usize];
 	    let start = iterval.start as usize;
@@ -535,20 +879,27 @@ fn infix_binding_power(op : &Token) -> (f32, f32){
 
 
 
-fn as_usize(idx : u32) -> usize{
-    idx as usize
-}
 
-fn as_u32(idx : usize) -> u32{
-    idx as u32
-}
 
 #[test]
 fn parser_testing() {
-    let input = "while (x < 4){let b = 7;for i in [0 -> 3 | 2]{let h = 8;}}".to_string();
+    let input = "
+fn
+add
+(
+ a
+:
+i32
+,
+b
+:
+i32
+)
+{}".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
+    lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
-    parser.match_stmt();
+    parser.func_stmt();
     parser.print_output();
 }

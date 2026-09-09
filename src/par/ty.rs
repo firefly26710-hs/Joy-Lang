@@ -5,4 +5,5 @@ pub enum Type{
     f32,
     f64,
     bool,
+    Void,
 }

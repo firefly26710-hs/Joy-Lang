@@ -61,15 +61,15 @@ pub enum Token{
    
     //Statment Kind
     LetStmt,
+    IfStmt,
     ForStmt,
+    WhileStmt,
     BrkStmt,
     CtnStmt,
-    WhileStmt,
     FuncStmt,
     RetStmt,
     BlockStmt,
     CallStmt,
-    ChangeStmt,
     
     
     Program,

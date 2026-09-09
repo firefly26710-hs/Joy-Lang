@@ -206,9 +206,9 @@ impl Lexer{
                 self.lines.push(self.line);
 	    },
 	    
-	    _ if is_number(c) => self.number()
-		,
-	    _ if is_letter(c) => self.ident(),
+	    _ if is_number(c) => self.number(),
+		
+	    _ if is_alphanumeric(c) => self.ident(),
 	    
             " " | "\r" | "\t" => {},
 	    
@@ -242,7 +242,7 @@ impl Lexer{
 
     
     fn ident(&mut self){
-	while is_letter(self.peek()) {self.current += 1}
+	while is_alphanumeric(self.peek()) {self.current += 1}
 	let slice = &self.input[as_usize(self.start)..as_usize(self.current)];
 	match slice{
 	    "let"      => {
@@ -282,7 +282,7 @@ impl Lexer{
 	    }
 	    "elif"     => {
 		self.tokens.push(Token::Elif);
-		self.itervals.push(Iterval::init(self.start, self.current));;
+		self.itervals.push(Iterval::init(self.start, self.current));
                 self.lines.push(self.line);
 	    }
 	    "else"     => {
@@ -365,11 +365,11 @@ impl Lexer{
 	println!("Tokens   : {:?}", &self.tokens);
 	println!("Lines    : {:?}", &self.lines);
 	println!("Itervals : {:?}", &self.itervals);
-	for (_, iterval) in self.itervals.iter().enumerate(){
+	for (i, iterval) in self.itervals.iter().enumerate(){
 	    let start = iterval.start as usize;
 	    let end   = iterval.end   as usize;
 	    let slice = &self.input[start..end];
-	    println!("{slice} ");
+	    println!("number : {i}, {slice} ");
 	}
     }
 
@@ -384,8 +384,8 @@ fn is_number(c : &str) -> bool{
     c >= "0" && c <= "9"
 }
 
-fn is_letter(c : &str) -> bool{
-    (c >= "a" && c <= "z") || (c >= "A" && c <= "Z")
+fn is_alphanumeric (c : &str) -> bool{
+    (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || (c >= "0" && c <= "9")
 }
 
 #[test]
