@@ -194,13 +194,12 @@ impl Lexer{
 	    while is_number(self.peek()){self.current += 1}
 	    
 
-	    self.tokens.push(Token::Int);
+	    self.tokens.push(Token::Float);
             self.itervals.push(Iterval::init(self.start, self.current));
             self.lines.push(self.line);
 	    
 	   
 	} else{
-
 	    self.tokens.push(Token::Int);
             self.itervals.push(Iterval::init(self.start, self.current));
             self.lines.push(self.line);
