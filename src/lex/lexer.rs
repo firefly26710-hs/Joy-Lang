@@ -37,25 +37,13 @@ impl Lexer{
         let c = self.eat();
 	match c{
 	    "+" => {
-		if matches!(self.peek(), "="){
-                    self.tokens.push(Token::PlusEq);
-		    self.itervals.push(Iterval::init(self.start, self.current));
-                    self.current += 1;
-                    self.lines.push(self.line);
-                } else{
                     self.tokens.push(Token::Plus);
 		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
-                }
             },
 
             "-" => {
-                if matches!(self.peek(), "="){
-                    self.tokens.push(Token::MinusEq);
-                    self.current += 1;
-		    self.itervals.push(Iterval::init(self.start, self.current));
-                    self.lines.push(self.line);
-                } else if matches!(self.peek(), ">"){
+		if matches!(self.peek(), ">"){
 		    self.tokens.push(Token::Arrow);
 		    self.current += 1;
 		    self.itervals.push(Iterval::init(self.start, self.current));
@@ -68,40 +56,19 @@ impl Lexer{
             },
 
             "*" => {
-		if matches!(self.peek(), "="){
-                    self.tokens.push(Token::MulEq);
-                    self.current += 1;
-		    self.itervals.push(Iterval::init(self.start, self.current));
-                    self.lines.push(self.line);
-                } else{
                     self.tokens.push(Token::Mul);
 		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
-                }
             }, 
             "/" => {
-		if matches!(self.peek(), "="){
-                    self.tokens.push(Token::DivEq);
-                    self.current += 1;
-		    self.itervals.push(Iterval::init(self.start, self.current));
-                    self.lines.push(self.line);
-                } else{
                     self.tokens.push(Token::Div);
 		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
-                }
             },
-            "%" => {
-		if matches!(self.peek(), "="){
-                    self.tokens.push(Token::ModEq);
-                    self.current += 1;
-                    self.itervals.push(Iterval::init(self.start, self.current));
-                    self.lines.push(self.line);
-                } else{
+	    "%" => {
                     self.tokens.push(Token::Mod);
 		    self.itervals.push(Iterval::init(self.start, self.current));
                     self.lines.push(self.line);
-                }
             },
             "=" => {
                  if matches!(self.peek(), "="){

@@ -6,6 +6,7 @@ pub enum Token{
     //type
     Int,
     Float,
+    Bool,
     Ident,
 
     //operator
@@ -16,11 +17,6 @@ pub enum Token{
     Mod,
     Equel,
     NotEq,
-    PlusEq,
-    MinusEq,
-    MulEq,
-    DivEq,
-    ModEq,
     EqEq,
     Grt,
     GrtEq,
