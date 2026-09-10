@@ -44,8 +44,8 @@ impl Parser{
 	    edges              : Vec::new(),
 	    nodes              : Vec::new(),
 	    idx_key_checker    : Vec::new(),
-	    l_type_idx         : Vec::new(),
-	    r_type_idx         : Vec::new(),
+	    l_type_idxs         : Vec::new(),
+	    r_type_idxs         : Vec::new(),
 	    
 	    var_scope_stack    : Vec::new(),
 	    func_scope_stack   : Vec::new(),
@@ -112,7 +112,7 @@ impl Parser{
 	    };
 
 	    match self.peek(){
-		Token::Rparen => break,
+        Token::Rparen => break,
 		Token::Comma => self.eat(),
 		_ => break,
 	    };
@@ -171,17 +171,20 @@ impl Parser{
     //todo! : Type Check
     fn let_stmt(&mut self) -> u32{
 	let let_key = self.current;
-	
-	self.eat();
+	let let_tok = self.eat();
+
+    let name_key = self.current;
+
 	let name_idx = match self.peek(){
 	    Token::Ident =>{
-		let ident_key = self.current;
+        self.eat();
 		let l_edge_idx = self.edges.len() as u32;
 		self.edges.push(NONE);
 		self.edges.push(NONE);
 		let r_edge_idx = (self.edges.len() - 1) as u32;
-		self.eat();
-		let name_node = Node::init(Token::Ident, ident_key , l_edge_idx , r_edge_idx);
+		let name_node = Node::init(
+            Token::Ident, name_key.clone() , l_edge_idx , r_edge_idx
+        );
 		self.nodes.push(name_node);
 		(self.nodes.len() - 1) as u32
 	    }
@@ -192,15 +195,46 @@ impl Parser{
 		}
 	    
 	};
+
+    match self.peek(){
+        Token::Vartical =>{
+            self.eat();
+            match self.peek(){
+                Token::Ident =>{
+                    let type_ident_idx = self.current();
+                    let type = self.type_mapping(type_ident_idx);
+                    self
+                    l_type_idx = self.l_type_idxs.len() as u32;
+                    self.
+                    self.eat();
+
+
+                }
+                t => {
+                    panic!("[Line {:?}] Unexpected type, {:?}", 
+                        self.lines[self.current as usize],t
+                    )
+                }
+            };
+
+        },
+
+        Token::Equel => {}, //continue
+        t  => {
+            panic!("[Line {:?}] Unknown token, {:?}", self.lines[self.current as usize], t)
+        }
+    };
 	
 	match self.peek(){
 	    Token::Equel => {
-		self.eat()
-	    }
+            self.eat()
+	    },
 	    _            => {
 		panic!("[Line {:?}] expectdd '=' ", self.lines[self.current as usize])
 	    }
 	};
+
+
 
 	let expr_idx = self.expr(0.0);
 	let l_edge_idx = self.edges.len() as u32;
@@ -472,6 +506,7 @@ impl Parser{
 	self.recorder.clear();
 
 	let func_name_key = self.current;
+    self.eat();
 
 	
 	match self.peek(){
@@ -507,7 +542,10 @@ impl Parser{
 	self.edges.extend(self.recorder.clone());
 	let r_edge_idx = (self.edges.len() - 1) as u32;
 	
-	let func_call_node = Node::init(Token::CallStmt, func_name_key, l_edge_idx, r_edge_idx);
+	let func_call_node = Node::init(
+        Token::CallStmt, func_name_key, l_edge_idx, r_edge_idx
+    );
+
 	self.nodes.push(func_call_node);
 	
 	(self.nodes.len() - 1) as u32
@@ -813,6 +851,21 @@ impl Parser{
 	}
 	lhs_idx as u32
 	
+    }
+
+    fn type_mapping(&mut self, type_ident_idx : u32, name_key : u32)-> Type{
+        let iterval = self.itervals[type_ident_idx];
+        let (start, end) = iterval;
+        let type_str_slice = &self.input[(start as usize)..=(end as usize)];
+        
+        match type_str_slice{
+            "i32"  => Type::i32,
+            "i64"  => Type::i64,
+            "f32"  => Type::f32,
+            "f64"  => Type::f64,
+            "bool" => Type::bool
+            t => panic!("[Line {:?}] Unknown Type", self.lines[self.current as usize], t)
+        }
     }
 
 
