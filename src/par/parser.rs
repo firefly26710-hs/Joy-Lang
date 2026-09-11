@@ -858,14 +858,19 @@ impl Parser{
 
     //y1 + y2 = x + 1
     fn type_check(&mut self, expected_type : Type, expr_idx : u32){
-	let mut left_bool_op_count = 0; // y1
-	let mut right_bool_op_count = 0; // y2
-	let mut cmp_count = 0;  // x
+	let mut y1 = 0; // y1
+	let mut y2 = 0; // y2
+	let mut x = 0;  // x
 
 	// y = y1 + y2 = x + 1
 
 	
-	let result_token = self.expr_type(expr_idx);
+	let (result_token, y1, y2,x) = self.expr_type(expr_idx, y1, y2, x);
+
+    dbg!(y1);
+    dbg!(y2);
+    dbg!(x);
+
 
 	
 	let l_type_idx = self.types.len() as u32;
@@ -902,14 +907,15 @@ impl Parser{
     }
 
     // todo! : add identitier part, 
-    fn expr_type(&mut self, expr_idx : u32) -> Token {
+    fn expr_type(
+        &mut self, expr_idx : u32,
+        mut y1 : u16,
+        mut y2 : u16,
+        mut x  : u16,
+        ) -> (Token, u16, u16, u16) {
 	let node = &self.nodes[expr_idx as usize];
 	
 	let tok = node.token.clone();
-
-	if matches!(tok, Token::Grt) | matches!(tok, Token::LesEq)|
-	matches!(tok, Token::EqEq)| matches!(tok, Token::GrtEq)|
-	matches!(tok, Token::Les){panic!("[Line {:?}] wtf", self.lines[self.current as usize])}
 	
 	let l_edge_idx = node.l_edge_idx as usize;
 	let r_edge_idx = node.r_edge_idx as usize;
@@ -920,27 +926,27 @@ impl Parser{
 	match (l_idx, r_idx){
 	    (NONE, NONE) => {
 		match tok{
-		    Token::Int   => return Token::Int,
-		    Token::Float => return Token::Float,
+		    Token::Int   => return (Token::Int, y1, y2, x),
+		    Token::Float => return (Token::Float, y1, y2, x),
 		    Token::Ident => todo!(),
 		    _ => unreachable!()
 		}
 	    },
 	    (NONE, r_idx) => {
-		return self.expr_type(r_idx);
+		return self.expr_type(r_idx, y1, y2, x);
 	    }
 
 	    (l_idx, r_idx) => {
 		//todo y1 & y2 == y1 or y2
-		let l_type = self.expr_type(l_idx);
-		let r_type = self.expr_type(r_idx);
+		let (l_type, _, _, _) = self.expr_type(l_idx, y1, y2, x);
+		let (r_type, _, _, _) = self.expr_type(r_idx, y1, y2, x);
 		
 		if l_type != r_type{
 		    panic!("[Line {:?}] Mismatch!!!!", self.lines[self.current as usize]);
 		}
 
 	
-		return l_type;
+		return (l_type, y1, y2, x);
 	    }
 	}
     }
@@ -964,12 +970,12 @@ impl Parser{
 
         }   
 
-
     }
  
     
     fn is_integer(&mut self, expr_idx : u32) -> bool{
-	self.expr_type(expr_idx) == Token::Int
+	let(ty,_,_,_ ) =self.expr_type(expr_idx, 0,  0, 0);
+    ty== Token::Int
     }
 
     // todo! : Add is bool type check
