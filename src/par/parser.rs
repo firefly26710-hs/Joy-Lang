@@ -333,7 +333,7 @@ impl Parser{
 	    }
 	}
 
-	// todo! : Add Expr, type checker, function call support(using integer)
+	// todo! : function call support(using integer)
 	let end_number_idx = match self.peek(){
 	    Token::Int => self.expr(0.0),
 	    Token::Ident | Token::Minus => {
@@ -346,7 +346,7 @@ impl Parser{
 	    }
 	};
 
-	// todo! : Add Expr, type checker, function call support(using integer)
+	// todo! : function call support(using integer)
 	let step_number_idx = match self.peek(){
 	    Token::Vartical =>{
 		self.eat();
@@ -491,7 +491,7 @@ impl Parser{
 	self.recorder.clear();
 
 	let func_name_key = self.current;
-    self.eat();
+	self.eat();
 
 	
 	match self.peek(){
