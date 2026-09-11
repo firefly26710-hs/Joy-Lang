@@ -945,6 +945,27 @@ impl Parser{
 	}
     }
 
+
+
+    fn is_bool_expr(node : Node) -> bool{
+        let op_tok = &node.token;
+
+        match op_tok{
+            Token::Grt | Token::Les | Token::GrtEq | Token::LesEq | Token::EqEq => return true,
+            _ => return false
+        }
+
+    }
+
+    fn is_cmp_op(tok : Token) -> bool{
+        match tok{
+            Token::CmpAnd | Token::CmpOr => return true,
+            _ => return false
+
+        }   
+
+
+    }
  
     
     fn is_integer(&mut self, expr_idx : u32) -> bool{
