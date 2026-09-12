@@ -7,4 +7,6 @@ pub enum Type{
     f64,
     bool,
     Void,
+
+    MAGIC
 }
