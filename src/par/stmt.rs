@@ -4,6 +4,7 @@ use crate::par::node::Node;
 use crate::par::parser::{Parser, NONE};
 
 impl Parser{
+    
     //var_scope_stack, func_scope_stack
     pub fn func_stmt(&mut self) -> u32{
     let mut func_recorder = Vec::new();
@@ -163,7 +164,7 @@ impl Parser{
     }
 
     
-    //todo! : var stack part
+    //todo! : var stack part and the same primary key mapping
     pub fn let_stmt(&mut self) -> u32{
         let let_key = self.current;
         let let_tok = self.eat();
@@ -433,7 +434,6 @@ impl Parser{
         (self.nodes.len() - 1) as u32
     }
 
-    // add loop checker
     pub fn brk_stmt(&mut self) -> u32{
 
         if self.loop_counter <= 0{
@@ -464,7 +464,6 @@ impl Parser{
     }
 
 
-    // add loop checker
     pub fn ctn_stmt(&mut self) -> u32{
 
         if self.loop_counter <= 0{
@@ -495,7 +494,7 @@ impl Parser{
     }
 
 
-    // todo! : func stack check and, record to types
+    // todo! : func stack check and, and the waiting stack 
     fn func_call_stmt(&mut self) -> u32{
         self.recorder.clear();
 
