@@ -32,7 +32,7 @@ impl Parser{
         let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
             || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
             Token::Bool
-        }else if y1 == 0 && y2 == 0 && (y1 == 0 && y2 == 0 && x == 0)  {
+        }else if y1 == 0 && y2 == 0 && x == 0  {
             expr_token
         }else{
             panic!("UnExpected Expression Type")
