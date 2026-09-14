@@ -40,30 +40,31 @@ impl Parser{
     loop{
 	match self.peek(){
 	    Token::Ident =>{
-		let func_ident_key = self.current;
-		let func_ident_tok = self.eat();
+		    let func_ident_key = self.current;
+		    let func_ident_tok = self.eat();
 
-		self.key_checker.push(func_ident_key);
+		    self.key_checker.push(func_ident_key);
 
 
-		let func_ident_l_edge_idx = self.edges.len() as u32;
-		self.edges.push(NONE);
-		self.edges.push(NONE);
-		let func_ident_r_edge_idx = self.edges.len() as u32;
+		    let func_ident_l_edge_idx = self.edges.len() as u32;
+		    self.edges.push(NONE);
+		    self.edges.push(NONE);
+		    let func_ident_r_edge_idx = self.edges.len() as u32;
 
-		let func_ident_node = Node::init(
-		    func_ident_tok.clone(), func_ident_key,
-		    func_ident_l_edge_idx, func_ident_r_edge_idx
-		);
-		self.nodes.push(func_ident_node);
+		    let func_ident_node = Node::init(
+		        func_ident_tok.clone(), func_ident_key,
+		        func_ident_l_edge_idx, func_ident_r_edge_idx
+		    );
+		    self.nodes.push(func_ident_node);
 
-		let func_ident_node_idx = self.nodes.len() - 1;
-		func_recorder.push(func_ident_node_idx as u32);
+		    let func_ident_node_idx = self.nodes.len() - 1;
+		    func_recorder.push(func_ident_node_idx as u32);
 
-		func_ident_key
-	    }
+		    func_ident_key
+	    },
+        Token::Rparen => break,
 	    _ => {
-		panic!("[Line {:?}] Expected an Identifier", self.lines[self.current as usize])
+            panic!("[Line {:?}] Expected an Identifier", self.lines[self.current as usize])
 	    }
 	};
 

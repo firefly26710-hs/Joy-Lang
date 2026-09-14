@@ -17,15 +17,15 @@ pub struct Parser{
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
     pub current             : u32,
-
+    pub loop_counter        : u32,
 
     //scope
-    pub key_checker         : Vec<u32>,
     pub var_scope_stack     : Vec<u32>,
-    pub func_assign         : Vec<u32>,
+
+    pub key_checker         : Vec<u32>,
     pub l_type_idxs         : Vec<u32>,
     pub r_type_idxs         : Vec<u32>,
-    pub loop_counter        : u32,
+    pub waiting             : Vec<u32>,
 
 
     
@@ -54,13 +54,13 @@ impl Parser{
 	    types               : Vec::new(),
 	    edges               : Vec::new(),
 	    nodes               : Vec::new(),
-	    key_checker         : Vec::new(),
 	    
-	    var_scope_stack     : Vec::new(),
-	    func_assign         : Vec::new(),
+        key_checker         : Vec::new(),
+        var_scope_stack     : Vec::new(),
 	    l_type_idxs         : Vec::new(),
 	    r_type_idxs         : Vec::new(),
 	    recorder            : Vec::new(),
+        waiting             : Vec::new(),
 	    ret_type            : Type::Void,
 	    loop_counter        : 0,
 	    current             : 0 
@@ -70,18 +70,20 @@ impl Parser{
     
 
     pub fn eat(&mut self) -> Token{ 
-	let tok = self.tokens[self.current as usize].clone();
-	self.current += 1;
-	tok
+        let tok = self.tokens[self.current as usize].clone();
+        self.current += 1;
+	    tok
     }
 
     pub fn peek(&mut self) -> Token{
-	self.tokens[self.current as usize].clone()
+        if (self.current as usize) > self.tokens.len(){
+            return Token::EOF
+        }
+	    self.tokens[self.current as usize].clone()
     }
 
     pub fn peek_next(&mut self) -> Token{
-	if (self.current + 1) as usize > self.tokens.len()
-	    ||self.tokens[(self.current + 1) as usize] == Token::EOF{
+	if (self.current + 1) as usize > self.tokens.len(){
 		return Token::EOF
 	    }
 	self.tokens[(self.current + 1) as usize].clone()
@@ -125,8 +127,8 @@ impl Parser{
 #[test]
 fn parser_testing() {
     let input = "
-    fn add(a : i32, b : i32) -> i32{
-         return 2 + 3;
+    fn add(a : i32, b : i32){
+         let x = 5;
      }
 ;
 
