@@ -6,6 +6,7 @@ use crate::par::ty::Type;
 
 pub const NONE : u32 = u32::MAX;
 pub const MAGIC: u32 = u32::MAX;
+pub const FUN_NAME : u32 = u32::MAX - 1;
 
 
 pub struct Parser{
@@ -20,15 +21,15 @@ pub struct Parser{
     pub loop_counter        : u32,
 
     //scope
+
     pub var_scope_stack     : Vec<u32>,
-
     pub key_checker         : Vec<u32>,
-    pub l_type_idxs         : Vec<u32>,
-    pub r_type_idxs         : Vec<u32>,
-    pub waiting             : Vec<u32>,
-
-
     
+    pub func_assign         : Vec<u32>, // only sign the function
+    pub param_type_idxs     : Vec<Iterval>,
+    pub waiting             : Vec<u32>,
+    pub ret_types           : Vec<Type>,
+
 
     //edge
     pub recorder            : Vec<u32>,
@@ -55,12 +56,13 @@ impl Parser{
 	    edges               : Vec::new(),
 	    nodes               : Vec::new(),
 	    
-        key_checker         : Vec::new(),
-        var_scope_stack     : Vec::new(),
-	    l_type_idxs         : Vec::new(),
-	    r_type_idxs         : Vec::new(),
+            key_checker         : Vec::new(),
+            var_scope_stack     : Vec::new(),
+	    param_type_idxs     : Vec::new(),
+	    func_assign         : Vec::new(),
+	    ret_types           : Vec::new(),
 	    recorder            : Vec::new(),
-        waiting             : Vec::new(),
+            waiting             : Vec::new(),
 	    ret_type            : Type::Void,
 	    loop_counter        : 0,
 	    current             : 0 
@@ -90,7 +92,7 @@ impl Parser{
     }
 
 
-    pub fn print_output(&mut self){
+    pub fn print_node(&mut self){
 	for (i, node) in self.nodes.iter().enumerate(){
 	    println!("Number : {i}");
 	    println!("Node : {:?}", node);
@@ -104,14 +106,32 @@ impl Parser{
 	    let start = iterval.start as usize;
 	    let end   = iterval.end   as usize;
 	    println!("String : {:?}\n", &self.input[start..end]);
-
-	    print!(" Key Checker : {:?}\n", self.key_checker);
-	    for (i, ty) in self.types.iter().enumerate(){
-		println!(" Number : {i}, {:?}", ty);
-	    }
-
-	    println!(" var_scope_stack  : {:?}", self.var_scope_stack);
 	}
+
+	    
+	
+    }
+
+    pub fn print_scope(&mut self){
+	print!("Key Checker : {:?}\n", self.key_checker);
+	
+	print!("Type Number : ");
+	print!("[");
+	for (i, ty) in self.types.iter().enumerate(){
+	    print!("{:?} ", ty);
+	}
+	println!("]");
+	    
+	println!("Func assign : {:?}", self.func_assign);
+	println!("Param type idxs : {:?}", self.param_type_idxs);
+	print!("Ret Type Number : ");
+	
+	print!("[");
+	for (i, ty) in self.ret_types.iter().enumerate(){
+	    print!("{:?} ", ty);
+	}
+	println!("]");
+	
     }
 
     
@@ -127,8 +147,8 @@ impl Parser{
 #[test]
 fn parser_testing() {
     let input = "
-    fn add(a : i32, b : i32){
-         let x = 5;
+    fn add(a : i32, b : i32) -> i32{
+           let x = 5;
      }
 ;
 
@@ -138,5 +158,6 @@ fn parser_testing() {
     //lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
     parser.func_stmt();
-    parser.print_output();
+    parser.print_node();
+    //parser.print_scope();
 }

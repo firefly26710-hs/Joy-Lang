@@ -1,88 +1,93 @@
 use crate::par::ty::Type;
 use crate::lex::token::Token;
+use crate::lex::iterval::Iterval;
 use crate::par::node::Node;
-use crate::par::parser::{Parser, NONE};
+use crate::par::parser::{Parser, NONE, MAGIC};
 
 impl Parser{
     
-    //var_scope_stack, func_scope_stack
     pub fn func_stmt(&mut self) -> u32{
-    let mut func_recorder = Vec::new();
+	let mut func_node_idx_recorder = Vec::new();
+	let mut param_type_recorder = Vec::new();
 
-    let func_key = self.current;
-    let func_tok = self.eat();
+	let func_key = self.current;
+	self.eat();
 
+	let func_name_key = self.current;
+	let func_name_tok = self.eat();
 
-    let func_name_key = self.current;
-    let func_name_tok = self.eat();
+	let func_name_l_edge_idx = self.edges.len() as u32;
+	self.edges.push(NONE);
+	self.edges.push(NONE);
+	let func_name_r_edge_idx = (self.edges.len() - 1) as u32;
+	
+	let func_name_node = Node::init(
+	    func_name_tok, func_name_key,
+	    func_name_l_edge_idx, func_name_r_edge_idx
+	);
+	self.nodes.push(func_name_node);
 
-    let func_name_l_edge_idx = self.edges.len() as u32;
-    self.edges.push(NONE);
-    self.edges.push(NONE);
-    let func_name_r_edge_idx = self.edges.len() as u32;
+	let func_name_node_idx = self.nodes.len() - 1;
+	func_node_idx_recorder.push(func_name_node_idx as u32);
 
-    let func_name_node = Node::init(
-	func_name_tok.clone(), func_name_key,
-	func_name_l_edge_idx, func_name_r_edge_idx
-    );
+	
 
-    self.nodes.push(func_name_node);
-
-    let func_name_node_idx = self.nodes.len() - 1;
-    func_recorder.push(func_name_node_idx as u32);
-
-    match self.peek(){
-	Token::Lparen => self.eat(),
-	_ => panic!("[Line {:?}]", self.lines[self.current as usize])
-    };
-
-
-    loop{
+	self.var_scope_stack.push(MAGIC);
+	
+	self.func_assign.push((func_name_key.clone()) as u32);
+	
+	match self.peek(){
+	    Token::Lparen => self.eat(),
+	    _ => panic!("[Line {:?}] Expected a (", self.lines[self.current as usize])
+	};
+	
+	
+	loop{
 	match self.peek(){
 	    Token::Ident =>{
-		    let func_ident_key = self.current;
-		    let func_ident_tok = self.eat();
-
-		    self.key_checker.push(func_ident_key);
-
-
-		    let func_ident_l_edge_idx = self.edges.len() as u32;
-		    self.edges.push(NONE);
-		    self.edges.push(NONE);
-		    let func_ident_r_edge_idx = self.edges.len() as u32;
-
-		    let func_ident_node = Node::init(
-		        func_ident_tok.clone(), func_ident_key,
-		        func_ident_l_edge_idx, func_ident_r_edge_idx
-		    );
-		    self.nodes.push(func_ident_node);
-
-		    let func_ident_node_idx = self.nodes.len() - 1;
-		    func_recorder.push(func_ident_node_idx as u32);
-
-		    func_ident_key
+		let func_ident_key = self.current;
+		let func_ident_tok = self.eat();
+		
+		self.key_checker.push(func_ident_key);
+		self.var_scope_stack.push(func_ident_key);
+		
+		let func_ident_l_edge_idx = self.edges.len() as u32;
+		self.edges.push(NONE);
+		self.edges.push(NONE);
+		let func_ident_r_edge_idx = (self.edges.len() - 1) as u32;
+		
+		let func_ident_node = Node::init(
+		    func_ident_tok.clone(), func_ident_key,
+		    func_ident_l_edge_idx, func_ident_r_edge_idx
+		);
+		self.nodes.push(func_ident_node);
+		
+		let func_ident_node_idx = self.nodes.len() - 1;
+		func_node_idx_recorder.push(func_ident_node_idx as u32);
+		
 	    },
-        Token::Rparen => break,
+            Token::Rparen => break,
 	    _ => {
-            panic!("[Line {:?}] Expected an Identifier", self.lines[self.current as usize])
+		panic!("[Line {:?}] Expected an Identifier", self.lines[self.current as usize])
 	    }
 	};
-
-	match self.peek(){
+	    
+	    match self.peek(){
 	    Token::Colon => self.eat(),
-	    _ => panic!("[Line {}] Expected ':'", self.lines[self.current as usize])
-	};
-
-	match self.peek(){
-	    Token::Ident => {
-		let type_idx = self.current;
-		self.eat();
-
-		let ty = self.type_mapping(type_idx);
-		self.types.push(ty);
-
-	    }
-	    _ => unreachable!()
+		_ => panic!("[Line {}] Expected ':'", self.lines[self.current as usize])
+	    };
+	    
+	    match self.peek(){
+		Token::Ident => {
+		    let type_idx = self.current;
+		    self.eat();
+		    
+		    let ty = self.type_mapping(type_idx);
+		    param_type_recorder.push(ty);
+		    
+		    
+		}
+		_ => unreachable!()
 	};
 
 	match self.peek(){
@@ -90,14 +95,14 @@ impl Parser{
 	    Token::Comma => self.eat(),
 	    _ => break,
 	};
-
-    }
+	    
+	}
 	match self.peek(){
 	    Token::Rparen => self.eat(),
 	    _ => {
 		panic!("[Line {:?}] Expected ')' ", self.lines[self.current as usize])
 	    }
-    };
+	};
 
 	match self.peek(){
 	    Token::Arrow => {
@@ -107,11 +112,10 @@ impl Parser{
 			let type_idx = self.current;
 			self.eat();
 			
-			let ty = self.type_mapping(type_idx);
-			self.ret_type = ty.clone();
+			let ret_ty = self.type_mapping(type_idx);
+			self.ret_type = ret_ty.clone();
 			
-			self.key_checker.push(func_name_key);
-			self.types.push(ty);
+			self.ret_types.push(ret_ty);
 		    }
 		    _ => unreachable!()
 		}
@@ -122,16 +126,20 @@ impl Parser{
     }
 	
 	
-	
-	
 	let block_idx = self.block_stmt();
-	func_recorder.push(block_idx);
+	func_node_idx_recorder.push(block_idx);
 	
 	let l_edge_idx = self.edges.len() as u32;
-	self.edges.extend(func_recorder);
+	self.edges.extend(func_node_idx_recorder);
 	let r_edge_idx = (self.edges.len() - 1) as u32;
+
+	let l_type_idx = self.types.len() as u32;
+	self.types.extend(param_type_recorder);	
+	let r_type_idx = (self.types.len() - 1) as u32;
+
+	self.param_type_idxs.push(Iterval::init(l_type_idx, r_type_idx));
 	
-	let func_node = Node::init(Token::FuncStmt, func_name_key, l_edge_idx, r_edge_idx);
+	let func_node = Node::init(Token::FuncStmt, func_key, l_edge_idx, r_edge_idx);
 	self.nodes.push(func_node);
 	
 	(self.nodes.len() - 1) as u32
@@ -165,12 +173,10 @@ impl Parser{
     }
 
     
-    //todo! : var stack part and the same primary key mapping
     pub fn let_stmt(&mut self) -> u32{
-        let let_key = self.current;
-        let let_tok = self.eat();
+        self.eat();
 	
-	
+	let var_name_key = self.current;
 
         let name_idx = match self.peek(){
             Token::Ident =>{
@@ -184,7 +190,7 @@ impl Parser{
                 self.edges.push(NONE);
                 let r_edge_idx = (self.edges.len() - 1) as u32;
                 let name_node = Node::init(
-                    Token::Ident, var_name_key.clone() , l_edge_idx , r_edge_idx
+                    Token::Ident, var_name_key.clone(), l_edge_idx, r_edge_idx
                 );
 
                 self.nodes.push(name_node);
@@ -250,7 +256,7 @@ impl Parser{
             }
         };
 
-        let node = Node::init(Token::LetStmt , let_key, l_edge_idx, r_edge_idx);
+        let node = Node::init(Token::LetStmt , var_name_key, l_edge_idx, r_edge_idx);
         self.nodes.push(node);
 	
         (self.nodes.len() - 1) as u32
@@ -704,6 +710,8 @@ impl Parser{
             }
         };
 
+	self.var_scope_stack.push(MAGIC);
+
         while self.peek() != Token::Rbrace{
             let stmt_idx = self.match_stmt();
             self.recorder.push(stmt_idx);
@@ -719,6 +727,12 @@ impl Parser{
                 panic!("[Line {}] Expected {} ", self.lines[self.current as usize], '}')
             }
         };
+
+	let mut i = self.var_scope_stack.len() - 1;
+	while self.var_scope_stack[i] != MAGIC{
+	    self.var_scope_stack.pop();
+	    i -= 1;
+	}
 
         let l_edge_idx = (self.edges.len()) as u32;
         self.edges.extend(self.recorder.clone());

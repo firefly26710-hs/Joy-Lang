@@ -11,5 +11,4 @@ fn main() {
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
-    parser.print_output()
 }

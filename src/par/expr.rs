@@ -27,6 +27,8 @@ impl Parser{
                 self.nodes.push(node);
                 self.nodes.len() - 1
             },
+
+	    // todo! : var_scope_stack same pk algorithm and the waiting algorithm
             Token::Ident =>{
                 let l_edge_idx = self.edges.len() as u32;
 
