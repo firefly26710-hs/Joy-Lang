@@ -89,7 +89,11 @@ impl Parser{
                 match tok{
                     Token::Int   => return (Token::Int, y1, y2, x),
                     Token::Float => return (Token::Float, y1, y2, x),
-                    Token::Ident => todo!(),
+                    Token::Ident => {
+			let ident_key = node.key;
+			let same_key = self.find_ident_type(ident_key);
+			return (same_key, y1, y2, x)
+		    },
                     _ => unreachable!()
                 }
             },
@@ -137,6 +141,31 @@ impl Parser{
 
     }
 
+    pub fn find_ident_type(&mut self, input : u32) -> Token{
+	let mut current = 0;
+	while current < self.key_checker.len() - 1{
+	    if self.is_match_str(input, self.key_checker[current]){break}
+	    else{current += 1}
+
+	    dbg!(current);
+	}
+
+	let ty = &self.types[current];
+	match ty{
+	    Type::i32 | Type::i64 => return Token::Int,
+	    Type::f32 | Type::f64 => return Token::Float,
+	    Type::bool            => return Token::Bool,
+	    Type::Void            => {
+		panic!("[Line {:?}] Can't include a void function in expr",
+		       self.lines[self.current as usize]
+		)
+	    },
+	    _ => {
+		panic!("[Line {:?}] Unknown Type", self.lines[self.current as usize])
+	    }
+	};
+    }
+ 
     pub fn match_ret_type(&mut self, expr_idx : u32, expected_type : Type) -> bool{
         let (expr_token, y1, y2,x) = self.expr_type(expr_idx, 0, 0, 0);
 

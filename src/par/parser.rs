@@ -1,12 +1,11 @@
 use crate::lex::token::Token;
-use crate::lex::lexer::Lexer;
 use crate::lex::iterval::Iterval;
 use crate::par::node::Node;
 use crate::par::ty::Type;
+use crate::lex::lexer::Lexer;
 
 pub const NONE : u32 = u32::MAX;
-pub const MAGIC: u32 = u32::MAX;
-pub const FUN_NAME : u32 = u32::MAX - 1;
+pub const MAGIC: u32 = u32::MAX - 5;
 
 
 pub struct Parser{
@@ -21,7 +20,6 @@ pub struct Parser{
     pub loop_counter        : u32,
 
     //scope
-
     pub var_scope_stack     : Vec<u32>,
     pub key_checker         : Vec<u32>,
     
@@ -29,6 +27,7 @@ pub struct Parser{
     pub param_type_idxs     : Vec<Iterval>,
     pub waiting             : Vec<u32>,
     pub ret_types           : Vec<Type>,
+    
 
 
     //edge
@@ -117,17 +116,19 @@ impl Parser{
 	
 	print!("Type Number : ");
 	print!("[");
-	for (i, ty) in self.types.iter().enumerate(){
+	for (_i, ty) in self.types.iter().enumerate(){
 	    print!("{:?} ", ty);
 	}
 	println!("]");
+
+	println!("Var Scope Stack : {:?}", self.var_scope_stack);
 	    
 	println!("Func assign : {:?}", self.func_assign);
 	println!("Param type idxs : {:?}", self.param_type_idxs);
 	print!("Ret Type Number : ");
 	
 	print!("[");
-	for (i, ty) in self.ret_types.iter().enumerate(){
+	for (_i, ty) in self.ret_types.iter().enumerate(){
 	    print!("{:?} ", ty);
 	}
 	println!("]");
@@ -148,16 +149,18 @@ impl Parser{
 fn parser_testing() {
     let input = "
     fn add(a : i32, b : i32) -> i32{
-           let x = 5;
+           let f = 5;
+           let q = f;
      }
 ;
 
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    //lexer.print_output();
+    lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
     parser.func_stmt();
+
     parser.print_node();
-    //parser.print_scope();
+    parser.print_scope();
 }

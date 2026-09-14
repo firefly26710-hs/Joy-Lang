@@ -1,6 +1,6 @@
 use crate::lex::token::Token;
 use crate::par::node::Node;
-use crate::par::parser::{Parser, NONE};
+use crate::par::parser::{Parser, NONE, MAGIC};
 
 impl Parser{
     pub fn expr(&mut self, min_bp : f32) -> u32{
@@ -30,15 +30,27 @@ impl Parser{
 
 	    // todo! : var_scope_stack same pk algorithm and the waiting algorithm
             Token::Ident =>{
-                let l_edge_idx = self.edges.len() as u32;
+		if self.peek() != Token::Lparen{
+		    let ident_var_key = self.current - 1;
+		    let same_key = self.find_the_same_var_key(ident_var_key);
+		    
+		    let l_edge_idx = self.edges.len() as u32;
+		    
+                    self.edges.push(NONE);
+                    self.edges.push(NONE);
 
-                self.edges.push(NONE);
-                self.edges.push(NONE);
-
-                let r_edge_idx = (self.edges.len() - 1) as u32;
-                let node = Node::init(Token::Int, self.current - 1, l_edge_idx, r_edge_idx);
-                self.nodes.push(node);
-                self.nodes.len() - 1
+                    let r_edge_idx = (self.edges.len() - 1) as u32;
+                    let node = Node::init(Token::Int, same_key, l_edge_idx, r_edge_idx);
+                    self.nodes.push(node);
+                    self.nodes.len() - 1
+			
+		} else if self.peek() == Token::Ident && self.peek_next() == Token::Lparen{
+		    todo!()
+		}
+		else{
+		    panic!("wtf")
+		}
+                
             }
             Token::Minus => {
                 let unary_key = self.current - 1;
@@ -131,6 +143,49 @@ impl Parser{
 
         lhs_idx as u32
 
+    }
+
+    fn find_the_same_var_key(&mut self, input_key : u32) -> u32{
+	let mut current = self.var_scope_stack.len() - 1;
+	
+	loop {
+	    let current_key = self.var_scope_stack[current];
+
+	    if current_key != MAGIC && self.is_match_str(input_key, current_key) {
+		return dbg!(current_key);
+		
+            }
+
+	    if current == 0 {break;}
+
+            current -= 1;
+	}
+
+	panic!("[Line {:?}] the variable not exist", self.lines[self.current as usize]);
+	
+    }
+
+    pub fn is_match_str(&mut self, input_key : u32, host_key : u32) -> bool{
+	let input_iterval = &self.itervals[input_key as usize];
+	let host_iterval  = &self.itervals[host_key as usize];
+
+	let input_start = input_iterval.start as usize;
+	let input_end   = input_iterval.end as usize;
+
+	let host_start  = host_iterval.start as usize;
+	let host_end    = host_iterval.end as usize;
+
+	let input_str = &self.input[input_start..input_end];
+	let host_str  = &self.input[host_start..host_end];
+
+	dbg!(input_str);
+	dbg!(host_str);
+
+	input_str == host_str
+    }
+
+    fn find_the_same_func_key(&mut self, _input_key : u32) -> u32{
+	todo!()
     }
 
 }

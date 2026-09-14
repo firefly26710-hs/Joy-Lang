@@ -31,9 +31,6 @@ impl Parser{
 	func_node_idx_recorder.push(func_name_node_idx as u32);
 
 	
-
-	self.var_scope_stack.push(MAGIC);
-	
 	self.func_assign.push((func_name_key.clone()) as u32);
 	
 	match self.peek(){
@@ -141,7 +138,7 @@ impl Parser{
 	
 	let func_node = Node::init(Token::FuncStmt, func_key, l_edge_idx, r_edge_idx);
 	self.nodes.push(func_node);
-	
+
 	(self.nodes.len() - 1) as u32
     }
     
@@ -174,6 +171,7 @@ impl Parser{
 
     
     pub fn let_stmt(&mut self) -> u32{
+	let let_key = self.current;
         self.eat();
 	
 	let var_name_key = self.current;
@@ -256,7 +254,7 @@ impl Parser{
             }
         };
 
-        let node = Node::init(Token::LetStmt , var_name_key, l_edge_idx, r_edge_idx);
+        let node = Node::init(Token::LetStmt , let_key, l_edge_idx, r_edge_idx);
         self.nodes.push(node);
 	
         (self.nodes.len() - 1) as u32
@@ -733,6 +731,7 @@ impl Parser{
 	    self.var_scope_stack.pop();
 	    i -= 1;
 	}
+	self.var_scope_stack.pop();
 
         let l_edge_idx = (self.edges.len()) as u32;
         self.edges.extend(self.recorder.clone());
