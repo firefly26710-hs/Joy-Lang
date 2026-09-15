@@ -143,14 +143,14 @@ impl Parser{
 
     pub fn find_ident_type(&mut self, input : u32) -> Token{
 	let mut current = 0;
-	while current < self.key_checker.len() - 1{
-	    if self.is_match_str(input, self.key_checker[current]){break}
-	    else{current += 1}
-
-	    dbg!(current);
+	while input != self.key_checker[current as usize]{
+	    current += 1;
 	}
 
-	let ty = &self.types[current];
+    dbg!(&self.key_checker);
+    dbg!(&self.types);
+
+	let ty = &self.types[current as usize];
 	match ty{
 	    Type::i32 | Type::i64 => return Token::Int,
 	    Type::f32 | Type::f64 => return Token::Float,

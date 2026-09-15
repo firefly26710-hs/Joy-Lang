@@ -122,6 +122,9 @@ impl Parser{
 	    _ => panic!("[Line {:?}] Expected '->'", self.lines[self.current as usize])
     }
 	
+    let l_type_idx = self.types.len() as u32;
+    self.types.extend(param_type_recorder);	
+    let r_type_idx = (self.types.len() - 1) as u32;
 	
 	let block_idx = self.block_stmt();
 	func_node_idx_recorder.push(block_idx);
@@ -130,9 +133,6 @@ impl Parser{
 	self.edges.extend(func_node_idx_recorder);
 	let r_edge_idx = (self.edges.len() - 1) as u32;
 
-	let l_type_idx = self.types.len() as u32;
-	self.types.extend(param_type_recorder);	
-	let r_type_idx = (self.types.len() - 1) as u32;
 
 	self.param_type_idxs.push(Iterval::init(l_type_idx, r_type_idx));
 	

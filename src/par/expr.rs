@@ -33,6 +33,7 @@ impl Parser{
 		if self.peek() != Token::Lparen{
 		    let ident_var_key = self.current - 1;
 		    let same_key = self.find_the_same_var_key(ident_var_key);
+            let same_key_type = self.find_ident_type(same_key);
 		    
 		    let l_edge_idx = self.edges.len() as u32;
 		    
@@ -40,7 +41,7 @@ impl Parser{
                     self.edges.push(NONE);
 
                     let r_edge_idx = (self.edges.len() - 1) as u32;
-                    let node = Node::init(Token::Int, same_key, l_edge_idx, r_edge_idx);
+                    let node = Node::init(same_key_type, same_key, l_edge_idx, r_edge_idx);
                     self.nodes.push(node);
                     self.nodes.len() - 1
 			

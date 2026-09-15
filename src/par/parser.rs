@@ -148,9 +148,9 @@ impl Parser{
 #[test]
 fn parser_testing() {
     let input = "
-    fn add(a : i32, b : i32) -> i32{
-           let f = 5;
-           let q = f;
+    fn add(a : f32, b : i32) -> i32{
+           let f = 3;
+           let q = a;
      }
 ;
 
