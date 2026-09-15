@@ -1,3 +1,4 @@
+
 use crate::lex::token::Token;
 use crate::par::node::Node;
 use crate::par::parser::{Parser, NONE};
@@ -5,7 +6,7 @@ use crate::par::ty::Type;
 
 impl Parser{
     pub fn type_mapping(&mut self, type_ident_idx : u32)-> Type{
-        let iterval = self.itervals[type_ident_idx as usize].clone();
+        let iterval = self.intervals[type_ident_idx as usize].clone();
         let start = iterval.start as usize;
         let end   = iterval.end as usize;
         let type_str_slice = &self.input[start..end];
@@ -217,5 +218,19 @@ impl Parser{
             panic!("UnExpected Expression Type")
         };
         result_token == Token::Bool
+    }
+
+    pub fn is_float(&mut self, expr_idx : u32) -> bool{
+        let(ty,y1,y2,x) = self.expr_type(expr_idx, 0, 0, 0);
+
+        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
+            || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
+            Token::Bool
+        }else if y1 == 0 && y2 == 0 && (y1 == 0 && y2 == 0 && x == 0)  {
+            ty
+        }else{
+            panic!("UnExpected Expression Type")
+        };
+        result_token == Token::Float
     }
 }

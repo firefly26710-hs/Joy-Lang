@@ -28,12 +28,13 @@ impl Parser{
                 self.nodes.len() - 1
             },
 
-	    // todo! : var_scope_stack same pk algorithm and the waiting algorithm
             Token::Ident =>{
-		if self.peek() != Token::Lparen{
+		if self.peek() == Token::Lparen{
+		    return self.call_stmt();
+		}else{
 		    let ident_var_key = self.current - 1;
 		    let same_key = self.find_the_same_var_key(ident_var_key);
-            let same_key_type = self.find_ident_type(same_key);
+		    let same_key_type = self.find_ident_type(same_key);
 		    
 		    let l_edge_idx = self.edges.len() as u32;
 		    
@@ -43,15 +44,9 @@ impl Parser{
                     let r_edge_idx = (self.edges.len() - 1) as u32;
                     let node = Node::init(same_key_type, same_key, l_edge_idx, r_edge_idx);
                     self.nodes.push(node);
-                    self.nodes.len() - 1
-			
-		} else if self.peek() == Token::Ident && self.peek_next() == Token::Lparen{
-		    todo!()
 		}
-		else{
-		    panic!("wtf")
-		}
-                
+                self.nodes.len() - 1
+		    
             }
             Token::Minus => {
                 let unary_key = self.current - 1;
@@ -167,14 +162,14 @@ impl Parser{
     }
 
     pub fn is_match_str(&mut self, input_key : u32, host_key : u32) -> bool{
-	let input_iterval = &self.itervals[input_key as usize];
-	let host_iterval  = &self.itervals[host_key as usize];
+	let input_interval = &self.intervals[input_key as usize];
+	let host_interval = &self.intervals[host_key as usize];
 
-	let input_start = input_iterval.start as usize;
-	let input_end   = input_iterval.end as usize;
+	let input_start = input_interval.start as usize;
+	let input_end   = input_interval.end as usize;
 
-	let host_start  = host_iterval.start as usize;
-	let host_end    = host_iterval.end as usize;
+	let host_start  = host_interval.start as usize;
+	let host_end    = host_interval.end as usize;
 
 	let input_str = &self.input[input_start..input_end];
 	let host_str  = &self.input[host_start..host_end];
@@ -185,9 +180,6 @@ impl Parser{
 	input_str == host_str
     }
 
-    fn find_the_same_func_key(&mut self, _input_key : u32) -> u32{
-	todo!()
-    }
 
 }
 
@@ -200,5 +192,12 @@ fn infix_binding_power(op : &Token) -> (f32, f32){
         Token::Div    | Token::Mod       => (3.0, 3.1),
         Token::Mul                       => (4.0, 4.0),
         _         => panic!("Unknown Operator : {:?}", op)
+    }
+}
+
+pub fn is_expr(peek : Token) -> bool{
+    match peek{
+	Token::Int | Token::Float | Token::Ident | Token::Lparen | Token::Minus => return true,
+	_ =>return false
     }
 }

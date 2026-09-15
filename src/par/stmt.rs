@@ -3,6 +3,7 @@ use crate::lex::token::Token;
 use crate::lex::iterval::Iterval;
 use crate::par::node::Node;
 use crate::par::parser::{Parser, NONE, MAGIC};
+use crate::par::expr::is_expr;
 
 impl Parser{
     
@@ -11,6 +12,7 @@ impl Parser{
 	let mut param_type_recorder = Vec::new();
 
 	let func_key = self.current;
+	self.func_assign.push(func_key);
 	self.eat();
 
 	let func_name_key = self.current;
@@ -143,6 +145,7 @@ impl Parser{
     }
     
     pub fn match_stmt(&mut self) -> u32{
+	dbg!(self.current);
         match self.peek(){
             Token::Let => self.let_stmt(),
             Token::For => self.for_stmt(),
@@ -151,7 +154,7 @@ impl Parser{
             Token::Brk   => self.brk_stmt(),
             Token::Ctn   => self.ctn_stmt(),
             Token::Ret   => self.ret_stmt(),
-            Token::Ident => self.func_call_stmt(),
+            Token::Ident => self.expr(0.0),
             Token::Func  =>{
                 panic!(
                     "[Line {:?}] Function shouldn't on other function",
@@ -311,7 +314,6 @@ impl Parser{
             }
         };
 
-        // todo! : function call support(using integer)
         let start_number_idx = match self.peek(){
             Token::Int => self.expr(0.0),
             Token::Ident | Token::Minus => {
@@ -333,7 +335,6 @@ impl Parser{
             }
         }
 
-        // todo! : function call support(using integer)
         let end_number_idx = match self.peek(){
             Token::Int => self.expr(0.0),
             Token::Ident | Token::Minus => {
@@ -346,7 +347,6 @@ impl Parser{
             }
         };
 
-        // todo! : function call support(using integer)
         let step_number_idx = match self.peek(){
             Token::Vartical =>{
                 self.eat();
@@ -499,12 +499,22 @@ impl Parser{
     }
 
 
-    // todo! : func stack check and, and the waiting stack 
-    fn func_call_stmt(&mut self) -> u32{
+    pub fn call_stmt(&mut self) -> u32{
         self.recorder.clear();
 
         let func_name_key = self.current;
-        self.eat();
+        let func_name_tok = self.eat();
+
+	let l_edge_idx = self.edges.len() as u32;
+	self.edges.push(NONE);
+	self.edges.push(NONE);
+	let r_edge_idx = (self.edges.len() - 1) as u32;
+
+	let func_name_node = Node::init(func_name_tok, func_name_key, l_edge_idx, r_edge_idx);
+	self.nodes.push(func_name_node);
+
+	let idx = self.nodes.len() - 1;
+	self.recorder.push(idx as u32);
 
 
         match self.peek(){
@@ -516,25 +526,34 @@ impl Parser{
             }
         };
 
-
-        loop{
+	if is_expr(self.peek()) && !is_expr(self.peek_next()){
+	    loop {
             let expr_idx = self.expr(0.0);
             self.recorder.push(expr_idx);
 
-            match self.peek(){
+            match self.peek() {
                 Token::Rparen => break,
-                Token::Comma  => self.eat(),
+                Token::Comma => self.eat(),
                 _ => break,
             };
-
         }
-
+	}
+	
         match self.peek(){
             Token::Rparen => self.eat(),
             _ =>{
                 panic!("[Line {:?}] Expected ')' ", self.lines[self.current as usize])
             }
         };
+        
+        match self.peek(){
+            Token::Scolon => self.eat(),
+            _ => {
+                panic!("[Line {:?}] Expected ';' ", self.lines[self.current as usize])
+            }
+        };
+
+
 
         let l_edge_idx = self.edges.len() as u32;
         self.edges.extend(self.recorder.clone());
@@ -546,6 +565,8 @@ impl Parser{
 
         self.nodes.push(func_call_node);
 
+	let idx = (self.nodes.len() - 1) as u32;
+	self.waiting.push(idx);
         (self.nodes.len() - 1) as u32
     }
 
@@ -736,7 +757,7 @@ impl Parser{
         let l_edge_idx = (self.edges.len()) as u32;
         self.edges.extend(self.recorder.clone());
         let r_edge_idx = (self.edges.len() - 1) as u32;
-
+	
         self.nodes.push(Node::init(Token::BlockStmt, block_key, l_edge_idx, r_edge_idx));
         (self.nodes.len() - 1) as u32
     }

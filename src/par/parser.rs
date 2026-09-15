@@ -12,7 +12,7 @@ pub struct Parser{
     pub input               : String,
     pub tokens              : Vec<Token>,
     pub lines               : Vec<u32>,
-    pub itervals            : Vec<Iterval>,
+    pub intervals           : Vec<Iterval>,
     pub types               : Vec<Type>,
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
@@ -23,10 +23,11 @@ pub struct Parser{
     pub var_scope_stack     : Vec<u32>,
     pub key_checker         : Vec<u32>,
     
-    pub func_assign         : Vec<u32>, // only sign the function
+    pub func_assign         : Vec<u32>, 
     pub param_type_idxs     : Vec<Iterval>,
-    pub waiting             : Vec<u32>,
     pub ret_types           : Vec<Type>,
+
+    pub waiting             : Vec<u32>,
     
 
 
@@ -41,16 +42,16 @@ pub struct Parser{
 
 impl Parser{
     pub fn init(
-	input     : String,
-	tokens    : Vec<Token>,
-	lines     : Vec<u32>,
-	itervals  : Vec<Iterval>
+        input     : String,
+        tokens    : Vec<Token>,
+        lines     : Vec<u32>,
+        intervals: Vec<Iterval>
     ) -> Self{
 	Parser{
 	    input,
 	    tokens,
 	    lines,
-	    itervals,
+        intervals,
 	    types               : Vec::new(),
 	    edges               : Vec::new(),
 	    nodes               : Vec::new(),
@@ -101,9 +102,9 @@ impl Parser{
 	    println!("Edge : {:?}", &self.edges[l_idx..=r_idx ]);
 	    
 	    let key = node.key;
-	    let iterval = &self.itervals[key as usize];
-	    let start = iterval.start as usize;
-	    let end   = iterval.end   as usize;
+	    let interval = &self.intervals[key as usize];
+	    let start = interval.start as usize;
+	    let end   = interval.end   as usize;
 	    println!("String : {:?}\n", &self.input[start..end]);
 	}
 
@@ -116,22 +117,16 @@ impl Parser{
 	
 	print!("Type Number : ");
 	print!("[");
-	for (_i, ty) in self.types.iter().enumerate(){
-	    print!("{:?} ", ty);
+	for (_, ty) in self.types.iter().enumerate(){
+	    print!("Types : {:?} ", ty);
 	}
 	println!("]");
 
 	println!("Var Scope Stack : {:?}", self.var_scope_stack);
-	    
 	println!("Func assign : {:?}", self.func_assign);
+	    
 	println!("Param type idxs : {:?}", self.param_type_idxs);
-	print!("Ret Type Number : ");
-	
-	print!("[");
-	for (_i, ty) in self.ret_types.iter().enumerate(){
-	    print!("{:?} ", ty);
-	}
-	println!("]");
+	println!("Ret type : {:?}", self.ret_types);
 	
     }
 
@@ -148,19 +143,18 @@ impl Parser{
 #[test]
 fn parser_testing() {
     let input = "
-    fn add(a : f32, b : i32) -> i32{
-           let f = 3;
-           let q = a;
+      fun add(a : i32, b : i32){
+           add
+           ()
+           ;
      }
-;
-
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    lexer.print_output();
+    //lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
     parser.func_stmt();
 
-    parser.print_node();
-    parser.print_scope();
+    //parser.print_node();
+    //parser.print_scope();
 }
