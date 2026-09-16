@@ -128,6 +128,9 @@ impl Parser{
 }
 
 
+    pub fn param_type_check(&mut self, expected_type : Type, expr_idx : u32){
+        todo!()
+    }
 
     pub fn is_bool_expr(&mut self ,node : Node) -> bool{
         let op_tok = &node.token;
@@ -189,6 +192,7 @@ impl Parser{
         }
 
     }
+
 
     
  
