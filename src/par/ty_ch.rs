@@ -47,13 +47,16 @@ impl Parser{
             (Type::f64, Token::Float) => self.types.push(Type::f32),
 
             (Type::bool, Token::Bool) => self.types.push(Type::bool),
-
-
-            (Type::Void,Token::Int)   => self.types.push(Type::i32),
-            (Type::Void,Token::Float) => self.types.push(Type::f64),
+            (Type::bool, Token::True) => self.types.push(Type::bool),
+            (Type::bool, Token::False)=> self.types.push(Type::bool),
+            
+            (Type::Void, Token::Int)   => self.types.push(Type::i32),
+            (Type::Void, Token::Float) => self.types.push(Type::f64),
+            (Type::Void, Token::True) => self.types.push(Type::bool),
+            (Type::Void, Token::False)=> self.types.push(Type::bool),
             (Type::Void, Token::Bool) => self.types.push(Type::bool),
-
-
+            
+            
             _ =>{
                 panic!("[Line {:?}] Expected {:?}, but found {:?}",
                        self.lines[self.current as usize],
@@ -61,12 +64,12 @@ impl Parser{
                        result_token
                 )
             }
-
+            
         };
-
-
+        
+        
     }
-
+    
     pub fn expr_type(
         &mut self, expr_idx : u32,
         mut y1 : u16,
@@ -74,19 +77,18 @@ impl Parser{
         mut x  : u16,
     ) -> (Token, u16, u16, u16) {
         let node = &self.nodes[expr_idx as usize];
-	dbg!(node);
         let tok = node.token.clone();
-
+        
         let l_edge_idx = node.l_edge_idx as usize;
         let r_edge_idx = node.r_edge_idx as usize;
-
+        
         let l_idx = self.edges[l_edge_idx];
         let r_idx = self.edges[r_edge_idx];
         
         if tok == Token::CallStmt{
             let key = node.key;
             let ty = self.find_func_type(key);
-	    self.param_type_check(l_edge_idx, r_edge_idx);
+	        self.param_type_check(l_edge_idx, r_edge_idx);
             return(ty, y1, y2, x)
         }else{
             match (l_idx, r_idx){
@@ -99,14 +101,16 @@ impl Parser{
 			                let key = node.key;
 			                let ty = self.find_ident_type(key);
 			                return (ty, y1, y2, x)
-		                    },
-                    _ => unreachable!()
+		                },
+                        Token::True =>  return (Token::True, y1, y2, x),
+                        Token::False => return (Token::False, y1, y2, x),
+                        _ => unreachable!()
                     }
                 },
                 (NONE, r_idx) => {
                     return self.expr_type(r_idx, y1, y2, x);
                 }
-
+                
                 (l_idx, r_idx) => {
                     let l_node = self.nodes[l_idx as usize].clone();
                     let r_node = self.nodes[r_idx as usize].clone();
@@ -115,125 +119,125 @@ impl Parser{
                     if self.is_cmp_op(tok){x += 1}
                     let (l_type, _, _, _) = self.expr_type(l_idx, y1, y2, x);
                     let (r_type, _, _, _) = self.expr_type(r_idx, y1, y2, x);
-
+                    
                     if l_type != r_type{
                         panic!("[Line {:?}] Mismatch!!!!", self.lines[self.current as usize]);
                     }
-
-
+                    
+                    
                     return (l_type, y1, y2, x);
+                }
             }
         }
     }
-}
-
-
+    
+    
     pub fn param_type_check(&mut self, l_edge_idx : usize, r_edge_idx : usize){
-	if r_edge_idx == l_edge_idx {return}
-	
-	let start = (l_edge_idx + 1) as usize;
-	let end = r_edge_idx as usize;
-	
-	let params_idx  = self.edges[start..=end].to_vec();
-	dbg!(&start);
-	let name_idx = &self.edges[(start - 1) as usize];
-
-	let name_node = &self.nodes[name_idx.clone() as usize];
-
-	let key = name_node.key;
-
-	let mut current = 0;
-	while key != self.func_assign[current]{
-	    current += 1;
-	}
-
-	let param_types_iterval = self.param_type_idxs[current].clone();
-
-	let l_idx = param_types_iterval.start as usize;
-	let r_idx = param_types_iterval.end as usize;
-
-	let params_type = self.types[l_idx..=r_idx].to_vec();
-	dbg!(&params_type);
-	dbg!(&params_type);
-	for (i, _) in (&params_idx).iter().enumerate(){
-	    let (expr_token, y1, y2,x) = self.expr_type(params_idx[i], 0, 0, 0);
-
-	    let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-		|| y1==y2 && y2 == x && self.is_bool_expr(self.nodes[params_idx[i] as usize].clone()){
-		    Token::Bool
-		}else if y1 == 0 && y2 == 0 && x == 0  {
-		    expr_token
-		}else{
-		    panic!("UnExpected Expression Type")
-		};
-
-	    let ty = &params_type[i];
-
-	    match (result_token, ty){
-		(Token::Int, Type::i32) => {},
-		(Token::Int, Type::i64) => {},
-
-		(Token::Float, Type::f32) => {},
-		(Token::Float, Type::f64) => {},
-
-		(Token::Bool, Type::bool) => {},
-		_ =>{
-		    panic!("[Line {:?}] Expected Param Type in {i}th", self.lines[self.current as usize])
-		} 
-		
-	    }	    
+	    if r_edge_idx == l_edge_idx {return}
 	    
-	}
-	
-
-
+	    let start = (l_edge_idx + 1) as usize;
+	    let end = r_edge_idx as usize;
+	    
+	    let params_idx  = self.edges[start..=end].to_vec();
+	    let name_idx = &self.edges[(start - 1) as usize];
+        
+	    let name_node = &self.nodes[name_idx.clone() as usize];
+        
+	    let key = name_node.key;
+        
+	    let mut current = 0;
+	    while key != self.func_assign[current]{
+	        current += 1;
+	    }
+        
+	    let param_types_iterval = self.param_type_idxs[current].clone();
+        
+	    let l_idx = param_types_iterval.start as usize;
+	    let r_idx = param_types_iterval.end as usize;
+        
+	    let params_type = self.types[l_idx..=r_idx].to_vec();
+	    dbg!(&params_type);
+	    dbg!(&params_type);
+	    for (i, _) in (&params_idx).iter().enumerate(){
+	        let (expr_token, y1, y2,x) = self.expr_type(params_idx[i], 0, 0, 0);
+        
+	        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
+		        || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[params_idx[i] as usize].clone()){
+		            Token::Bool
+		        }else if y1 == 0 && y2 == 0 && x == 0  {
+		            expr_token
+		        }else{
+		            panic!("UnExpected Expression Type")
+		        };
+            
+	        let ty = &params_type[i];
+            
+	        match (result_token, ty){
+		        (Token::Int, Type::i32) => {},
+		        (Token::Int, Type::i64) => {},
+                
+		        (Token::Float, Type::f32) => {},
+		        (Token::Float, Type::f64) => {},
+                
+		        (Token::Bool, Type::bool) => {},
+		        _ =>{
+		            panic!("[Line {:?}] Expected Param Type in {i}th", self.lines[self.current as usize])
+		        } 
+		        
+	        }	    
+	        
+	    }
+	    
+        
+        
 	    
     }
-
-    pub fn is_bool_expr(&mut self ,node : Node) -> bool{
-        let op_tok = &node.token;
-
-        match op_tok{
+    
+    pub fn is_bool_expr(&mut self, node : Node) -> bool{
+        let op_tok = node.token;
+        dbg!(&op_tok);
+       
+       match op_tok{
             Token::Grt | Token::Les | Token::GrtEq | Token::LesEq | Token::EqEq => return true,
             _ => return false
-        }
+        };
 
     }
-
+    
     fn is_cmp_op(&mut self, tok : Token) -> bool{
         match tok{
             Token::CmpAnd | Token::CmpOr => return true,
             _ => return false
-
+                
         }
-
+        
     }
 
     pub fn find_ident_type(&mut self, input : u32) -> Token{
-	let mut current = 0;
-	while input != self.key_checker[current as usize]{
-	    current += 1;
-	}
-
-	dbg!(&self.key_checker);
-	dbg!(&self.types);
-
-	let ty = &self.types[current as usize];
-	match ty{
-	    Type::i32 | Type::i64 => return Token::Int,
-	    Type::f32 | Type::f64 => return Token::Float,
-	    Type::bool            => return Token::Bool,
-	    Type::Void            => {
-		panic!("[Line {:?}] Can't include a void function in expr",
-		       self.lines[self.current as usize]
-		)
-	    },
-	    _ => {
-		panic!("[Line {:?}] Mismatch variable type", self.lines[self.current as usize])
+	    let mut current = 0;
+	    while input != self.key_checker[current as usize]{
+	        current += 1;
 	    }
-	};
+        
+	    dbg!(&self.key_checker);
+	    dbg!(&self.types);
+        
+	    let ty = &self.types[current as usize];
+	    match ty{
+	        Type::i32 | Type::i64 => return Token::Int,
+	        Type::f32 | Type::f64 => return Token::Float,
+	        Type::bool            => return Token::Bool,
+	        Type::Void            => {
+		        panic!("[Line {:?}] Can't include a void function in expr",
+		               self.lines[self.current as usize]
+		        )
+	        },
+	        _ => {
+		        panic!("[Line {:?}] Mismatch variable type", self.lines[self.current as usize])
+	        }
+	    };
     }
-
+    
     pub fn find_func_type(&mut self, input : u32) -> Token{
         let mut current = 0;
         while input != self.func_assign[current]{

@@ -47,30 +47,30 @@ impl Parser{
         lines     : Vec<u32>,
         intervals: Vec<Iterval>
     ) -> Self{
-	Parser{
-	    input,
-	    tokens,
-	    lines,
-        intervals,
-	    types               : Vec::new(),
-	    edges               : Vec::new(),
-	    nodes               : Vec::new(),
-	    
+	    Parser{
+	        input,
+	        tokens,
+	        lines,
+            intervals,
+	        types               : Vec::new(),
+	        edges               : Vec::new(),
+	        nodes               : Vec::new(),
+	        
             key_checker         : Vec::new(),
             var_scope_stack     : Vec::new(),
-	    param_type_idxs     : Vec::new(),
-	    func_assign         : Vec::new(),
-	    ret_types           : Vec::new(),
-	    recorder            : Vec::new(),
+	        param_type_idxs     : Vec::new(),
+	        func_assign         : Vec::new(),
+	        ret_types           : Vec::new(),
+	        recorder            : Vec::new(),
             waiting             : Vec::new(),
-	    ret_type            : Type::Void,
-	    loop_counter        : 0,
-	    current             : 0 
-	}
+	        ret_type            : Type::Void,
+	        loop_counter        : 0,
+	        current             : 0 
+	    }
     }
 	
     
-
+    
     pub fn eat(&mut self) -> Token{ 
         let tok = self.tokens[self.current as usize].clone();
         self.current += 1;
@@ -83,53 +83,53 @@ impl Parser{
         }
 	    self.tokens[self.current as usize].clone()
     }
-
+    
     pub fn peek_next(&mut self) -> Token{
-	if (self.current + 1) as usize > self.tokens.len(){
-		return Token::EOF
+	    if (self.current + 1) as usize > self.tokens.len(){
+		    return Token::EOF
 	    }
-	self.tokens[(self.current + 1) as usize].clone()
+	    self.tokens[(self.current + 1) as usize].clone()
     }
-
-
+    
+    
     pub fn print_node(&mut self){
-	for (i, node) in self.nodes.iter().enumerate(){
-	    println!("Number : {i}");
-	    println!("Node : {:?}", node);
-	    let l_idx = (node.l_edge_idx) as usize;
-	    let r_idx = (node.r_edge_idx) as usize;
+	    for (i, node) in self.nodes.iter().enumerate(){
+	        println!("Number : {i}");
+	        println!("Node : {:?}", node);
+	        let l_idx = (node.l_edge_idx) as usize;
+	        let r_idx = (node.r_edge_idx) as usize;
+	        
+	        println!("Edge : {:?}", &self.edges[l_idx..=r_idx ]);
+	        
+	        let key = node.key;
+	        let interval = &self.intervals[key as usize];
+	        let start = interval.start as usize;
+	        let end   = interval.end   as usize;
+	        println!("String : {:?}\n", &self.input[start..end]);
+	    }
+        
 	    
-	    println!("Edge : {:?}", &self.edges[l_idx..=r_idx ]);
 	    
-	    let key = node.key;
-	    let interval = &self.intervals[key as usize];
-	    let start = interval.start as usize;
-	    let end   = interval.end   as usize;
-	    println!("String : {:?}\n", &self.input[start..end]);
-	}
-
-	    
-	
     }
-
+    
     pub fn print_scope(&mut self){
-	print!("Key Checker : {:?}\n", self.key_checker);
-	
-	print!("Type Number : ");
-	print!("[");
-	for (_, ty) in self.types.iter().enumerate(){
-	    print!("Types : {:?} ", ty);
-	}
-	println!("]");
-
-	println!("Var Scope Stack : {:?}", self.var_scope_stack);
-	println!("Func assign : {:?}", self.func_assign);
+	    print!("Key Checker : {:?}\n", self.key_checker);
 	    
-	println!("Param type idxs : {:?}", self.param_type_idxs);
-	println!("Ret type : {:?}", self.ret_types);
-	
+	print!("Type Number : ");
+	    print!("[");
+	    for (_, ty) in self.types.iter().enumerate(){
+	        print!("Types : {:?} ", ty);
+	    }
+	    println!("]");
+        
+	    println!("Var Scope Stack : {:?}", self.var_scope_stack);
+	    println!("Func assign : {:?}", self.func_assign);
+	    
+	    println!("Param type idxs : {:?}", self.param_type_idxs);
+	    println!("Ret type : {:?}", self.ret_types);
+	    
     }
-
+    
     
     
 }
@@ -144,14 +144,7 @@ impl Parser{
 fn parser_testing() {
     let input = "
       fn add(a : i32, b : i32) -> i32{
-            let x
-            = 
-            add(
-            6
-            , 
-            7
-            )
-            ;
+           let x = true;
       }
 ".to_string();
     let mut lexer = Lexer::init(input);

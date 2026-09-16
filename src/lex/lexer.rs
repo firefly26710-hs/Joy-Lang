@@ -355,8 +355,8 @@ fn is_alphanumeric (c : &str) -> bool{
 }
 
 #[test]
-fn lex_testing(){
-    let input ="5.5".to_string();
+fn lexer_testing(){
+    let input ="let x = true".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     lexer.print_output();
