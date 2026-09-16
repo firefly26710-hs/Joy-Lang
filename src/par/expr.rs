@@ -7,7 +7,7 @@ impl Parser{
         let lhs_tok = self.peek();
         
         let mut lhs_idx = match self.peek(){
-            Token::Int   =>{
+            Token::Int =>{
 		        let key = self.current;
 		        self.eat();
 		        
@@ -86,11 +86,12 @@ impl Parser{
 		        }
             }
             Token::Minus => {
-                let unary_key = self.current - 1;
+                let unary_key = self.current;
+                self.eat();
                 
                 let expr_idx = self.expr(1000.0);
+                let l_edge_idx = (self.edges.len()) as u32;
                 self.edges.push(NONE);
-                let l_edge_idx = (self.edges.len() - 1) as u32;
                 self.edges.push(expr_idx);
                 let r_edge_idx = (self.edges.len() - 1) as u32;
                 
@@ -188,33 +189,33 @@ impl Parser{
     }
     
     fn find_the_same_var_key(&mut self, input_key : u32) -> u32{
-	let mut current = self.var_scope_stack.len() - 1;
+	    let mut current = self.var_scope_stack.len() - 1;
 	    
-	loop {
-	    let current_key = self.var_scope_stack[current];
+	    loop {
+	        let current_key = self.var_scope_stack[current];
+            
+	        if current_key != MAGIC && self.is_match_str(input_key, current_key) {
+		        return dbg!(current_key);
+		        
+            }
 
-	    if current_key != MAGIC && self.is_match_str(input_key, current_key) {
-		    return dbg!(current_key);
-		    
-        }
-
-	    if current == 0 {break;}
-        
+	        if current == 0 {break;}
+            
         current -= 1;
-	}
+	    }
         
-	panic!("[Line {:?}] the variable not exist", self.lines[self.current as usize]);
+	    panic!("[Line {:?}] the variable not exist", self.lines[self.current as usize]);
 	    
     }
     
     pub fn find_same_func_key(&mut self, input_key : u32) -> u32{
-	let mut current = 0;
+	    let mut current = 0;
 	    
 	    loop {
 	        let current_key = self.func_assign[current];
             
 	        if self.is_match_str(input_key, current_key) {
-		    return dbg!(current_key);
+		        return dbg!(current_key);
 		        
             }
             
@@ -227,7 +228,7 @@ impl Parser{
 	    
     }
     
-
+    
     
     
     
@@ -267,7 +268,9 @@ fn infix_binding_power(op : &Token) -> (f32, f32){
 
 pub fn is_expr(peek : Token) -> bool{
     match peek{
-	    Token::Int | Token::Float | Token::Ident | Token::Lparen | Token::Minus => return true,
+	    Token::Int | Token::Float | Token::Ident | Token::Lparen | Token::Plus |
+        Token::Minus | Token::Mul | Token::Div | Token::Mod
+            => return true,
 	    _ =>return false
     }
 }

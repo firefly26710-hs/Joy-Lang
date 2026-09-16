@@ -89,13 +89,13 @@ impl Parser{
             let key = node.key;
             let ty = self.find_func_type(key);
 	        self.param_type_check(l_edge_idx, r_edge_idx);
-            return(ty, y1, y2, x)
+            (ty, y1, y2, x)
         }else{
             match (l_idx, r_idx){
                 (NONE, NONE) => {
                     match tok{
-                        Token::Int   => return (Token::Int, y1, y2, x),
-                        Token::Float => return (Token::Float, y1, y2, x),
+                        Token::Int   => (Token::Int, y1, y2, x),
+                        Token::Float => (Token::Float, y1, y2, x),
                         Token::Ident => {
 			                dbg!(&self.nodes);
 			                let key = node.key;
@@ -284,6 +284,7 @@ impl Parser{
 
     pub fn is_integer(&mut self, expr_idx : u32) -> bool{
         let(ty,y1,y2,x) = self.expr_type(expr_idx, 0, 0, 0);
+
 
         let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
             || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {

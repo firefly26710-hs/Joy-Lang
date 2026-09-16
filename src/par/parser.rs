@@ -69,7 +69,18 @@ impl Parser{
 	    }
     }
 	
-    
+
+    pub fn build_tree(&mut self){
+        let mut recorder = Vec::new();
+        while self.tokens[self.current as usize] != Token::EOF{
+            recorder.push(self.func_stmt());
+        }
+        let l_edge_idx = self.edges.len() as u32;
+        self.edges.extend(recorder);
+        let r_edge_idx = (self.edges.len() - 1) as u32;
+        let program_node = Node::init(Token::Program, NONE, l_edge_idx, r_edge_idx);
+        self.nodes.push(program_node);
+    }
     
     pub fn eat(&mut self) -> Token{ 
         let tok = self.tokens[self.current as usize].clone();
@@ -100,8 +111,9 @@ impl Parser{
 	        let r_idx = (node.r_edge_idx) as usize;
 	        
 	        println!("Edge : {:?}", &self.edges[l_idx..=r_idx ]);
-	        
+
 	        let key = node.key;
+            if key == NONE{continue}
 	        let interval = &self.intervals[key as usize];
 	        let start = interval.start as usize;
 	        let end   = interval.end   as usize;
@@ -142,16 +154,21 @@ impl Parser{
 
 #[test]
 fn parser_testing() {
+    
     let input = "
-      fn add(a : i32, b : i32) -> i32{
-           let x = true;
-      }
+    fn add(a : i32, b : i32) -> i32{
+        return a + b;
+    }
+      fn main(){
+         let y = -2;
+       } 
+    
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    //lexer.print_output();
+    lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
-    parser.func_stmt();
+    parser.build_tree();
 
     parser.print_node();
     parser.print_scope();

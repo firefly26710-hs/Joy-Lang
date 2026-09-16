@@ -123,7 +123,7 @@ impl Parser{
 	    
 	    let l_type_idx = self.types.len() as u32;
 	    self.types.extend(param_type_recorder);	
-	    let r_type_idx = (self.types.len() - 1) as u32;
+	    let r_type_idx = if self.types.len() == 0{0} else {(self.types.len() - 1) as u32};
         
 	    self.param_type_idxs.push(Iterval::init(l_type_idx, r_type_idx));
 	    
@@ -174,8 +174,6 @@ impl Parser{
     pub fn let_stmt(&mut self) -> u32{
 	    let let_key = self.current;
         self.eat();
-	    
-	    let var_name_key = self.current;
         
         let name_idx = match self.peek(){
             Token::Ident =>{
@@ -402,7 +400,7 @@ impl Parser{
     pub fn while_stmt(&mut self)->u32{
         let while_key = self.current;
         self.eat();
-        
+
         match self.peek(){
             Token::Lparen =>{
                 self.eat();
@@ -645,7 +643,7 @@ impl Parser{
                         self.eat();
                     },
                     _ => {
-                        panic!("[Line {}] Expected ')'", self.lines[(self.current) as usize])
+                        panic!("[Line {}] Expected ')'", self.lines[self.current as usize])
                     }
                 };
 
@@ -669,7 +667,7 @@ impl Parser{
                         self.eat();
                     },
                     _ => {
-                        panic!("[Line {}] Expected '(' ", self.lines[(self.current) as usize])
+                        panic!("[Line {}] Expected '(' ", self.lines[self.current as usize])
                     }
                 };
 
@@ -683,7 +681,7 @@ impl Parser{
                         self.eat();
                     },
                     _ => {
-                        panic!("[Line {}] Expected ')' ", self.lines[(self.current) as usize])
+                        panic!("[Line {}] Expected ')' ", self.lines[self.current as usize])
                     }
                 };
                 
@@ -757,7 +755,7 @@ impl Parser{
 	    }
 	    self.var_scope_stack.pop();
         
-        let l_edge_idx = (self.edges.len()) as u32;
+        let l_edge_idx = self.edges.len() as u32;
         self.edges.extend(self.recorder.clone());
         let r_edge_idx = (self.edges.len() - 1) as u32;
 	
