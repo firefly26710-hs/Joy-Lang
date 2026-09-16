@@ -144,14 +144,12 @@ impl Parser{
 fn parser_testing() {
     let input = "
       fun add(a : i32, b : i32){
-           add
-           ()
-           ;
+           let x = add();
      }
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    //lexer.print_output();
+    lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
     parser.func_stmt();
 

@@ -4,35 +4,42 @@ use crate::par::parser::{Parser, NONE, MAGIC};
 
 impl Parser{
     pub fn expr(&mut self, min_bp : f32) -> u32{
-        let mut lhs_idx = match self.eat(){
+        let mut lhs_idx = match self.peek(){
             Token::Int   =>{
+		let key = self.current;
+		self.eat();
+		
                 let l_edge_idx = self.edges.len() as u32;
 
                 self.edges.push(NONE);
                 self.edges.push(NONE);
 
                 let r_edge_idx = (self.edges.len() - 1) as u32;
-                let node = Node::init(Token::Int, self.current - 1, l_edge_idx, r_edge_idx);
+                let node = Node::init(Token::Int, key, l_edge_idx, r_edge_idx);
                 self.nodes.push(node);
                 self.nodes.len() - 1
             },
             Token::Float =>{
+		let key = self.current;
+		self.eat();
+		
                 let l_edge_idx = self.edges.len() as u32;
 
                 self.edges.push(NONE);
                 self.edges.push(NONE);
 
                 let r_edge_idx = (self.edges.len() - 1) as u32;
-                let node = Node::init(Token::Float, self.current - 1, l_edge_idx, r_edge_idx);
+                let node = Node::init(Token::Float, key, l_edge_idx, r_edge_idx);
                 self.nodes.push(node);
                 self.nodes.len() - 1
             },
 
             Token::Ident =>{
-		if self.peek() == Token::Lparen{
-		    return self.call_stmt();
-		}else{
-		    let ident_var_key = self.current - 1;
+		if self.peek_next() == Token::Lparen{
+		    return self.call_stmt(true);
+		}else if is_expr(self.peek_next()) || self.peek_next() == Token::Scolon{
+		    let ident_var_key = self.current;
+		    self.eat();
 		    let same_key = self.find_the_same_var_key(ident_var_key);
 		    let same_key_type = self.find_ident_type(same_key);
 		    
@@ -44,9 +51,10 @@ impl Parser{
                     let r_edge_idx = (self.edges.len() - 1) as u32;
                     let node = Node::init(same_key_type, same_key, l_edge_idx, r_edge_idx);
                     self.nodes.push(node);
+		    self.nodes.len() - 1
+		}else{
+		    panic!("[Line {:?}] Expected Idnetifier", self.lines[self.current as usize])
 		}
-                self.nodes.len() - 1
-		    
             }
             Token::Minus => {
                 let unary_key = self.current - 1;
@@ -160,6 +168,30 @@ impl Parser{
 	panic!("[Line {:?}] the variable not exist", self.lines[self.current as usize]);
 	
     }
+
+    pub fn find_same_func_key(&mut self, input_key : u32) -> u32{
+	let mut current = 0;
+	
+	loop {
+	    let current_key = self.func_assign[current];
+
+	    if self.is_match_str(input_key, current_key) {
+		return dbg!(current_key);
+		
+            }
+
+	    if current == 0 {break;}
+
+            current += 1;
+	}
+
+	panic!("[Line {:?}] Can't find this function", self.lines[self.current as usize]);
+	
+    }
+
+
+
+    
 
     pub fn is_match_str(&mut self, input_key : u32, host_key : u32) -> bool{
 	let input_interval = &self.intervals[input_key as usize];

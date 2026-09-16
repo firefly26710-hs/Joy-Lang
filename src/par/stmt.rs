@@ -154,7 +154,7 @@ impl Parser{
             Token::Brk   => self.brk_stmt(),
             Token::Ctn   => self.ctn_stmt(),
             Token::Ret   => self.ret_stmt(),
-            Token::Ident => self.expr(0.0),
+            Token::Ident => self.call_stmt(false),
             Token::Func  =>{
                 panic!(
                     "[Line {:?}] Function shouldn't on other function",
@@ -499,18 +499,20 @@ impl Parser{
     }
 
 
-    pub fn call_stmt(&mut self) -> u32{
+    pub fn call_stmt(&mut self, is_on_expr : bool) -> u32{
         self.recorder.clear();
 
         let func_name_key = self.current;
         let func_name_tok = self.eat();
 
+	let same_key = self.find_same_func_key(func_name_key);
+	
 	let l_edge_idx = self.edges.len() as u32;
 	self.edges.push(NONE);
 	self.edges.push(NONE);
 	let r_edge_idx = (self.edges.len() - 1) as u32;
 
-	let func_name_node = Node::init(func_name_tok, func_name_key, l_edge_idx, r_edge_idx);
+	let func_name_node = Node::init(func_name_tok, same_key, l_edge_idx, r_edge_idx);
 	self.nodes.push(func_name_node);
 
 	let idx = self.nodes.len() - 1;
@@ -528,15 +530,15 @@ impl Parser{
 
 	if is_expr(self.peek()) && !is_expr(self.peek_next()){
 	    loop {
-            let expr_idx = self.expr(0.0);
-            self.recorder.push(expr_idx);
+		let expr_idx = self.expr(0.0);
+		self.recorder.push(expr_idx);
 
-            match self.peek() {
-                Token::Rparen => break,
-                Token::Comma => self.eat(),
-                _ => break,
-            };
-        }
+		match self.peek() {
+                    Token::Rparen => break,
+                    Token::Comma => self.eat(),
+                    _ => break,
+		};
+	    }
 	}
 	
         match self.peek(){
@@ -545,13 +547,16 @@ impl Parser{
                 panic!("[Line {:?}] Expected ')' ", self.lines[self.current as usize])
             }
         };
-        
-        match self.peek(){
-            Token::Scolon => self.eat(),
-            _ => {
-                panic!("[Line {:?}] Expected ';' ", self.lines[self.current as usize])
-            }
-        };
+
+	if !is_on_expr{
+	    match self.peek(){
+		Token::Scolon => self.eat(),
+		_ => {
+		    panic!("[Line {:?}] Expected ';' ", self.lines[self.current as usize])
+		}
+	    };
+	}
+       
 
 
 
@@ -560,7 +565,7 @@ impl Parser{
         let r_edge_idx = (self.edges.len() - 1) as u32;
 
         let func_call_node = Node::init(
-            Token::CallStmt, func_name_key, l_edge_idx, r_edge_idx
+            Token::CallStmt, same_key, l_edge_idx, r_edge_idx
         );
 
         self.nodes.push(func_call_node);

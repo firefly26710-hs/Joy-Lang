@@ -68,7 +68,6 @@ impl Parser{
 
     }
 
-    // todo! : add identitier part, 
     pub fn expr_type(
         &mut self, expr_idx : u32,
         mut y1 : u16,
@@ -91,6 +90,7 @@ impl Parser{
                     Token::Int   => return (Token::Int, y1, y2, x),
                     Token::Float => return (Token::Float, y1, y2, x),
                     Token::Ident => {
+			dbg!(&self.nodes);
 			let ident_key = node.key;
 			let same_key = self.find_ident_type(ident_key);
 			return (same_key, y1, y2, x)
@@ -166,6 +166,8 @@ impl Parser{
 	    }
 	};
     }
+
+    
  
     pub fn match_ret_type(&mut self, expr_idx : u32, expected_type : Type) -> bool{
         let (expr_token, y1, y2,x) = self.expr_type(expr_idx, 0, 0, 0);
