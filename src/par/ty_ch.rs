@@ -83,43 +83,49 @@ impl Parser{
 
         let l_idx = self.edges[l_edge_idx];
         let r_idx = self.edges[r_edge_idx];
-
-        match (l_idx, r_idx){
-            (NONE, NONE) => {
-                match tok{
-                    Token::Int   => return (Token::Int, y1, y2, x),
-                    Token::Float => return (Token::Float, y1, y2, x),
-                    Token::Ident => {
-			dbg!(&self.nodes);
-			let ident_key = node.key;
-			let same_key = self.find_ident_type(ident_key);
-			return (same_key, y1, y2, x)
-		    },
+        
+        if tok == Token::CallStmt{
+            let key = node.key;
+            let ty = self.find_func_type(key);
+            return(ty, y1, y2, x)
+        }else{
+            match (l_idx, r_idx){
+                (NONE, NONE) => {
+                    match tok{
+                        Token::Int   => return (Token::Int, y1, y2, x),
+                        Token::Float => return (Token::Float, y1, y2, x),
+                        Token::Ident => {
+			                dbg!(&self.nodes);
+			                let key = node.key;
+			                let ty = self.find_ident_type(key);
+			                return (ty, y1, y2, x)
+		                    },
                     _ => unreachable!()
-                }
-            },
-            (NONE, r_idx) => {
-                return self.expr_type(r_idx, y1, y2, x);
-            }
-
-            (l_idx, r_idx) => {
-                let l_node = self.nodes[l_idx as usize].clone();
-                let r_node = self.nodes[r_idx as usize].clone();
-                if self.is_bool_expr(l_node){y1 += 1}
-                if self.is_bool_expr(r_node){y2 += 1}
-                if self.is_cmp_op(tok){x += 1}
-                let (l_type, _, _, _) = self.expr_type(l_idx, y1, y2, x);
-                let (r_type, _, _, _) = self.expr_type(r_idx, y1, y2, x);
-
-                if l_type != r_type{
-                    panic!("[Line {:?}] Mismatch!!!!", self.lines[self.current as usize]);
+                    }
+                },
+                (NONE, r_idx) => {
+                    return self.expr_type(r_idx, y1, y2, x);
                 }
 
+                (l_idx, r_idx) => {
+                    let l_node = self.nodes[l_idx as usize].clone();
+                    let r_node = self.nodes[r_idx as usize].clone();
+                    if self.is_bool_expr(l_node){y1 += 1}
+                    if self.is_bool_expr(r_node){y2 += 1}
+                    if self.is_cmp_op(tok){x += 1}
+                    let (l_type, _, _, _) = self.expr_type(l_idx, y1, y2, x);
+                    let (r_type, _, _, _) = self.expr_type(r_idx, y1, y2, x);
 
-                return (l_type, y1, y2, x);
+                    if l_type != r_type{
+                        panic!("[Line {:?}] Mismatch!!!!", self.lines[self.current as usize]);
+                    }
+
+
+                    return (l_type, y1, y2, x);
             }
         }
     }
+}
 
 
 
@@ -162,9 +168,26 @@ impl Parser{
 		)
 	    },
 	    _ => {
-		panic!("[Line {:?}] Unknown Type", self.lines[self.current as usize])
+		panic!("[Line {:?}] Mismatch variable type", self.lines[self.current as usize])
 	    }
 	};
+    }
+
+    pub fn find_func_type(&mut self, input : u32) -> Token{
+        let mut current = 0;
+        while input != self.func_assign[current]{
+            current  += 1;
+        }
+        
+        let ty = &self.ret_types[current as usize];
+
+        match ty{
+            Type::i32 | Type::i64 => return Token::Int,
+            Type::f32 | Type::f64 => return Token::Float,
+            Type::bool            => return Token::Bool,
+            _ => panic!("[Line {:?}] Mismatch function type", self.lines[self.current as usize]) 
+        }
+
     }
 
     

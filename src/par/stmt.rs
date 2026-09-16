@@ -12,7 +12,6 @@ impl Parser{
 	let mut param_type_recorder = Vec::new();
 
 	let func_key = self.current;
-	self.func_assign.push(func_key);
 	self.eat();
 
 	let func_name_key = self.current;
@@ -504,7 +503,8 @@ impl Parser{
 
         let func_name_key = self.current;
         let func_name_tok = self.eat();
-
+    
+        dbg!(&self.func_assign);
 	let same_key = self.find_same_func_key(func_name_key);
 	
 	let l_edge_idx = self.edges.len() as u32;
