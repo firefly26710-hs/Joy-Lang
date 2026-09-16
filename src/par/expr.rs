@@ -65,8 +65,11 @@ impl Parser{
             },
             Token::Ident =>{
 		        if self.peek_next() == Token::Lparen{
-		            return self.call_stmt(true);
-		        }else if is_expr(self.peek_next()) || self.peek_next() == Token::Scolon{
+		             self.func_call() as usize
+		        }else if is_expr(self.peek_next()) ||
+                    self.peek_next() == Token::Scolon ||
+                    self.peek_next() == Token::Rparen{
+                        
 		            let ident_var_key = self.current;
 		            self.eat();
 		            let same_key = self.find_the_same_var_key(ident_var_key);
@@ -80,17 +83,18 @@ impl Parser{
                     let r_edge_idx = (self.edges.len() - 1) as u32;
                     let node = Node::init(same_key_type, same_key, l_edge_idx, r_edge_idx);
                     self.nodes.push(node);
-		            self.nodes.len() - 1
+                    self.nodes.len() - 1
 		        }else{
-                    panic!("[Line {:?}] Expected Idnetifier", self.lines[self.current as usize])
+                    panic!("[Line {:?}] Expected Identifier", self.lines[self.current as usize])
 		        }
+
             }
             Token::Minus => {
                 let unary_key = self.current;
                 self.eat();
                 
                 let expr_idx = self.expr(1000.0);
-                let l_edge_idx = (self.edges.len()) as u32;
+                let l_edge_idx = self.edges.len() as u32;
                 self.edges.push(NONE);
                 self.edges.push(expr_idx);
                 let r_edge_idx = (self.edges.len() - 1) as u32;
@@ -232,7 +236,7 @@ impl Parser{
     
     
     
-    pub fn is_match_str(&mut self, input_key : u32, host_key : u32) -> bool{
+    pub fn is_match_str(&self, input_key : u32, host_key : u32) -> bool{
 	    let input_interval = &self.intervals[input_key as usize];
 	    let host_interval = &self.intervals[host_key as usize];
         
@@ -269,8 +273,9 @@ fn infix_binding_power(op : &Token) -> (f32, f32){
 pub fn is_expr(peek : Token) -> bool{
     match peek{
 	    Token::Int | Token::Float | Token::Ident | Token::Lparen | Token::Plus |
-        Token::Minus | Token::Mul | Token::Div | Token::Mod
-            => return true,
-	    _ =>return false
+        Token::Minus | Token::Mul | Token::Div | Token::Mod | Token::Grt | Token::GrtEq |
+        Token::Les | Token::LesEq | Token::EqEq
+        => true,
+	    _ => false
     }
 }

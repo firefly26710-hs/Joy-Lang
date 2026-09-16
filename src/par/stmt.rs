@@ -32,7 +32,7 @@ impl Parser{
 	    func_node_idx_recorder.push(func_name_node_idx as u32);
         
 	    
-	    self.func_assign.push((func_name_key.clone()) as u32);
+	    self.func_assign.push(func_name_key.clone() );
 	    
 	    match self.peek(){
 	        Token::Lparen => self.eat(),
@@ -152,7 +152,7 @@ impl Parser{
             Token::Brk   => self.brk_stmt(),
             Token::Ctn   => self.ctn_stmt(),
             Token::Ret   => self.ret_stmt(),
-            Token::Ident => self.call_stmt(false),
+            Token::Ident => self.call_stmt(),
             Token::Func  =>{
                 panic!(
                     "[Line {:?}] Function shouldn't on other function",
@@ -196,7 +196,7 @@ impl Parser{
             
             t  =>{
                 panic!(	"[Line {:?}] Invaild Variable Name : {:?}",
-                          self.lines[(self.current) as usize], t)
+                          self.lines[self.current as usize], t)
             }
             
         };
@@ -318,7 +318,7 @@ impl Parser{
                 expr_idx
             }
             _ => {
-                panic!("[Line {:?}] Start Number Expected Number", self.lines[(self.current) as usize])
+                panic!("[Line {:?}] Start Number Expected Number", self.lines[self.current as usize])
             }
         };
         
@@ -355,7 +355,7 @@ impl Parser{
                     }
                     _ => {
                         panic!("[Line {:?}] Step Number Expected Number",
-                               self.lines[(self.current) as usize]
+                               self.lines[self.current as usize]
                         )
                     }
                 }
@@ -398,6 +398,8 @@ impl Parser{
 
     
     pub fn while_stmt(&mut self)->u32{
+        self.loop_counter += 1;
+
         let while_key = self.current;
         self.eat();
 
@@ -406,7 +408,7 @@ impl Parser{
                 self.eat();
             },
             _ => {
-                panic!("[Line {}] Expected '('", self.lines[(self.current) as usize])
+                panic!("[Line {}] Expected '('", self.lines[self.current as usize])
             }
         };
         
@@ -426,7 +428,8 @@ impl Parser{
         };
         
         let block_idx = self.block_stmt();
-        
+
+        self.loop_counter -= 1;
         let l_edge_idx = self.edges.len() as u32;
         self.edges.push(cond_idx);
         self.edges.push(block_idx);
@@ -468,7 +471,7 @@ impl Parser{
     pub fn ctn_stmt(&mut self) -> u32{
         
         if self.loop_counter <= 0{
-            panic!("[Line {:?}] Not in for stmt", self.lines[self.current as usize])
+            panic!("[Line {:?}] continue can't not in loop", self.lines[self.current as usize])
         }
         
         let ctn_key = self.current;
@@ -493,9 +496,22 @@ impl Parser{
         
         (self.nodes.len() - 1) as u32
     }
+
     
+
+    pub fn call_stmt(&mut self)->u32{
+        let idx =self.func_call();
+
+        match self.peek(){
+            Token::Scolon => self.eat(),
+            _ => panic!("[Line {:?}] Expected ';'", self.lines[self.current as usize])
+        };
+
+        idx
+
+    }
     
-    pub fn call_stmt(&mut self, is_on_expr : bool) -> u32{
+    pub fn func_call(&mut self) -> u32{
         self.recorder.clear();
         
         let func_name_key = self.current;
@@ -525,7 +541,11 @@ impl Parser{
             }
         };
         
-	if is_expr(self.peek()) && !is_expr(self.peek_next()){
+	if self.peek() == Token::Int ||
+        self.peek() == Token::Float ||
+        self.peek() == Token::Ident ||
+         self.peek() == Token::Lparen ||
+        self.peek() == Token::Minus{
 	    loop {
 		    let expr_idx = self.expr(0.0);
 		    self.recorder.push(expr_idx);
@@ -544,14 +564,8 @@ impl Parser{
             }
         };
         
-	    if !is_on_expr{
-	        match self.peek(){
-		        Token::Scolon => self.eat(),
-		        _ => {
-		            panic!("[Line {:?}] Expected ';' ", self.lines[self.current as usize])
-		        }
-	        };
-	    }
+
+
         
         
         
@@ -567,7 +581,6 @@ impl Parser{
         self.nodes.push(func_call_node);
         
 	    let idx = (self.nodes.len() - 1) as u32;
-	    self.waiting.push(idx);
         (self.nodes.len() - 1) as u32
     }
     
@@ -629,7 +642,7 @@ impl Parser{
                         self.eat();
                     },
                     _ => {
-                        panic!("[Line {}] Expected '('", self.lines[(self.current) as usize])
+                        panic!("[Line {}] Expected '('", self.lines[self.current as usize])
                     }
                 };
                 
@@ -692,7 +705,7 @@ impl Parser{
                 branch_idx_recorder.push(block_idx);
             },
             Token::Else => {
-                if self.recorder.len() < 2{
+                if self.recorder.len() < 1{
                     panic!(
                         "[Line {:?}] Expected 'if' token, but found 'else'",
                         self.lines[self.current as usize]

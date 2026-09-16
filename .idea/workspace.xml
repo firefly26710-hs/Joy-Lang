@@ -12,31 +12,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/llvm/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/llvm/stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/expr.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/ty_ch.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/ty_ch.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/dep-lib-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/dep-lib-comp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/output-lib-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/output-lib-comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-22c55c02c9dad796/dep-test-bin-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-22c55c02c9dad796/dep-test-bin-comp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/dep-test-bin-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/dep-test-bin-comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/output-test-bin-comp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/dep-test-lib-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/dep-test-lib-comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/output-test-lib-comp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/dep-lib-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/dep-lib-comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/dep-bin-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/dep-bin-comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/output-bin-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/output-bin-comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b60e53da919824e4/dep-test-lib-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b60e53da919824e4/dep-test-lib-comp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/dep-bin-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/dep-bin-comp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/output-bin-comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/output-bin-comp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/comp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-22c55c02c9dad796" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-22c55c02c9dad796" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-b4277269a34ac2cb" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-b4277269a34ac2cb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-b60e53da919824e4" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-b60e53da919824e4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/comp.d" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/comp.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-01cc0eb81f59c9e0.d" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-01cc0eb81f59c9e0.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-6d3beca406d6378e.d" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-6d3beca406d6378e.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-9c8cc5d9bc185886.d" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-9c8cc5d9bc185886.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-cbf16f22a9f19958.d" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/comp-cbf16f22a9f19958.d" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-01cc0eb81f59c9e0.rmeta" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/libcomp-01cc0eb81f59c9e0.rmeta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-a8cfc6dc5280f8ff.rlib" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/libcomp-a8cfc6dc5280f8ff.rlib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-a8cfc6dc5280f8ff.rmeta" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/deps/libcomp-a8cfc6dc5280f8ff.rmeta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/libcomp.rlib" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/libcomp.rlib" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,9 +83,17 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/codegen.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/expr.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/mod.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/stmt.rs&quot;: &quot;true&quot;,
     &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
 }</component>
   <component name="RunManager" selected="Cargo.Run comp">
@@ -137,5 +148,9 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

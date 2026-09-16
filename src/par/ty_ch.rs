@@ -5,9 +5,9 @@ use crate::par::ty::Type;
 
 impl Parser{
     pub fn type_mapping(&mut self, type_ident_idx : u32)-> Type{
-        let iterval = self.intervals[type_ident_idx as usize].clone();
-        let start = iterval.start as usize;
-        let end   = iterval.end as usize;
+        let interval = self.intervals[type_ident_idx as usize].clone();
+        let start = interval.start as usize;
+        let end   = interval.end as usize;
         let type_str_slice = &self.input[start..end];
 
         match type_str_slice{
@@ -150,10 +150,10 @@ impl Parser{
 	        current += 1;
 	    }
         
-	    let param_types_iterval = self.param_type_idxs[current].clone();
+	    let param_types_interval = self.param_type_idxs[current].clone();
         
-	    let l_idx = param_types_iterval.start as usize;
-	    let r_idx = param_types_iterval.end as usize;
+	    let l_idx = param_types_interval.start as usize;
+	    let r_idx = param_types_interval.end as usize;
         
 	    let params_type = self.types[l_idx..=r_idx].to_vec();
 	    dbg!(&params_type);

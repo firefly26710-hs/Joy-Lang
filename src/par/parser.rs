@@ -27,7 +27,7 @@ pub struct Parser{
     pub param_type_idxs     : Vec<Iterval>,
     pub ret_types           : Vec<Type>,
 
-    pub waiting             : Vec<u32>,
+
     
 
 
@@ -62,7 +62,7 @@ impl Parser{
 	        func_assign         : Vec::new(),
 	        ret_types           : Vec::new(),
 	        recorder            : Vec::new(),
-            waiting             : Vec::new(),
+
 	        ret_type            : Type::Void,
 	        loop_counter        : 0,
 	        current             : 0 
@@ -156,18 +156,26 @@ impl Parser{
 fn parser_testing() {
     
     let input = "
-    fn add(a : i32, b : i32) -> i32{
-        return a + b;
+    fn fib(n : i32) -> i32{
+        if (n < 2){
+            return n;
+        }else{
+            return fib(n - 1) + fib(n - 2);
+        }
     }
-      fn main(){
-         let y = -2;
-       } 
-    
+
+    fn main(){
+         let n = 5;
+         let sum = fib(n);
+    }
+
+
+
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     lexer.print_output();
-    let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.itervals);
+    let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.intervals);
     parser.build_tree();
 
     parser.print_node();
