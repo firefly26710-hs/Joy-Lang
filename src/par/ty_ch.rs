@@ -1,4 +1,3 @@
-
 use crate::lex::token::Token;
 use crate::par::node::Node;
 use crate::par::parser::{Parser, NONE};
@@ -75,7 +74,7 @@ impl Parser{
         mut x  : u16,
     ) -> (Token, u16, u16, u16) {
         let node = &self.nodes[expr_idx as usize];
-
+	dbg!(node);
         let tok = node.token.clone();
 
         let l_edge_idx = node.l_edge_idx as usize;
@@ -87,6 +86,7 @@ impl Parser{
         if tok == Token::CallStmt{
             let key = node.key;
             let ty = self.find_func_type(key);
+	    self.param_type_check(l_edge_idx, r_edge_idx);
             return(ty, y1, y2, x)
         }else{
             match (l_idx, r_idx){
@@ -128,8 +128,66 @@ impl Parser{
 }
 
 
-    pub fn param_type_check(&mut self, expected_type : Type, expr_idx : u32){
-        todo!()
+    pub fn param_type_check(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+	if r_edge_idx == l_edge_idx {return}
+	
+	let start = (l_edge_idx + 1) as usize;
+	let end = r_edge_idx as usize;
+	
+	let params_idx  = self.edges[start..=end].to_vec();
+	dbg!(&start);
+	let name_idx = &self.edges[(start - 1) as usize];
+
+	let name_node = &self.nodes[name_idx.clone() as usize];
+
+	let key = name_node.key;
+
+	let mut current = 0;
+	while key != self.func_assign[current]{
+	    current += 1;
+	}
+
+	let param_types_iterval = self.param_type_idxs[current].clone();
+
+	let l_idx = param_types_iterval.start as usize;
+	let r_idx = param_types_iterval.end as usize;
+
+	let params_type = self.types[l_idx..=r_idx].to_vec();
+	dbg!(&params_type);
+	dbg!(&params_type);
+	for (i, _) in (&params_idx).iter().enumerate(){
+	    let (expr_token, y1, y2,x) = self.expr_type(params_idx[i], 0, 0, 0);
+
+	    let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
+		|| y1==y2 && y2 == x && self.is_bool_expr(self.nodes[params_idx[i] as usize].clone()){
+		    Token::Bool
+		}else if y1 == 0 && y2 == 0 && x == 0  {
+		    expr_token
+		}else{
+		    panic!("UnExpected Expression Type")
+		};
+
+	    let ty = &params_type[i];
+
+	    match (result_token, ty){
+		(Token::Int, Type::i32) => {},
+		(Token::Int, Type::i64) => {},
+
+		(Token::Float, Type::f32) => {},
+		(Token::Float, Type::f64) => {},
+
+		(Token::Bool, Type::bool) => {},
+		_ =>{
+		    panic!("[Line {:?}] Expected Param Type in {i}th", self.lines[self.current as usize])
+		} 
+		
+	    }	    
+	    
+	}
+	
+
+
+	    
     }
 
     pub fn is_bool_expr(&mut self ,node : Node) -> bool{
@@ -157,8 +215,8 @@ impl Parser{
 	    current += 1;
 	}
 
-    dbg!(&self.key_checker);
-    dbg!(&self.types);
+	dbg!(&self.key_checker);
+	dbg!(&self.types);
 
 	let ty = &self.types[current as usize];
 	match ty{
@@ -192,7 +250,6 @@ impl Parser{
         }
 
     }
-
 
     
  

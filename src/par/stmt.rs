@@ -121,11 +121,13 @@ impl Parser{
 	    
 	    Token::Lbrace => {},
 	    _ => panic!("[Line {:?}] Expected '->'", self.lines[self.current as usize])
-    }
+	}
 	
-    let l_type_idx = self.types.len() as u32;
-    self.types.extend(param_type_recorder);	
-    let r_type_idx = (self.types.len() - 1) as u32;
+	let l_type_idx = self.types.len() as u32;
+	self.types.extend(param_type_recorder);	
+	let r_type_idx = (self.types.len() - 1) as u32;
+
+	self.param_type_idxs.push(Iterval::init(l_type_idx, r_type_idx));
 	
 	let block_idx = self.block_stmt();
 	func_node_idx_recorder.push(block_idx);
@@ -135,7 +137,6 @@ impl Parser{
 	let r_edge_idx = (self.edges.len() - 1) as u32;
 
 
-	self.param_type_idxs.push(Iterval::init(l_type_idx, r_type_idx));
 	
 	let func_node = Node::init(Token::FuncStmt, func_key, l_edge_idx, r_edge_idx);
 	self.nodes.push(func_node);
@@ -504,8 +505,8 @@ impl Parser{
         let func_name_key = self.current;
         let func_name_tok = self.eat();
     
-        dbg!(&self.func_assign);
 	let same_key = self.find_same_func_key(func_name_key);
+	dbg!(same_key);
 	
 	let l_edge_idx = self.edges.len() as u32;
 	self.edges.push(NONE);
