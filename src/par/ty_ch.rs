@@ -244,12 +244,12 @@ impl Parser{
             current  += 1;
         }
         
-        let ty = &self.ret_types[current as usize];
+        let ty = &self.ret_types[current];
 
         match ty{
-            Type::i32 | Type::i64 => return Token::Int,
-            Type::f32 | Type::f64 => return Token::Float,
-            Type::bool            => return Token::Bool,
+            Type::i32 | Type::i64 =>  Token::Int,
+            Type::f32 | Type::f64 =>  Token::Float,
+            Type::bool            =>  Token::Bool,
             _ => panic!("[Line {:?}] Mismatch function type", self.lines[self.current as usize]) 
         }
 

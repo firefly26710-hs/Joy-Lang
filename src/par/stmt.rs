@@ -1,6 +1,6 @@
 use crate::par::ty::Type;
 use crate::lex::token::Token;
-use crate::lex::iterval::Iterval;
+use crate::lex::iterval::Interval;
 use crate::par::node::Node;
 use crate::par::parser::{Parser, NONE, MAGIC};
 use crate::par::expr::is_expr;
@@ -39,7 +39,7 @@ impl Parser{
 	        _ => panic!("[Line {:?}] Expected a (", self.lines[self.current as usize])
 	    };
 	    
-	    
+	    let mut param_count  = 0;
 	    loop{
 	        match self.peek(){
 	            Token::Ident =>{
@@ -85,6 +85,8 @@ impl Parser{
 		        }
 		        _ => unreachable!()
 	        };
+
+            param_count += 1;
             
 	        match self.peek(){
 	            Token::Rparen => break,
@@ -100,32 +102,29 @@ impl Parser{
 	        }
 	    };
 
-	    match self.peek(){
-	        Token::Arrow => {
-		        self.eat();
-		        match self.peek(){
-		            Token::Ident =>{
-			            let type_idx = self.current;
-			            self.eat();
-			            
-			            let ret_ty = self.type_mapping(type_idx);
-			            self.ret_type = ret_ty.clone();
-			            
-			            self.ret_types.push(ret_ty);
-		            }
-		            _ => unreachable!()
-		        }
-	        },
-	        
-	        Token::Lbrace => {},
-	        _ => panic!("[Line {:?}] Expected '->'", self.lines[self.current as usize])
-	    }
+
+        let ret_ty = if self.peek() == Token::Arrow && self.peek_next() == Token::Ident{
+            self.eat();
+            let type_key = self.current;
+            self.eat();
+
+            let ret_ty = self.type_mapping(type_key);
+            self.ret_type = ret_ty.clone();
+            ret_ty
+        }else if self.peek() == Token::Lbrace{
+            Type::Void
+        } else{
+            panic!("[Line {:?}] Mismatch return type", self.lines[self.current as usize])
+        };
+
+        self.ret_types.push(ret_ty);
 	    
-	    let l_type_idx = self.types.len() as u32;
+	    
+	    let l_type_idx = if param_count != 0{self.types.len() as u32}else{NONE};
 	    self.types.extend(param_type_recorder);	
-	    let r_type_idx = if self.types.len() == 0{0} else {(self.types.len() - 1) as u32};
+	    let r_type_idx = if param_count != 0{(self.types.len() - 1) as u32} else {NONE};
         
-	    self.param_type_idxs.push(Iterval::init(l_type_idx, r_type_idx));
+	    self.param_type_idxs.push(Interval::init(l_type_idx, r_type_idx));
 	    
 	    let block_idx = self.block_stmt();
 	    func_node_idx_recorder.push(block_idx);
@@ -589,11 +588,16 @@ impl Parser{
         let ret_key = self.current;
         let ret_tok = self.eat();
         
-        if self.ret_type == Type::Void && self.peek() != Token::Scolon{
+        
+        if self.ret_type != Type::Void && self.peek() == Token::Scolon{
             panic!("[Line {:?}]Mismatch return type", self.lines[self.current as usize]);
         }
-        
-        let expr_idx = self.expr(0.0);
+
+        let r_node = if self.ret_type != Type::Void{
+        self.expr(0.0)
+        } else{
+          NONE
+        };
 
         match self.peek(){
             Token::Scolon => {
@@ -606,7 +610,7 @@ impl Parser{
         
         let l_edge_idx = self.edges.len() as u32;
         self.edges.push(NONE);
-        self.edges.push(expr_idx);
+        self.edges.push(r_node);
         let r_edge_idx = (self.edges.len() - 1) as u32;
 
         let ret_node = Node::init(ret_tok, ret_key, l_edge_idx, r_edge_idx);

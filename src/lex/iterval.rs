@@ -1,13 +1,13 @@
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Iterval{
+pub struct Interval {
     pub start : u32,
     pub end   : u32
 }
 
-impl Iterval{
+impl Interval {
     pub fn init(start : u32, end : u32) -> Self{
-	Iterval{
+	Interval {
 	    start,
 	    end 
 	}

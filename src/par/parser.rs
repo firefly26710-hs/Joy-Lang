@@ -1,5 +1,5 @@
 use crate::lex::token::Token;
-use crate::lex::iterval::Iterval;
+use crate::lex::iterval::Interval;
 use crate::par::node::Node;
 use crate::par::ty::Type;
 use crate::lex::lexer::Lexer;
@@ -12,7 +12,7 @@ pub struct Parser{
     pub input               : String,
     pub tokens              : Vec<Token>,
     pub lines               : Vec<u32>,
-    pub intervals           : Vec<Iterval>,
+    pub intervals           : Vec<Interval>,
     pub types               : Vec<Type>,
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
@@ -24,7 +24,7 @@ pub struct Parser{
     pub key_checker         : Vec<u32>,
     
     pub func_assign         : Vec<u32>, 
-    pub param_type_idxs     : Vec<Iterval>,
+    pub param_type_idxs     : Vec<Interval>,
     pub ret_types           : Vec<Type>,
 
 
@@ -45,7 +45,7 @@ impl Parser{
         input     : String,
         tokens    : Vec<Token>,
         lines     : Vec<u32>,
-        intervals: Vec<Iterval>
+        intervals: Vec<Interval>
     ) -> Self{
 	    Parser{
 	        input,
@@ -156,17 +156,13 @@ impl Parser{
 fn parser_testing() {
     
     let input = "
-    fn fib(n : i32) -> i32{
-        if (n < 2){
-            return n;
-        }else{
-            return fib(n - 1) + fib(n - 2);
-        }
-    }
+    fn fib(a : i32){
+           return;
+    } 
 
     fn main(){
          let n = 5;
-         let sum = fib(n);
+         fib(n);
     }
 
 
