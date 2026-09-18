@@ -225,6 +225,6 @@ pub fn llvm_test(){
     code_gen.compile();
     code_gen.module.print_to_stderr();
 
-    code_gen.module.print_to_file("").unwrap();
+    code_gen.module.print_to_file("output.ll").unwrap();
 
 }
