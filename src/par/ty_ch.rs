@@ -195,7 +195,6 @@ impl Parser{
     
     pub fn is_bool_expr(&mut self, node : Node) -> bool{
         let op_tok = node.token;
-        dbg!(&op_tok);
        
        match op_tok{
             Token::Grt | Token::Les | Token::GrtEq | Token::LesEq | Token::EqEq => return true,
@@ -219,8 +218,6 @@ impl Parser{
 	        current += 1;
 	    }
         
-	    dbg!(&self.key_checker);
-	    dbg!(&self.types);
         
 	    let ty = &self.types[current as usize];
 	    match ty{

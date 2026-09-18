@@ -1,4 +1,5 @@
-use inkwell::values::FunctionValue;
+use inkwell::values::{BasicValueEnum, FunctionValue};
+use crate::par::ty::Type;
 use crate::llvm::codegen::{Codegen, NONE};
 use crate::lex::iterval::Interval;
 
@@ -13,6 +14,9 @@ impl<'ctx>Codegen<'ctx>{
         let name_key = name_node.key;
 
         let func = self.get_function(name_key);
+
+        let entry = self.context.append_basic_block(func, "function");
+        self.builder.position_at_end(entry);
 
         let param_type_interval = self.get_param_interval(name_key);
 
@@ -34,10 +38,47 @@ impl<'ctx>Codegen<'ctx>{
             let name_str = &self.input[start..end];
             
             let param_value = func.get_nth_param(i as u32).unwrap();
+            let ty = &param_types[i];
 
+            
+            match param_value{
+                BasicValueEnum::IntValue(val) => {
+                    let ty_value = if ty == &Type::i32{
+                        self.context.i32_type()
+                    }else if ty == &Type::i64{
+                        self.context.i64_type()
+                    }else if ty == &Type::bool{
+                        self.context.bool_type()
+                    }else{
+                        unreachable!()
+                    };
 
-    
-        } 
+                    let alloca = self.builder.build_alloca(ty_value, name_str).unwrap();
+                    self.builder.build_store(alloca, val).unwrap();
+
+                    self.variables.push(alloca);
+                },
+                BasicValueEnum::FloatValue(val) => {
+                    let ty_value = if ty == &Type::f32{
+                        self.context.f32_type()
+                    }else if ty == &Type::f64{
+                        self.context.f64_type()
+                    }else{
+                        unreachable!()
+                    };
+
+                    let alloca = self.builder.build_alloca(ty_value, name_str).unwrap();
+                    self.builder.build_store(alloca, val).unwrap();
+
+                    self.variables.push(alloca);
+                }
+                _ => unreachable!()
+            }
+        }
+
+        let stmts_idx = self.edges[r_edge_idx];
+        dbg!(stmts_idx);
+        self.compile_stmts(stmts_idx);
     }
 
 

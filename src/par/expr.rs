@@ -199,7 +199,7 @@ impl Parser{
 	        let current_key = self.var_scope_stack[current];
             
 	        if current_key != MAGIC && self.is_match_str(input_key, current_key) {
-		        return dbg!(current_key);
+		        return current_key;
 		        
             }
 
@@ -219,7 +219,7 @@ impl Parser{
 	        let current_key = self.func_assign[current];
             
 	        if self.is_match_str(input_key, current_key) {
-		        return dbg!(current_key);
+		        return current_key;
 		        
             }
             
@@ -249,8 +249,6 @@ impl Parser{
 	    let input_str = &self.input[input_start..input_end];
 	    let host_str  = &self.input[host_start..host_end];
         
-	    dbg!(input_str);
-	    dbg!(host_str);
         
 	    input_str == host_str
     }

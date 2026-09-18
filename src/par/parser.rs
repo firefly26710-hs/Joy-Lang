@@ -31,8 +31,7 @@ pub struct Parser{
     
 
 
-    //edge
-    pub recorder            : Vec<u32>,
+
 
     //stmt
     pub ret_type            : Type,
@@ -61,7 +60,7 @@ impl Parser{
 	        param_type_idxs     : Vec::new(),
 	        func_assign         : Vec::new(),
 	        ret_types           : Vec::new(),
-	        recorder            : Vec::new(),
+
 
 	        ret_type            : Type::Void,
 	        loop_counter        : 0,
@@ -156,13 +155,17 @@ impl Parser{
 fn parser_testing() {
     
     let input = "
-    fn fib(a : i32){
-           return;
-    } 
+   fn fib(n : i32) -> i32{
+        if(n < 2){
+            return 0;
+        }else{
+            return fib(n - 1) + fib(n - 2);
+        }
+    }
 
     fn main(){
          let n = 5;
-         fib(n);
+         let sum = fib(n);
     }
 
 

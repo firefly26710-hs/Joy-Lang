@@ -142,7 +142,6 @@ impl Parser{
     }
     
     pub fn match_stmt(&mut self) -> u32{
-	    dbg!(self.current);
         match self.peek(){
             Token::Let => self.let_stmt(),
             Token::For => self.for_stmt(),
@@ -511,13 +510,12 @@ impl Parser{
     }
     
     pub fn func_call(&mut self) -> u32{
-        self.recorder.clear();
+        let mut recorder = Vec::new();
         
         let func_name_key = self.current;
         let func_name_tok = self.eat();
         
 	    let same_key = self.find_same_func_key(func_name_key);
-	    dbg!(same_key);
 	
 	    let l_edge_idx = self.edges.len() as u32;
 	    self.edges.push(NONE);
@@ -528,7 +526,7 @@ impl Parser{
 	    self.nodes.push(func_name_node);
         
 	    let idx = self.nodes.len() - 1;
-	    self.recorder.push(idx as u32);
+	    recorder.push(idx as u32);
         
         
         match self.peek(){
@@ -547,7 +545,7 @@ impl Parser{
         self.peek() == Token::Minus{
 	    loop {
 		    let expr_idx = self.expr(0.0);
-		    self.recorder.push(expr_idx);
+		    recorder.push(expr_idx);
             match self.peek() {
                 Token::Rparen => break,
                 Token::Comma => self.eat(),
@@ -570,7 +568,7 @@ impl Parser{
         
         
         let l_edge_idx = self.edges.len() as u32;
-        self.edges.extend(self.recorder.clone());
+        self.edges.extend(recorder);
         let r_edge_idx = (self.edges.len() - 1) as u32;
         
         let func_call_node = Node::init(
@@ -626,7 +624,7 @@ impl Parser{
         self.record_branch_idx(&mut branch_idx_recorder);
 
         let l_edge_idx = self.edges.len() as u32;
-        self.edges.extend(self.recorder.clone());
+        self.edges.extend(branch_idx_recorder);
         let r_edge_idx = (self.edges.len() - 1) as u32;
 
         let if_node = Node::init(Token::IfStmt, if_key, l_edge_idx, r_edge_idx);
@@ -664,13 +662,12 @@ impl Parser{
                     }
                 };
 
-                self.recorder.clear();
                 let block_idx = self.block_stmt();
                 branch_idx_recorder.push(cond_idx);
                 branch_idx_recorder.push(block_idx);
             },
             Token::Elif => {
-                if self.recorder.len() < 2{
+                if branch_idx_recorder.len() < 2{
                     panic!(
                         "[Line {:?}] Expected 'if' token, but found 'elif'",
                         self.lines[self.current as usize]
@@ -703,13 +700,12 @@ impl Parser{
                 };
                 
                 let block_idx = self.block_stmt();
-                
-                self.recorder.clear();
+
                 branch_idx_recorder.push(cond_idx);
                 branch_idx_recorder.push(block_idx);
             },
             Token::Else => {
-                if self.recorder.len() < 1{
+                if branch_idx_recorder.len() < 1{
                     panic!(
                         "[Line {:?}] Expected 'if' token, but found 'else'",
                         self.lines[self.current as usize]
@@ -719,7 +715,7 @@ impl Parser{
                 self.eat();
                 let block_idx = self.block_stmt();
 
-                self.recorder.clear();
+
                 branch_idx_recorder.push(NONE);
                 branch_idx_recorder.push(block_idx);
             }
@@ -735,6 +731,7 @@ impl Parser{
     
 
     pub fn block_stmt(&mut self)->u32{
+        let mut recorder = Vec::new();
         let block_key = self.current;
         
         match self.peek(){
@@ -751,7 +748,7 @@ impl Parser{
 
         while self.peek() != Token::Rbrace{
             let stmt_idx = self.match_stmt();
-            self.recorder.push(stmt_idx);
+            recorder.push(stmt_idx);
         }
 
 
@@ -773,7 +770,7 @@ impl Parser{
 	    self.var_scope_stack.pop();
         
         let l_edge_idx = self.edges.len() as u32;
-        self.edges.extend(self.recorder.clone());
+        self.edges.extend(recorder);
         let r_edge_idx = (self.edges.len() - 1) as u32;
 	
         self.nodes.push(Node::init(Token::BlockStmt, block_key, l_edge_idx, r_edge_idx));

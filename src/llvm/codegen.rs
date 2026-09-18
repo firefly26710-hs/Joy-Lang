@@ -93,7 +93,6 @@ impl<'ctx> Codegen<'ctx>{
         let end = name_interval.end as usize;
         let name_str = &self.input[start..end];
 
-
         //function param
         let mut current = 0;
         while name_key != self.func_assigner[current]{
@@ -169,7 +168,7 @@ impl<'ctx> Codegen<'ctx>{
                 let interval = &self.intervals[param_key as usize];
                 let start = interval.start as usize;
                 let end = interval.end as usize;
-                let param_name_str = &self.input[start..=end];
+                let param_name_str = &self.input[start..end];
 
                 func.get_nth_param(i as u32).unwrap().set_name(param_name_str);
 
@@ -187,17 +186,22 @@ impl<'ctx> Codegen<'ctx>{
 #[test]
 pub fn llvm_test(){
     let input = "
-    fn fib(a : i32, b : f64){
-           return;
+    fn fib(n : i32) -> i32{
+        if(n < 2){
+            return 0;
+        }else{
+            return fib(n - 1) + fib(n - 2);
+        }
     }
+
     fn main(){
          let n = 5;
-         fib(n);
+
     }
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    lexer.print_output();
+   // lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.intervals);
     parser.build_tree();
     parser.print_node();
