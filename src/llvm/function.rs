@@ -78,7 +78,7 @@ impl<'ctx>Codegen<'ctx>{
 
         let stmts_idx = self.edges[r_edge_idx];
         dbg!(stmts_idx);
-        self.compile_stmts(stmts_idx);
+       // self.compile_stmts(stmts_idx);
     }
 
 

@@ -9,6 +9,7 @@ use crate::par::parser::{Parser};
 use crate::lex::iterval::Interval;
 use crate::par::node::Node;
 use crate::par::ty::Type;
+use std::path::Path;
 
 pub const NONE : usize = usize::MAX;
 
@@ -196,7 +197,7 @@ pub fn llvm_test(){
 
     fn main(){
          let n = 5;
-
+         let sum = fib(n);
     }
 ".to_string();
     let mut lexer = Lexer::init(input);
@@ -222,5 +223,8 @@ pub fn llvm_test(){
     );
 
     code_gen.compile();
+    code_gen.module.print_to_stderr();
+
+    code_gen.module.print_to_file("").unwrap();
 
 }
