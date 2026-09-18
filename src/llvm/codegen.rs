@@ -3,7 +3,7 @@ use inkwell::builder::Builder;
 use inkwell::context::Context;
 use inkwell::module::Module;
 use inkwell::types::BasicMetadataTypeEnum;
-use inkwell::values::FunctionValue;
+use inkwell::values::{PointerValue, FunctionValue};
 use crate::lex::lexer::Lexer;
 use crate::par::parser::{Parser};
 use crate::lex::iterval::Interval;
@@ -11,6 +11,8 @@ use crate::par::node::Node;
 use crate::par::ty::Type;
 
 pub const NONE : usize = usize::MAX;
+
+
 pub struct Codegen<'ctx>{
     pub context             : &'ctx Context,
     pub module              : Module<'ctx>,
@@ -22,6 +24,7 @@ pub struct Codegen<'ctx>{
     pub param_type_idxs     : Vec<Interval>,
     pub ret_types           : Vec<Type>,
     pub functions           : Vec<FunctionValue<'ctx>>,
+    pub variables           : Vec<PointerValue<'ctx>>,
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
 }
@@ -52,6 +55,7 @@ impl<'ctx> Codegen<'ctx>{
             func_assigner,
             param_type_idxs,
             ret_types,
+            variables : Vec::new(),
             functions : Vec::new(),
             edges,
             nodes
@@ -64,9 +68,14 @@ impl<'ctx> Codegen<'ctx>{
         let r_edge_idx = program_node.r_edge_idx as usize;
         let func_idxs = self.edges[l_edge_idx..=r_edge_idx].to_vec();
 
-        for func_idx in func_idxs {
-            self.build_function(func_idx);
+        for func_idx in &func_idxs {
+            self.build_function(*func_idx);
         }
+
+        for func_idx in func_idxs{
+            self.compile_function(func_idx);
+        }
+
     }
 
     fn build_function(&mut self, func_idx : u32){
@@ -118,13 +127,23 @@ impl<'ctx> Codegen<'ctx>{
 
         //creat function
         let func  = match ret_type{
-            Type::i32  =>{
+            Type::i32 =>{
                 let ret_type = self.context.i32_type();
                 let fn_type = ret_type.fn_type(&param_types_vec, false);
                 self.module.add_function(name_str, fn_type, None)
-            }
+            },
+            Type::i64 =>{
+                let ret_type = self.context.i64_type();
+                let fn_type = ret_type.fn_type(&param_types_vec, false);
+                self.module.add_function(name_str, fn_type, None)
+            },
             Type::f32 =>{
                 let ret_type = self.context.f32_type();
+                let fn_type = ret_type.fn_type(&param_types_vec, false);
+                self.module.add_function(name_str, fn_type, None)
+            },
+            Type::f64 =>{
+                let ret_type = self.context.f64_type();
                 let fn_type = ret_type.fn_type(&param_types_vec, false);
                 self.module.add_function(name_str, fn_type, None)
             }
@@ -137,7 +156,7 @@ impl<'ctx> Codegen<'ctx>{
                 let ret_type = self.context.void_type();
                 let fn_type = ret_type.fn_type(&param_types_vec, false);
                 self.module.add_function(name_str, fn_type, None)
-            }
+            },
             _ => unreachable!()
         };
 
