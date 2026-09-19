@@ -10,6 +10,8 @@ use crate::lex::iterval::Interval;
 use crate::par::node::Node;
 use crate::par::ty::Type;
 use std::path::Path;
+use inkwell::OptimizationLevel;
+use inkwell::targets::{CodeModel, InitializationConfig, RelocMode, Target, TargetMachine};
 
 pub const NONE : usize = usize::MAX;
 
@@ -226,5 +228,6 @@ pub fn llvm_test(){
     code_gen.module.print_to_stderr();
 
     code_gen.module.print_to_file("output.ll").unwrap();
+
 
 }
