@@ -13,7 +13,16 @@
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output.ll" beforeDir="false" afterPath="$PROJECT_DIR$/output.ll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/#function.rs#" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/llvm/codegen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/function.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/function.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/comp" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/comp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/libcomp.rlib" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/libcomp.rlib" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +84,41 @@
     <configuration name="Run comp" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="buildProfileId" value="dev" />
       <option name="command" value="run --package comp --bin comp" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run comp" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package comp --bin comp" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test comp" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="command" value="test --workspace" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />

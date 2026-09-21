@@ -15,7 +15,7 @@ impl<'ctx>Codegen<'ctx>{
 
         let func = self.get_function(name_key);
 
-        let entry = self.context.append_basic_block(func, "function");
+        let entry = self.context.append_basic_block(func, "entry");
         self.builder.position_at_end(entry);
 
         let param_type_interval = self.get_param_interval(name_key);
@@ -76,9 +76,10 @@ impl<'ctx>Codegen<'ctx>{
             }
         }
 
-        let stmts_idx = self.edges[r_edge_idx];
-        dbg!(stmts_idx);
-       // self.compile_stmts(stmts_idx);
+        let stmts_idx = self.edges[r_edge_idx] as usize;
+        self.compile_stmts(stmts_idx);
+
+        
     }
 
 

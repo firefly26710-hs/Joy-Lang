@@ -122,7 +122,6 @@ impl<'ctx> Codegen<'ctx>{
         }else {
             Vec::new()
         };
-        dbg!(&param_types_vec);
 
         //function return type
         let ret_type = &self.ret_types[current];
@@ -164,7 +163,6 @@ impl<'ctx> Codegen<'ctx>{
 
         if has_param{
             let param_idxs = self.edges[l_edge_idx + 1..r_edge_idx].to_vec();
-            dbg!(&param_idxs);
             for (i, param_idx) in param_idxs.into_iter().enumerate(){
                 let param_node = &self.nodes[param_idx as usize];
                 let param_key = param_node.key;
@@ -186,21 +184,20 @@ impl<'ctx> Codegen<'ctx>{
 
 }
 
-#[test]
-pub fn llvm_test(){
+#[test] pub fn llvm_test(){
     let input = "
-    fn fib(n : i32) -> i32{
-        if(n < 2){
-            return 0;
-        }else{
-            return fib(n - 1) + fib(n - 2);
-        }
-    }
+fn fib(n : i32) -> i32{
+     if(n < 2){
+        return 0;
+     }else{
+        return fib(n - 1) + fib(n - 2);
+     }
+}
 
-    fn main(){
-         let n = 5;
-         let sum = fib(n);
-    }
+fn main(){
+    let n = 5;
+    let sum = fib(n);
+}
 ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
