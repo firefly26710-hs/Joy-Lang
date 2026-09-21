@@ -22,6 +22,7 @@ pub struct Codegen<'ctx>{
     pub builder             : Builder<'ctx>,
     pub input               : String,
     pub intervals           : Vec<Interval>,
+    pub key_checker         : Vec<u32>,
     pub types               : Vec<Type>,
     pub func_assigner       : Vec<u32>,
     pub param_type_idxs     : Vec<Interval>,
@@ -37,6 +38,7 @@ impl<'ctx> Codegen<'ctx>{
         context : &'ctx Context,
         input            : String,
         intervals        : Vec<Interval>,
+        key_checker      : Vec<u32>,
         types            : Vec<Type>,
         module_name      : &str,
         func_assigner    : Vec<u32>,
@@ -53,6 +55,7 @@ impl<'ctx> Codegen<'ctx>{
             module,
             builder,
             input,
+            key_checker,
             intervals,
             types,
             func_assigner,
@@ -183,8 +186,43 @@ impl<'ctx> Codegen<'ctx>{
 
 
 }
+#[test]
+pub fn small_test(){
+    let input = "
+fn main(){
+   let x : f64 = 6.4;
+}".to_string();
 
-#[test] pub fn llvm_test(){
+    let mut lexer = Lexer::init(input);
+    lexer.tokenize();
+   // lexer.print_output();
+    let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.intervals);
+    parser.build_tree();
+    parser.print_node();
+    parser.print_scope();
+
+
+    let context = Context::create();
+    let mut code_gen = Codegen::new(
+        &context,
+        parser.input,
+        parser.intervals,
+        parser.key_checker,
+        parser.types,
+        "joyc",
+        parser.func_assign,
+        parser.param_type_idxs,
+        parser.ret_types,
+        parser.edges,
+        parser.nodes
+    );
+
+    code_gen.compile();
+    code_gen.module.print_to_stderr();
+}
+
+#[test]
+pub fn llvm_test(){
     let input = "
 fn fib(n : i32) -> i32{
      if(n < 2){
@@ -212,6 +250,7 @@ fn main(){
         &context,
         parser.input,
         parser.intervals,
+        parser.key_checker,
         parser.types,
         "joyc",
         parser.func_assign,

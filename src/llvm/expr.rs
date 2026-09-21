@@ -6,7 +6,7 @@ use crate::par::ty::Type;
 use crate::lex::token::Token;
 
 impl<'ctx> Codegen<'ctx>{
-    fn expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
+    pub fn expr(&mut self, expr_idx : usize, ty : Type) -> BasicValueEnum<'ctx>{
         let node  = &self.nodes[expr_idx];
         let token = &node.token.clone();
         let key = node.key as usize;
@@ -23,7 +23,7 @@ impl<'ctx> Codegen<'ctx>{
                     
                     match token{
                         Token::Int => {
-                            let ty = self.int_type_mapping(ty);
+                            let ty = self.int_type_mapping(&ty);
                             let integer : i64 = var_str.parse().unwrap();
                             return ty.const_int(integer as u64, false).into();
                         },
@@ -31,7 +31,7 @@ impl<'ctx> Codegen<'ctx>{
                         Token::True  => {todo!()},
                         Token::False => {todo!()}
                         Token::Float => {
-                            let ty = self.float_type_mapping(ty);
+                            let ty = self.float_type_mapping(&ty);
                             let float : f64 = var_str.parse().unwrap();
                             return ty.const_float(float).into()
                         },
@@ -40,7 +40,7 @@ impl<'ctx> Codegen<'ctx>{
                 },
                 (NONE, r_idx) => {todo!()},
                 (l_idx, r_idx) => {
-                    let lhs = self.expr(l_idx as usize, ty);
+                    let lhs = self.expr(l_idx as usize, ty.clone());
                     let rhs = self.expr(r_idx as usize, ty);
 
                     match (lhs, rhs){
@@ -182,17 +182,16 @@ impl<'ctx> Codegen<'ctx>{
     }
 
     #[inline(always)]
-    fn int_type_mapping(&self ,ty : &Type) -> inkwell::types::IntType<'ctx>{
+    pub fn int_type_mapping(&self ,ty : &Type) -> inkwell::types::IntType<'ctx>{
         match ty{
             Type::i32  => return self.context.i32_type().into(),
             Type::i64  => return self.context.i64_type().into(),
-            
             _ => unreachable!()
         }
     }
 
     #[inline(always)]
-    fn float_type_mapping(&self ,ty : &Type) -> inkwell::types::FloatType<'ctx>{
+    pub fn float_type_mapping(&self ,ty : &Type) -> inkwell::types::FloatType<'ctx>{
         match ty{
             Type::f32  => return self.context.f32_type().into(),
             Type::f64  => return self.context.f64_type().into(),
@@ -201,7 +200,7 @@ impl<'ctx> Codegen<'ctx>{
     }
 
     #[inline(always)]
-    fn bool_type_mapping(&self, ty : &Type) -> inkwell::types::IntType<'ctx>{
+    pub fn bool_type_mapping(&self, ty : &Type) -> inkwell::types::IntType<'ctx>{
         self.context.bool_type().into()
     }
 

@@ -44,7 +44,7 @@ impl Parser{
             (Type::i64, Token::Int)   => self.types.push(Type::i32),
 
             (Type::f32, Token::Float) => self.types.push(Type::f32),
-            (Type::f64, Token::Float) => self.types.push(Type::f32),
+            (Type::f64, Token::Float) => self.types.push(Type::f64),
 
             (Type::bool, Token::Bool) => self.types.push(Type::bool),
             (Type::bool, Token::True) => self.types.push(Type::bool),
