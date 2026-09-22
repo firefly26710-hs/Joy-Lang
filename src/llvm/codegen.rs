@@ -9,9 +9,7 @@ use crate::par::parser::{Parser};
 use crate::lex::iterval::Interval;
 use crate::par::node::Node;
 use crate::par::ty::Type;
-use std::path::Path;
-use inkwell::OptimizationLevel;
-use inkwell::targets::{CodeModel, InitializationConfig, RelocMode, Target, TargetMachine};
+
 
 pub const NONE : usize = usize::MAX;
 
@@ -29,6 +27,7 @@ pub struct Codegen<'ctx>{
     pub ret_types           : Vec<Type>,
     pub functions           : Vec<FunctionValue<'ctx>>,
     pub variables           : Vec<PointerValue<'ctx>>,
+    pub current_fn          : Option<FunctionValue<'ctx>>,
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
 }
@@ -63,6 +62,7 @@ impl<'ctx> Codegen<'ctx>{
             ret_types,
             variables : Vec::new(),
             functions : Vec::new(),
+            current_fn : None,
             edges,
             nodes
         }
@@ -178,7 +178,7 @@ impl<'ctx> Codegen<'ctx>{
 
             }
         }
-
+        self.current_fn = Some(func);
         self.functions.push(func);
 
     }
@@ -189,13 +189,14 @@ impl<'ctx> Codegen<'ctx>{
 #[test]
 pub fn small_test(){
     let input = "
-fn main(){
-   let x : f64 = 6.4;
-}".to_string();
+   fn main(){
+       for i in [5 -> 7 | 1]{
+       }
+   }".to_string();
 
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-   // lexer.print_output();
+    lexer.print_output();
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.intervals);
     parser.build_tree();
     parser.print_node();
@@ -219,6 +220,8 @@ fn main(){
 
     code_gen.compile();
     code_gen.module.print_to_stderr();
+
+    code_gen.module.print_to_file("test.ll").unwrap();
 }
 
 #[test]

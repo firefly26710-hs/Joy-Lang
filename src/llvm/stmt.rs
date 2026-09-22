@@ -1,9 +1,7 @@
-use std::env::var;
-use inkwell::values::{BasicValueEnum, PointerValue};
+use inkwell::values::{BasicValueEnum};
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
 use crate::par::ty::Type;
-
 
 
 impl<'ctx> Codegen<'ctx>{
@@ -58,7 +56,46 @@ impl<'ctx> Codegen<'ctx>{
         self.variables.push(alloca);
     }
 
-    fn for_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
+    fn for_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+        
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx].to_vec();
+
+        //name node
+        let name_node = &self.nodes[idxs[0] as usize];
+        let interval = &self.intervals[name_node.key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+
+
+        let s_number : BasicValueEnum = self.expr(idxs[1] as usize, Type::i64 );
+        let e_number : BasicValueEnum = self.expr(idxs[2] as usize, Type::i64 );
+        let step_number : BasicValueEnum = self.expr(idxs[3] as usize, Type::i64);
+
+
+        let name_str = &self.input[start..end];
+        let i64_type = self.context.i64_type();
+        let ident_alloca = self.builder.build_alloca(i64_type, name_str).unwrap();
+        self.builder.build_store(ident_alloca, s_number).unwrap();
+
+        let func = self.current_fn.unwrap();
+        let cond_bb = self.context.append_basic_block(func, "cond");
+        let body_bb = self.context.append_basic_block(func, "block");
+        let step_bb = self.context.append_basic_block(func, "step");
+        let end_bb = self.context.append_basic_block(func, "end");
+
+
+
+
+
+
+
+
+        
+
+        
+
+        
+    }
     fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn brk_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
