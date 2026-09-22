@@ -52,7 +52,6 @@ impl<'ctx> Codegen<'ctx>{
 
         let alloca =self.builder.build_alloca(var_type, name_str).unwrap();
         self.builder.build_store(alloca, variable).unwrap();
-
         self.variables.push(alloca);
     }
 
@@ -78,34 +77,54 @@ impl<'ctx> Codegen<'ctx>{
         self.builder.build_store(ident_alloca, s_number).unwrap();
 
         let func = self.current_fn.unwrap();
-        let cond_bb = self.context.append_basic_block(func, "cond");
-        let body_bb = self.context.append_basic_block(func, "block");
-        let step_bb = self.context.append_basic_block(func, "step");
-        let end_bb = self.context.append_basic_block(func, "end");
+        let cond_bb = self.context.append_basic_block(func, "for.cond");
+        let body_bb = self.context.append_basic_block(func, "for.body");
+        let step_bb = self.context.append_basic_block(func, "for.step");
+        let end_bb = self.context.append_basic_block(func, "for.end");
 
         self.builder.build_unconditional_branch(cond_bb).unwrap();
 
-        //Cond
+        //for.cond
         self.builder.position_at_end(cond_bb);
-        let cur_ident_number = self.builder.build_load(i64_type, ident_alloca, name_str);
-        let end_number = e_number.build_int_value();
+        let cur_ident_number = self.builder.build_load(
+            i64_type,
+            ident_alloca,
+            name_str
+        ).unwrap().into_int_value();
+
+        let end_number = e_number.into_int_value();
 
         let cond_bool = self.builder.build_int_compare(
             inkwell::IntPredicate::SLT,
             cur_ident_number,
             end_number,
-            "cond"
+            "is_loop_end"
         ).unwrap();
 
-        self.builder.build_conditional_branch(cond_bb, body_bb, end_bb).unwrap();
+        self.builder.build_conditional_branch(cond_bool, body_bb, end_bb).unwrap();
 
 
-        //body
+        //for.body
         self.builder.position_at_end(body_bb);
         self.compile_stmts(idxs[4] as usize);
+        self.builder.build_unconditional_branch(step_bb).unwrap();
 
 
-        
+        //for.step
+        self.builder.position_at_end(step_bb);
+        let step_number = step_number.into_int_value();
+        let next_ident_number = self.builder.build_int_add(
+            cur_ident_number,
+            step_number,
+            "next_ident_number"
+        ).unwrap();
+
+        self.builder.build_store(ident_alloca, next_ident_number).unwrap();
+        self.builder.build_unconditional_branch(cond_bb).unwrap();
+
+
+        //for.end
+        self.builder.position_at_end(end_bb);
     }
     fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}

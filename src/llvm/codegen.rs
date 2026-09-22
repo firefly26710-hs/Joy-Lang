@@ -190,7 +190,8 @@ impl<'ctx> Codegen<'ctx>{
 pub fn small_test(){
     let input = "
    fn main(){
-       for i in [5 -> 7 | 1]{
+       for i in [0 -> 2 | 1]{
+          let x = 5;
        }
    }".to_string();
 
@@ -221,7 +222,7 @@ pub fn small_test(){
     code_gen.compile();
     code_gen.module.print_to_stderr();
 
-    code_gen.module.print_to_file("test.ll").unwrap();
+    //code_gen.module.print_to_file("test.ll").unwrap();
 }
 
 #[test]
