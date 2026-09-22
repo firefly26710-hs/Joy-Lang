@@ -67,8 +67,8 @@ impl<'ctx> Codegen<'ctx>{
         let end = interval.end as usize;
 
 
-        let s_number : BasicValueEnum = self.expr(idxs[1] as usize, Type::i64 );
-        let e_number : BasicValueEnum = self.expr(idxs[2] as usize, Type::i64 );
+        let s_number : BasicValueEnum = self.expr(idxs[1] as usize, Type::i64);
+        let e_number : BasicValueEnum = self.expr(idxs[2] as usize, Type::i64);
         let step_number : BasicValueEnum = self.expr(idxs[3] as usize, Type::i64);
 
 
@@ -83,16 +83,27 @@ impl<'ctx> Codegen<'ctx>{
         let step_bb = self.context.append_basic_block(func, "step");
         let end_bb = self.context.append_basic_block(func, "end");
 
+        self.builder.build_unconditional_branch(cond_bb).unwrap();
+
+        //Cond
+        self.builder.position_at_end(cond_bb);
+        let cur_ident_number = self.builder.build_load(i64_type, ident_alloca, name_str);
+        let end_number = e_number.build_int_value();
+
+        let cond_bool = self.builder.build_int_compare(
+            inkwell::IntPredicate::SLT,
+            cur_ident_number,
+            end_number,
+            "cond"
+        ).unwrap();
+
+        self.builder.build_conditional_branch(cond_bb, body_bb, end_bb).unwrap();
 
 
+        //body
+        self.builder.position_at_end(body_bb);
+        self.compile_stmts(idxs[4] as usize);
 
-
-
-
-
-        
-
-        
 
         
     }
