@@ -12,6 +12,7 @@ impl<'ctx> Codegen<'ctx>{
         let key = node.key as usize;
         let l_idx = self.edges[node.l_edge_idx as usize];
         let r_idx = self.edges[node.r_edge_idx as usize];
+        dbg!(node);
 
         if !matches!(token, &Token::CallStmt){
             match (l_idx, r_idx){
@@ -70,7 +71,7 @@ impl<'ctx> Codegen<'ctx>{
                                 },
                                 Token::Grt => {
                                     self.builder.build_int_compare(
-                                        IntPredicate::SLT,
+                                        IntPredicate::SGT,
                                         l, r,
                                         "INT_LESSER"
                                     ).unwrap().into()
@@ -124,13 +125,6 @@ impl<'ctx> Codegen<'ctx>{
                                     self.builder.build_float_rem(l, r,"FLOAT_MOD").unwrap().into()
                                 },
                                 Token::Les    => {
-                                    self.builder.build_float_compare(
-                                        FloatPredicate::OLT,
-                                        l, r,
-                                        "FLOAT_LESSER"
-                                    ).unwrap().into()
-                                },
-                                Token::Grt => {
                                     self.builder.build_float_compare(
                                         FloatPredicate::OLT,
                                         l, r,

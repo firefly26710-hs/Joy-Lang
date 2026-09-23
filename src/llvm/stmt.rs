@@ -1,3 +1,5 @@
+use std::process::id;
+use inkwell::basic_block::BasicBlock;
 use inkwell::values::{BasicValueEnum};
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
@@ -64,16 +66,17 @@ impl<'ctx> Codegen<'ctx>{
         let interval = &self.intervals[name_node.key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
-
-
         let s_number : BasicValueEnum = self.expr(idxs[1] as usize, Type::i64);
         let e_number : BasicValueEnum = self.expr(idxs[2] as usize, Type::i64);
         let step_number : BasicValueEnum = self.expr(idxs[3] as usize, Type::i64);
 
 
+
+
         let name_str = &self.input[start..end];
         let i64_type = self.context.i64_type();
         let ident_alloca = self.builder.build_alloca(i64_type, name_str).unwrap();
+
         self.builder.build_store(ident_alloca, s_number).unwrap();
 
         let func = self.current_fn.unwrap();
@@ -127,22 +130,35 @@ impl<'ctx> Codegen<'ctx>{
         self.builder.position_at_end(end_bb);
     }
     fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
-        let idxs = &self.edges[l_edge_idx..=r_edge_idx].to_vec();
-        dbg!(idxs);
 
-        for (i,_) in idxs.iter().enumerate().step_by(2){
-            let cond_idx = idxs[i];
-            let stmt_idx = idxs[i + 1];
-            dbg!(cond_idx);
-            dbg!(stmt_idx);
+    }
+    fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx];
+        let func = self.current_fn.unwrap();
+        let cond_idx = idxs[0];
+        let stmt_idx = idxs[1];
 
-        }
+        let cond_bb = self.context.append_basic_block(func, "while.cond");
+        let body_bb = self.context.append_basic_block(func, "while.body");
+        let end_bb = self.context.append_basic_block(func, "while.end");
 
 
+        //while.cond
+        self.builder.build_unconditional_branch(cond_bb).unwrap();
+        self.builder.position_at_end(cond_bb);
+        let cond_val = self.expr(cond_idx as usize, Type::i64).into_int_value();
+        self.builder.build_conditional_branch(cond_val, body_bb, end_bb).unwrap();
+
+        //while.body
+        self.builder.position_at_end(body_bb);
+        self.compile_stmts(stmt_idx as usize);
+        self.builder.build_unconditional_branch(cond_bb).unwrap();
+
+        //while.end
+        self.builder.position_at_end(end_bb);
 
 
     }
-    fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn brk_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn ctn_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn ret_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}

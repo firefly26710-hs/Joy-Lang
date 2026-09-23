@@ -191,9 +191,13 @@ impl<'ctx> Codegen<'ctx>{
 pub fn small_test(){
     let input = "
    fn main(){
-       if (3 > 5){}else{}
-   }".to_string();
+       while(3 > 5){
+           let x = 5;
+       }
+       let y = 7;
+   }
 
+   ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     lexer.print_output();
@@ -230,9 +234,8 @@ pub fn llvm_test(){
 fn fib(n : i32) -> i32{
      if(n < 2){
         return 0;
-     }else{
-        return fib(n - 1) + fib(n - 2);
      }
+     return fib(n - 1) + fib(n - 2);
 }
 
 fn main(){
