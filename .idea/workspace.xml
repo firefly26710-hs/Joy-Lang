@@ -13,11 +13,11 @@
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/llvm/codegen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/function.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/function.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/llvm/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.ll" beforeDir="false" afterPath="$PROJECT_DIR$/test.ll" afterDir="false" />
     </list>
@@ -165,6 +165,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

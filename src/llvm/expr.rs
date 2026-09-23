@@ -1,47 +1,77 @@
-use inkwell::values::BasicValueEnum;
+use inkwell::values::{BasicValue, BasicValueEnum};
 use inkwell::{IntPredicate, FloatPredicate};
+use inkwell::values::AsValueRef;
 use crate::llvm::codegen::Codegen;
 use crate::par::parser::NONE;
 use crate::par::ty::Type;
 use crate::lex::token::Token;
 
 impl<'ctx> Codegen<'ctx>{
-    pub fn expr(&mut self, expr_idx : usize, ty : Type) -> BasicValueEnum<'ctx>{
+    pub fn expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
         let node  = &self.nodes[expr_idx];
         let token = &node.token.clone();
-        let key = node.key as usize;
+        let key = node.key;
         let l_idx = self.edges[node.l_edge_idx as usize];
         let r_idx = self.edges[node.r_edge_idx as usize];
-        dbg!(node);
+
 
         if !matches!(token, &Token::CallStmt){
             match (l_idx, r_idx){
                 (NONE, NONE) =>{
-                    let interval = &self.intervals[key];
+                    let interval = &self.intervals[key as usize];
                     let start = interval.start as usize;
                     let end = interval.end as usize;
-                    let var_str = &self.input[start..end];
+
                     
                     match token{
                         Token::Int => {
-                            let ty = self.int_type_mapping(&ty);
+                            let ty = self.int_type_mapping(ty.clone());
+                            let var_str = &self.input[start..end];
                             let integer : i64 = var_str.parse().unwrap();
-                            return ty.const_int(integer as u64, false).into();
+                            ty.const_int(integer as u64, false).into()
                         },
-                        Token::Ident => {todo!()},
+
+                        Token::Ident => {
+                            let name_str = &self.input[start..end];
+                            let alloca = self.variable_get(&key);
+                            let var_type = self.type_get(&key);
+
+                            let loaded_val = match var_type {
+                                Type::i32 | Type::i64 => {
+                                    let int_ty = self.int_type_mapping(var_type);
+                                    self.builder.build_load(int_ty, alloca, name_str).unwrap().as_basic_value_enum()
+                                }
+                                Type::f32 | Type::f64 => {
+                                    let float_ty = self.float_type_mapping(var_type);
+                                    self.builder.build_load(float_ty, alloca, name_str).unwrap().as_basic_value_enum()
+                                }
+                                _ => unreachable!(),
+                            };
+
+                            // 2. 「降維」：把包裝型態轉成裸指標 LLVMValueRef (這只是個純數字指標，完全沒有生命週期限制)
+                            let raw_ptr = loaded_val.as_value_ref();
+
+                            // 3. 「升維」：在需要回傳的地方，用 unsafe 強行把它重新包回帶有 'ctx 的 BasicValueEnum
+                            // 這裡因為型態已經脫離了 &self 的借用，編譯器就不會再靠北生命週期衝突了！
+                            unsafe {
+                                BasicValueEnum::new(raw_ptr)
+                            }
+                        },
+                        Token::Float => {
+                            let ty = self.float_type_mapping(ty.clone());
+                            let var_str = &self.input[start..end];
+                            let float : f64 = var_str.parse().unwrap();
+                            ty.const_float(float).into()
+                        },
                         Token::True  => {todo!()},
                         Token::False => {todo!()}
-                        Token::Float => {
-                            let ty = self.float_type_mapping(&ty);
-                            let float : f64 = var_str.parse().unwrap();
-                            return ty.const_float(float).into()
-                        },
+
                         _ => unreachable!(),
                     }
                 },
                 (NONE, r_idx) => {todo!()},
                 (l_idx, r_idx) => {
-                    let lhs = self.expr(l_idx as usize, ty.clone());
+                    let lhs = self.expr(l_idx as usize, ty);
                     let rhs = self.expr(r_idx as usize, ty);
 
                     match (lhs, rhs){
@@ -74,13 +104,6 @@ impl<'ctx> Codegen<'ctx>{
                                         IntPredicate::SGT,
                                         l, r,
                                         "INT_LESSER"
-                                    ).unwrap().into()
-                                },
-                                Token::Grt => {
-                                    self.builder.build_int_compare(
-                                        IntPredicate::SGT,
-                                        l, r,
-                                        "INT_GREATER"
                                     ).unwrap().into()
                                 },
                                 Token::LesEq => {
@@ -176,26 +199,29 @@ impl<'ctx> Codegen<'ctx>{
     }
 
     #[inline(always)]
-    pub fn int_type_mapping(&self ,ty : &Type) -> inkwell::types::IntType<'ctx>{
+    pub fn int_type_mapping(&self ,ty : Type) -> inkwell::types::IntType<'ctx>{
         match ty{
-            Type::i32  => return self.context.i32_type().into(),
-            Type::i64  => return self.context.i64_type().into(),
+            Type::i32  => return self.context.i32_type(),
+            Type::i64  => return self.context.i64_type(),
             _ => unreachable!()
         }
     }
 
     #[inline(always)]
-    pub fn float_type_mapping(&self ,ty : &Type) -> inkwell::types::FloatType<'ctx>{
+    pub fn float_type_mapping(&self ,ty : Type) -> inkwell::types::FloatType<'ctx>{
         match ty{
-            Type::f32  => return self.context.f32_type().into(),
-            Type::f64  => return self.context.f64_type().into(),
+            Type::f32  => return self.context.f32_type(),
+            Type::f64  => return self.context.f64_type(),
             _ => unreachable!()
         }
     }
 
     #[inline(always)]
-    pub fn bool_type_mapping(&self, ty : &Type) -> inkwell::types::IntType<'ctx>{
+    pub fn bool_type_mapping(&self,) -> inkwell::types::IntType<'ctx>{
         self.context.bool_type().into()
     }
+
+
+
 
 }

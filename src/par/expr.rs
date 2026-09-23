@@ -81,7 +81,7 @@ impl Parser{
                     self.edges.push(NONE);
                     
                     let r_edge_idx = (self.edges.len() - 1) as u32;
-                    let node = Node::init(same_key_type, same_key, l_edge_idx, r_edge_idx);
+                    let node = Node::init(Token::Ident, same_key, l_edge_idx, r_edge_idx);
                     self.nodes.push(node);
                     self.nodes.len() - 1
 		        }else{

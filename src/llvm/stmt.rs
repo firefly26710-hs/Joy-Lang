@@ -1,4 +1,4 @@
-use inkwell::values::{BasicValueEnum};
+use inkwell::values::{BasicValueEnum, PointerValue};
 use crate::par::parser::NONE;
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
@@ -39,7 +39,7 @@ impl<'ctx> Codegen<'ctx>{
         let expr_idx = idxs[1] as usize;
         let name_key = name_node.key;
         let ty = self.type_get(&name_key);
-        let variable = self.expr(expr_idx, ty);
+        let variable = self.expr(expr_idx, &ty);
         let var_type : inkwell::types::BasicTypeEnum<'ctx> = match variable{
             BasicValueEnum::IntValue(v) => v.get_type().into(),
             BasicValueEnum::FloatValue(v) => v.get_type().into(),
@@ -51,7 +51,10 @@ impl<'ctx> Codegen<'ctx>{
         let end = interval.end as usize;
         let name_str = &self.input[start..end];
 
-        let alloca =self.builder.build_alloca(var_type, name_str).unwrap();
+
+        let entry = self.current_fn.unwrap().get_first_basic_block().unwrap();
+        self.builder.position_at_end(entry);
+        let alloca = self.builder.build_alloca(var_type, name_str).unwrap();
         self.builder.build_store(alloca, variable).unwrap();
         self.variables.push(alloca);
     }
@@ -65,9 +68,9 @@ impl<'ctx> Codegen<'ctx>{
         let interval = &self.intervals[name_node.key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
-        let s_number : BasicValueEnum = self.expr(idxs[1] as usize, Type::i64);
-        let e_number : BasicValueEnum = self.expr(idxs[2] as usize, Type::i64);
-        let step_number : BasicValueEnum = self.expr(idxs[3] as usize, Type::i64);
+        let s_number : BasicValueEnum = self.expr(idxs[1] as usize, &Type::i64);
+        let e_number : BasicValueEnum = self.expr(idxs[2] as usize, &Type::i64);
+        let step_number : BasicValueEnum = self.expr(idxs[3] as usize, &Type::i64);
 
 
 
@@ -132,6 +135,9 @@ impl<'ctx> Codegen<'ctx>{
         self.builder.position_at_end(end_bb);
     }
     fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx];
+        let func = self.current_fn.unwrap();
+
 
     }
     fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
@@ -150,7 +156,7 @@ impl<'ctx> Codegen<'ctx>{
         //while.cond
         self.builder.build_unconditional_branch(cond_bb).unwrap();
         self.builder.position_at_end(cond_bb);
-        let cond_val = self.expr(cond_idx as usize, Type::i64).into_int_value();
+        let cond_val = self.expr(cond_idx as usize, &Type::i64).into_int_value();
         self.builder.build_conditional_branch(cond_val, body_bb, end_bb).unwrap();
 
         //while.body
@@ -177,12 +183,14 @@ impl<'ctx> Codegen<'ctx>{
         let idxs = &self.edges[l_edge_idx..=r_edge_idx];
         let l_idx = idxs[0];
         let r_idx = idxs[1];
+        let last_basic_block = self.current_fn.unwrap().get_last_basic_block().unwrap();
+        self.builder.position_at_end(last_basic_block);
 
         //return void
         if l_idx == NONE && r_idx == NONE{
             self.builder.build_return(None).unwrap();
         }else{
-            let expr = self.expr(r_idx as usize, self.ret_type.clone());
+            let expr = self.expr(r_idx as usize, &self.ret_type.clone());
             self.builder.build_return(Some(&expr)).unwrap();
         }
     }
@@ -190,15 +198,27 @@ impl<'ctx> Codegen<'ctx>{
 
 
     #[inline(always)]
-    fn type_get(&mut self, var_key : &u32) -> Type{
+    pub fn type_get(&self, var_key : &u32) -> Type{
         let mut current = 0;
         while var_key != &self.key_checker[current] && current < self.key_checker.len(){
             current += 1;
         }
 
          self.types[current].clone()
-
-        
     }
+
+    #[inline(always)]
+    pub fn variable_get(&self, var_key : &u32) -> PointerValue{
+        let mut current = 0;
+        while var_key != &self.key_checker[current] && current < self.key_checker.len(){
+            current += 1;
+        }
+
+        self.variables[current]
+    }
+    
+    
+    
+    
 
 }

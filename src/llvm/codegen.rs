@@ -4,7 +4,7 @@ use inkwell::builder::Builder;
 use inkwell::context::Context;
 use inkwell::module::Module;
 use inkwell::types::BasicMetadataTypeEnum;
-use inkwell::values::{PointerValue, FunctionValue};
+use inkwell::values::{PointerValue, FunctionValue, BasicValueEnum};
 use crate::lex::lexer::Lexer;
 use crate::par::parser::{Parser};
 use crate::lex::iterval::Interval;
@@ -91,6 +91,8 @@ impl<'ctx> Codegen<'ctx>{
 
     }
 
+
+
     fn build_function(&mut self, func_idx : u32){
         let func_node = &self.nodes[func_idx as usize];
 
@@ -110,7 +112,7 @@ impl<'ctx> Codegen<'ctx>{
         let mut current = 0;
         while name_key != self.func_assigner[current]{
             current += 1;
-            
+
         }
         let param_idxs = &self.param_type_idxs[current];
         let l_type_idx = param_idxs.start as usize;
@@ -186,7 +188,6 @@ impl<'ctx> Codegen<'ctx>{
 
             }
         }
-        //self.current_fn = Some(func);
         self.functions.push(func);
 
     }
@@ -198,10 +199,9 @@ impl<'ctx> Codegen<'ctx>{
 pub fn small_test(){
     let input = "
    fn main(){
-       while(3 < 5){
-           break;
-       }
-       return;
+     let x = 5;
+     let y = x;
+     return;
    }
 
 

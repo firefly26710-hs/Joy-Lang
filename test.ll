@@ -3,15 +3,10 @@ source_filename = "joyc"
 
 define void @main() {
 entry:
-  br label %while.cond
-
-while.cond:                                       ; preds = %while.body, %entry
-  br i1 true, label %while.body, label %while.end
-
-while.body:                                       ; preds = %while.cond
-  br label %while.end
-  br label %while.cond
-
-while.end:                                        ; preds = %while.body, %while.cond
+  %x = alloca i32, align 4
+  store i32 5, ptr %x, align 4
+  %x1 = load i32, ptr %x, align 4
+  %y = alloca i32, align 4
+  store i32 %x1, ptr %y, align 4
   ret void
 }
