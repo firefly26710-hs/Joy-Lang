@@ -1,5 +1,6 @@
 use inkwell::values::{BasicValue, BasicValueEnum};
 use inkwell::{IntPredicate, FloatPredicate};
+use inkwell::types::BasicTypeEnum;
 use inkwell::values::AsValueRef;
 use crate::llvm::codegen::Codegen;
 use crate::par::parser::NONE;
@@ -36,26 +37,17 @@ impl<'ctx> Codegen<'ctx>{
                             let alloca = self.variable_get(&key);
                             let var_type = self.type_get(&key);
 
-                            let loaded_val = match var_type {
-                                Type::i32 | Type::i64 => {
-                                    let int_ty = self.int_type_mapping(var_type);
-                                    self.builder.build_load(int_ty, alloca, name_str).unwrap().as_basic_value_enum()
-                                }
-                                Type::f32 | Type::f64 => {
-                                    let float_ty = self.float_type_mapping(var_type);
-                                    self.builder.build_load(float_ty, alloca, name_str).unwrap().as_basic_value_enum()
-                                }
+                            let basic_ty: BasicTypeEnum<'ctx> = match var_type {
+                                Type::i32 | Type::i64 => self.int_type_mapping(var_type).into(),
+                                Type::f32 | Type::f64 => self.float_type_mapping(var_type).into(),
                                 _ => unreachable!(),
                             };
 
-                            // 2. 「降維」：把包裝型態轉成裸指標 LLVMValueRef (這只是個純數字指標，完全沒有生命週期限制)
-                            let raw_ptr = loaded_val.as_value_ref();
-
-                            // 3. 「升維」：在需要回傳的地方，用 unsafe 強行把它重新包回帶有 'ctx 的 BasicValueEnum
-                            // 這裡因為型態已經脫離了 &self 的借用，編譯器就不會再靠北生命週期衝突了！
-                            unsafe {
-                                BasicValueEnum::new(raw_ptr)
-                            }
+                            // 2. build_load 直接支援 BasicTypeEnum，回傳值轉為 BasicValueEnum
+                            self.builder
+                                .build_load(basic_ty, alloca, name_str)
+                                .unwrap()
+                                .as_basic_value_enum()
                         },
                         Token::Float => {
                             let ty = self.float_type_mapping(ty.clone());
@@ -201,8 +193,8 @@ impl<'ctx> Codegen<'ctx>{
     #[inline(always)]
     pub fn int_type_mapping(&self ,ty : Type) -> inkwell::types::IntType<'ctx>{
         match ty{
-            Type::i32  => return self.context.i32_type(),
-            Type::i64  => return self.context.i64_type(),
+            Type::i32  => return self.context.i32_type().into(),
+            Type::i64  => return self.context.i64_type().into(),
             _ => unreachable!()
         }
     }
@@ -210,8 +202,8 @@ impl<'ctx> Codegen<'ctx>{
     #[inline(always)]
     pub fn float_type_mapping(&self ,ty : Type) -> inkwell::types::FloatType<'ctx>{
         match ty{
-            Type::f32  => return self.context.f32_type(),
-            Type::f64  => return self.context.f64_type(),
+            Type::f32  => return self.context.f32_type().into(),
+            Type::f64  => return self.context.f64_type().into(),
             _ => unreachable!()
         }
     }

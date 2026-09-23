@@ -208,7 +208,7 @@ impl<'ctx> Codegen<'ctx>{
     }
 
     #[inline(always)]
-    pub fn variable_get(&self, var_key : &u32) -> PointerValue{
+    pub fn variable_get(&self, var_key : &u32) -> PointerValue<'ctx>{
         let mut current = 0;
         while var_key != &self.key_checker[current] && current < self.key_checker.len(){
             current += 1;
