@@ -103,6 +103,7 @@ impl<'ctx> Codegen<'ctx>{
         let mut current = 0;
         while name_key != self.func_assigner[current]{
             current += 1;
+            
         }
         let param_idxs = &self.param_type_idxs[current];
         let l_type_idx = param_idxs.start as usize;
@@ -190,9 +191,7 @@ impl<'ctx> Codegen<'ctx>{
 pub fn small_test(){
     let input = "
    fn main(){
-       for i in [0 -> 2 | 1]{
-          let x = 5;
-       }
+       if (3 > 5){}else{}
    }".to_string();
 
     let mut lexer = Lexer::init(input);

@@ -2,7 +2,7 @@ use inkwell::values::{BasicValueEnum};
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
 use crate::par::ty::Type;
-
+use crate::par::parser::{NONE};
 
 impl<'ctx> Codegen<'ctx>{
     pub fn compile_stmts(&mut self, stmt_idx : usize){
@@ -126,14 +126,27 @@ impl<'ctx> Codegen<'ctx>{
         //for.end
         self.builder.position_at_end(end_bb);
     }
-    fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
+    fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx].to_vec();
+        dbg!(idxs);
+
+        for (i,_) in idxs.iter().enumerate().step_by(2){
+            let cond_idx = idxs[i];
+            let stmt_idx = idxs[i + 1];
+            dbg!(cond_idx);
+            dbg!(stmt_idx);
+
+        }
+
+
+
+
+    }
     fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn brk_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn ctn_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     fn ret_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
     pub fn call_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
-
-
 
 
     #[inline(always)]
