@@ -221,7 +221,7 @@ pub fn small_test(){
     code_gen.compile();
     code_gen.module.print_to_stderr();
 
-    //code_gen.module.print_to_file("test.ll").unwrap();
+    code_gen.module.print_to_file("test.ll").unwrap();
 }
 
 #[test]
