@@ -126,7 +126,7 @@ impl Parser{
     pub fn print_scope(&mut self){
 	    print!("Key Checker : {:?}\n", self.key_checker);
 	    
-	print!("Type Number : ");
+	    print!("Type Number : ");
 	    print!("[");
 	    for (_, ty) in self.types.iter().enumerate(){
 	        print!("Types : {:?} ", ty);

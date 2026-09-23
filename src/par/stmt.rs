@@ -443,7 +443,7 @@ impl Parser{
         }
         
         let brk_key = self.current;
-        let brk_tok = self.eat();
+        self.eat();
         
         match self.peek(){
             Token::Scolon =>{
@@ -459,10 +459,14 @@ impl Parser{
         self.edges.push(NONE);
         let r_edge_idx = (self.edges.len() - 1) as u32;
         
-        let brk_node = Node::init(brk_tok, brk_key, l_edge_idx, r_edge_idx);
+        let brk_node = Node::init(Token::BrkStmt, brk_key, l_edge_idx, r_edge_idx);
         self.nodes.push(brk_node);
-        
+
         (self.nodes.len() - 1) as u32
+        
+        
+        
+        
     }
 
     
@@ -473,7 +477,7 @@ impl Parser{
         }
         
         let ctn_key = self.current;
-        let ctn_tok = self.eat();
+         self.eat();
         
         match self.peek(){
             Token::Scolon =>{
@@ -489,7 +493,7 @@ impl Parser{
         self.edges.push(NONE);
         let r_edge_idx = (self.edges.len() - 1) as u32;
         
-        let ctn_node = Node::init(ctn_tok, ctn_key, l_edge_idx, r_edge_idx);
+        let ctn_node = Node::init(Token::CtnStmt, ctn_key, l_edge_idx, r_edge_idx);
         self.nodes.push(ctn_node);
         
         (self.nodes.len() - 1) as u32
@@ -584,7 +588,7 @@ impl Parser{
     pub fn ret_stmt(&mut self) -> u32{
         
         let ret_key = self.current;
-        let ret_tok = self.eat();
+        self.eat();
         
         
         if self.ret_type != Type::Void && self.peek() == Token::Scolon{
@@ -611,7 +615,7 @@ impl Parser{
         self.edges.push(r_node);
         let r_edge_idx = (self.edges.len() - 1) as u32;
 
-        let ret_node = Node::init(ret_tok, ret_key, l_edge_idx, r_edge_idx);
+        let ret_node = Node::init(Token::RetStmt, ret_key, l_edge_idx, r_edge_idx);
         self.nodes.push(ret_node);
         
         

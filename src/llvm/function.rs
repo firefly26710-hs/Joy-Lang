@@ -76,6 +76,8 @@ impl<'ctx>Codegen<'ctx>{
             }
         }
 
+        self.current_fn = Some(self.get_function(name_key));
+        self.ret_type = self.get_ret_type(name_key);
         let stmts_idx = self.edges[r_edge_idx] as usize;
         self.compile_stmts(stmts_idx);
 
@@ -91,6 +93,15 @@ impl<'ctx>Codegen<'ctx>{
         }
 
         self.functions[current]
+    }
+    
+    pub fn get_ret_type(&mut self, key : u32) -> Type{
+        let mut current = 0;
+        while key != self.func_assigner[current]{
+            current += 1;
+        }
+        
+        self.ret_types[current].clone()
     }
 
     pub fn get_param_interval(&mut self, key : u32) -> &Interval{

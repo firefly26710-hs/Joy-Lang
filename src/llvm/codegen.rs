@@ -1,4 +1,5 @@
 use std::usize;
+use inkwell::basic_block::BasicBlock;
 use inkwell::builder::Builder;
 use inkwell::context::Context;
 use inkwell::module::Module;
@@ -28,6 +29,9 @@ pub struct Codegen<'ctx>{
     pub functions           : Vec<FunctionValue<'ctx>>,
     pub variables           : Vec<PointerValue<'ctx>>,
     pub current_fn          : Option<FunctionValue<'ctx>>,
+    pub ret_type            : Type,
+    pub ctn_goto_block      : Vec<BasicBlock<'ctx>>,
+    pub brk_goto_block      : Vec<BasicBlock<'ctx>>,
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
 }
@@ -63,6 +67,9 @@ impl<'ctx> Codegen<'ctx>{
             variables : Vec::new(),
             functions : Vec::new(),
             current_fn : None,
+            ret_type   : Type::Void,
+            ctn_goto_block : Vec::new(),
+            brk_goto_block : Vec::new(),
             edges,
             nodes
         }
@@ -179,7 +186,7 @@ impl<'ctx> Codegen<'ctx>{
 
             }
         }
-        self.current_fn = Some(func);
+        //self.current_fn = Some(func);
         self.functions.push(func);
 
     }
@@ -191,11 +198,13 @@ impl<'ctx> Codegen<'ctx>{
 pub fn small_test(){
     let input = "
    fn main(){
-       while(3 > 5){
-           let x = 5;
+       while(3 < 5){
+           break;
        }
-       let y = 7;
+       return;
    }
+
+
 
    ".to_string();
     let mut lexer = Lexer::init(input);

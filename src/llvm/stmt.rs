@@ -1,10 +1,9 @@
-use std::process::id;
-use inkwell::basic_block::BasicBlock;
 use inkwell::values::{BasicValueEnum};
+use crate::par::parser::NONE;
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
 use crate::par::ty::Type;
-use crate::par::parser::{NONE};
+
 
 impl<'ctx> Codegen<'ctx>{
     pub fn compile_stmts(&mut self, stmt_idx : usize){
@@ -25,8 +24,8 @@ impl<'ctx> Codegen<'ctx>{
                 Token::ForStmt => self.for_stmt(l_edge_idx, r_edge_idx),
                 Token::IfStmt => self.if_stmt(l_edge_idx, r_edge_idx),
                 Token::WhileStmt => self.while_stmt(l_edge_idx, r_edge_idx),
-                Token::BrkStmt => self.brk_stmt(l_edge_idx, r_edge_idx),
-                Token::CtnStmt => self.ctn_stmt(l_edge_idx, r_edge_idx),
+                Token::BrkStmt => self.brk_stmt(),
+                Token::CtnStmt => self.ctn_stmt(),
                 Token::RetStmt => self.ret_stmt(l_edge_idx, r_edge_idx),
                 Token::CallStmt => self.call_stmt(l_edge_idx, r_edge_idx),
                 _ => unreachable!()
@@ -84,6 +83,9 @@ impl<'ctx> Codegen<'ctx>{
         let body_bb = self.context.append_basic_block(func, "for.body");
         let step_bb = self.context.append_basic_block(func, "for.step");
         let end_bb = self.context.append_basic_block(func, "for.end");
+        self.ctn_goto_block.push(step_bb);
+        self.brk_goto_block.push(end_bb);
+
 
         self.builder.build_unconditional_branch(cond_bb).unwrap();
 
@@ -141,6 +143,8 @@ impl<'ctx> Codegen<'ctx>{
         let cond_bb = self.context.append_basic_block(func, "while.cond");
         let body_bb = self.context.append_basic_block(func, "while.body");
         let end_bb = self.context.append_basic_block(func, "while.end");
+        self.ctn_goto_block.push(cond_bb);
+        self.brk_goto_block.push(end_bb);
 
 
         //while.cond
@@ -159,9 +163,29 @@ impl<'ctx> Codegen<'ctx>{
 
 
     }
-    fn brk_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
-    fn ctn_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
-    fn ret_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
+
+    fn ctn_stmt(&mut self){
+        let bb = self.ctn_goto_block.pop().unwrap();
+        self.builder.build_unconditional_branch(bb).unwrap();
+    }
+    fn brk_stmt(&mut self){
+        let exit_bb = self.brk_goto_block.pop().unwrap();
+        self.builder.build_unconditional_branch(exit_bb).unwrap();
+    }
+
+    fn ret_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx];
+        let l_idx = idxs[0];
+        let r_idx = idxs[1];
+
+        //return void
+        if l_idx == NONE && r_idx == NONE{
+            self.builder.build_return(None).unwrap();
+        }else{
+            let expr = self.expr(r_idx as usize, self.ret_type.clone());
+            self.builder.build_return(Some(&expr)).unwrap();
+        }
+    }
     pub fn call_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
 
 
