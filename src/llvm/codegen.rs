@@ -198,9 +198,12 @@ impl<'ctx> Codegen<'ctx>{
 #[test]
 pub fn small_test(){
     let input = "
+   fn add(a : i32, b : i32) -> i32{
+        return a + b;
+   }
+
    fn main(){
-     let x = 5;
-     let y = x;
+     let x = add(6, 7);
      return;
    }
 

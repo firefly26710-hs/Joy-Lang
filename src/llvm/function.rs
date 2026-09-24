@@ -104,7 +104,7 @@ impl<'ctx>Codegen<'ctx>{
         self.ret_types[current].clone()
     }
 
-    pub fn get_param_interval(&mut self, key : u32) -> &Interval{
+    pub fn get_param_interval(&self, key : u32) -> &Interval{
         let mut current = 0;
         while key != self.func_assigner[current]{
             current += 1;

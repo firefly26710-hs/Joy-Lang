@@ -43,11 +43,8 @@ impl<'ctx> Codegen<'ctx>{
                                 _ => unreachable!(),
                             };
 
-                            // 2. build_load 直接支援 BasicTypeEnum，回傳值轉為 BasicValueEnum
-                            self.builder
-                                .build_load(basic_ty, alloca, name_str)
-                                .unwrap()
-                                .as_basic_value_enum()
+                            self.builder.build_load(basic_ty, alloca, name_str).unwrap()
+
                         },
                         Token::Float => {
                             let ty = self.float_type_mapping(ty.clone());
@@ -185,7 +182,7 @@ impl<'ctx> Codegen<'ctx>{
                 _ => unreachable!(),
             }
         } else{
-           todo!()// self.call_stmt(l_idx as usize, r_idx as usize);
+           self.call(node.l_edge_idx as usize, node.r_edge_idx as usize)
         }
         
     }

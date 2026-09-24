@@ -1,4 +1,5 @@
-use inkwell::values::{BasicValueEnum, PointerValue};
+use inkwell::types::{BasicMetadataTypeEnum, BasicTypeEnum};
+use inkwell::values::{BasicMetadataValueEnum, BasicValueEnum, PointerValue, ValueKind};
 use crate::par::parser::NONE;
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
@@ -40,7 +41,7 @@ impl<'ctx> Codegen<'ctx>{
         let name_key = name_node.key;
         let ty = self.type_get(&name_key);
         let variable = self.expr(expr_idx, &ty);
-        let var_type : inkwell::types::BasicTypeEnum<'ctx> = match variable{
+        let var_type : BasicTypeEnum<'ctx> = match variable{
             BasicValueEnum::IntValue(v) => v.get_type().into(),
             BasicValueEnum::FloatValue(v) => v.get_type().into(),
             _ => unreachable!()
@@ -194,7 +195,90 @@ impl<'ctx> Codegen<'ctx>{
             self.builder.build_return(Some(&expr)).unwrap();
         }
     }
-    pub fn call_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){}
+
+    pub fn call_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx];
+        let name_idx = idxs[0] as usize;
+        let name_key = self.nodes[name_idx].key;
+        let param_type_interval = self.get_param_interval(name_key);
+        let start = param_type_interval.start;
+        let end = param_type_interval.end;
+        let has_param = (start != NONE) && (end != NONE);
+
+        let param_idxs : Vec<usize> = self.edges[l_edge_idx + 1..=r_edge_idx]
+            .iter()
+            .map(|&i| i as usize)
+            .collect();
+
+        let param_type: Vec<Type> = self.types[start as usize..=end as usize]
+            .iter()
+            .map(|t| t.clone())
+            .collect();
+
+        let mut params : Vec<BasicMetadataValueEnum> = Vec::new();
+
+        if has_param{
+            for (i, &idx) in param_idxs.iter().enumerate() {
+                let ty = &param_type[i];
+                let val = if ty != &Type::bool {
+                    self.expr(idx, &ty)
+                } else {
+                    self.expr(idx, &Type::i64)
+                };
+
+                params.push(val.into());
+            }
+        }
+
+        let func = self.get_function(name_key);
+        let interval  = &self.intervals[name_key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+        let name_str = &self.input[start..end];
+        self.builder.build_call(func, &params, format!("function {name_str}").as_str()).unwrap();
+    }
+    pub fn call(&mut self, l_edge_idx : usize, r_edge_idx : usize) -> BasicValueEnum<'ctx> {
+        let idxs = &self.edges[l_edge_idx..=r_edge_idx];
+        let name_idx = idxs[0] as usize;
+        let name_key = self.nodes[name_idx].key;
+        let param_type_interval = self.get_param_interval(name_key);
+        let start = param_type_interval.start;
+        let end = param_type_interval.end;
+        let has_param = (start != NONE) && (end != NONE);
+
+        let param_idxs : Vec<usize> = self.edges[l_edge_idx + 1..=r_edge_idx]
+            .iter()
+            .map(|&i| i as usize)
+            .collect();
+
+        let param_type: Vec<Type> = self.types[start as usize..=end as usize]
+            .iter()
+            .map(|t| t.clone())
+            .collect();
+
+        let mut params : Vec<BasicMetadataValueEnum> = Vec::new();
+
+        if has_param {
+            for (i, &idx) in param_idxs.iter().enumerate() {
+                let ty = &param_type[i];
+                let val = if ty != &Type::bool {
+                    self.expr(idx, &ty)
+                } else {
+                    self.expr(idx, &Type::i64)
+                };
+
+                params.push(val.into());
+            }
+        }
+
+        let func = self.get_function(name_key);
+        let interval  = &self.intervals[name_key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+        let name_str = &self.input[start..end];
+        let func_call_val = self.builder.build_call(func, &params, format!("func_{name_str}").as_str()).unwrap();
+        func_call_val.try_as_basic_value().unwrap_basic()
+    }
 
 
     #[inline(always)]
