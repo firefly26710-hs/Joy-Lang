@@ -1,23 +1,16 @@
+use crate::lex::iterval::Interval;
 use crate::lex::token::Token;
 
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct Node{
-    pub token : Token,
-    pub key : u32,
-    pub l_edge_idx : u32,
-    pub r_edge_idx : u32
+    pub tok  : Token,
+    pub key  : u32,
+    pub idxs : Interval
 }
 
 impl Node{
-    pub fn init(token : Token, key : u32, l_edge_idx : u32, r_edge_idx : u32) -> Self{
-	    Node{
-	        token,
-	        key,
-	        l_edge_idx,
-	        r_edge_idx
-	    }
+    fn new(tok : Token, key : u32, idxs : Interval) -> Self{
+        Self{
+
+        }
     }
-    
-    
 }
