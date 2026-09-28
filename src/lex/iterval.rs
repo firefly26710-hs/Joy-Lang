@@ -6,7 +6,7 @@ pub struct Interval {
 }
 
 impl Interval {
-    pub fn init(start : u32, end : u32) -> Self{
+    pub fn new(start : u32, end : u32) -> Self{
 	Interval {
 	    start,
 	    end 

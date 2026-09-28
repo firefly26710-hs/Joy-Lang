@@ -1,1 +1,9 @@
 pub mod node;
+pub mod edge;
+pub mod parser;
+pub mod ty;
+pub mod scope;
+pub mod table;
+pub mod expr;
+pub mod stmt;
+pub mod type_check;
