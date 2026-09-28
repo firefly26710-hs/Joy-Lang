@@ -12,20 +12,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/par/edge.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/expr.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/parser.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/scope.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/table.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/ty.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/type_check.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/iterval.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/iterval.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/node.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/debug/libcomp.rlib" beforeDir="false" afterPath="$PROJECT_DIR$/target/debug/libcomp.rlib" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

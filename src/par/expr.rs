@@ -25,7 +25,7 @@ impl Parser{
                 self.nodes.push(Node::new(Token::Float, key, idxs));
                 (self.nodes.len() - 1) as u32
             },
-            _ => panic!("[Line {:?}] Expected a expression", self.lines[self.current ])
+            _ => panic!("[Line {:?}] Expected a expression", self.line())
         };
 
 
@@ -40,10 +40,7 @@ impl Parser{
 
 
             if self.regular_op_sum > 1 && self.connect_op_sum > 1 || self.compare_op_sum > 1{
-                panic!("[Line {:?}] Cannot using {:?} on bool ",
-                       self.lines[self.current ],
-                       op_tok
-                );
+                panic!("[Line {:?}] Cannot using {:?} on bool ",self.line(), op_tok);
             }
 
             let (l_bp, r_bp) = infix_binding_power(&op_tok);

@@ -8,10 +8,8 @@ use crate::par::ty::Type;
 
 pub const NONE : u32 = u32::MAX;
 pub struct Parser{
-    pub input               : String,
-    pub tokens              : Vec<Token>,
-    pub lines               : Vec<u32>,
-    pub str_intervals: Vec<Interval>,
+    pub lexer               : Lexer,
+    
 
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
@@ -36,10 +34,7 @@ pub struct Parser{
 impl Parser{
     fn init(lexer : Lexer, table: Table, scope: Scope) -> Self{
         Self{
-            input     : lexer.input,
-            tokens    : lexer.tokens,
-            lines     : lexer.lines,
-            str_intervals: lexer.intervals,
+            lexer,
 
             edges               : Vec::new(),
             nodes               : Vec::new(),
@@ -62,23 +57,23 @@ impl Parser{
 
     #[inline(always)]
     pub fn peek(&self) -> Token {
-        if self.current > self.tokens.len(){
+        if self.current > self.lexer.tokens.len(){
             return Token::EOF;
         }
 
-        self.tokens[self.current].clone()
+        self.lexer.tokens[self.current].clone()
     }
     #[inline(always)]
     pub fn peek_next(&self) -> Token{
-        if self.current + 1 > self.tokens.len(){
+        if self.current + 1 > self.lexer.tokens.len(){
             return Token::EOF;
         }
 
-        self.tokens[self.current + 1].clone()
+        self.lexer.tokens[self.current + 1].clone()
     }
     #[inline(always)]
     pub fn eat(&mut self) -> Token{
-        let tok = self.tokens[self.current].clone();
+        let tok = self.lexer.tokens[self.current].clone();
         self.current += 1;
         tok
     }
@@ -95,11 +90,16 @@ impl Parser{
 
             let key = node.key;
             if key == NONE{continue}
-            let interval = &self.str_intervals[key as usize];
+            let interval = &self.lexer.intervals[key as usize];
             let start = interval.start as usize;
             let end   = interval.end   as usize;
-            println!("String : {:?}\n", &self.input[start..end]);
+            println!("String : {:?}\n", &self.lexer.input[start..end]);
         }
+    }
+    
+    #[inline(always)]
+    pub fn line(&self) -> u32{
+        self.lexer.lines[self.current]
     }
 
     pub fn print_table(&mut self){todo!()}
