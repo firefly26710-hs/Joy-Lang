@@ -590,7 +590,6 @@ impl Parser{
         let ret_key = self.current;
         self.eat();
         
-        dbg!(&self.ret_type);
         if self.ret_type != Type::Void && self.peek() == Token::Scolon{
             panic!("[Line {:?}]Mismatch return type", self.lines[self.current as usize]);
         }

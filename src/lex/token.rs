@@ -51,6 +51,7 @@ pub enum Token{
     Else,
     True,
     False,
+    alse,
     Ret,
     Brk,
     Ctn,

@@ -22,6 +22,7 @@ impl Parser{
                 self.nodes.len() - 1
             },
             Token::Float =>{
+                
 		        let key = self.current;
 		        self.eat();
 		        
@@ -104,7 +105,9 @@ impl Parser{
                 self.nodes.len() - 1
             },
             Token::Lparen => {
+                self.eat();
                 let lhs_idx = self.expr(0.0);
+
                 match self.peek(){
                     Token::Rparen => self.eat(),
                     _ => panic!("[Line {}] Expected  ')' ", self.lines[self.current as usize])
@@ -112,12 +115,13 @@ impl Parser{
                 lhs_idx as usize
             },
             Token::CmpNot => {
-                let cmp_not_key = self.current - 1;
+                let cmp_not_key = self.current;
+                self.eat();
                 
                 let expr_idx = match self.peek(){
                     Token::Lparen =>{
                         let idx = self.expr(1000.0);
-                        idx as u32
+                        idx
                     },
                     _ => {
                         panic!(
@@ -126,7 +130,7 @@ impl Parser{
                         )
                     }
                 };
-                
+
                 self.edges.push(NONE);
                 let l_edge_idx = (self.edges.len() - 1) as u32;
                 self.edges.push(expr_idx);
@@ -147,6 +151,7 @@ impl Parser{
                 
                 _true => self.peek().clone()
             };
+            
 
             if (lhs_tok == Token::True || lhs_tok == Token::False) &&
                 (op_token == Token::Plus || op_token == Token::Minus ||

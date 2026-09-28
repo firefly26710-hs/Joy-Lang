@@ -1,5 +1,7 @@
+use std::process::exit;
 use inkwell::types::{BasicMetadataTypeEnum, BasicTypeEnum};
 use inkwell::values::{BasicMetadataValueEnum, BasicValueEnum, PointerValue, ValueKind};
+use crate::par::parser::MAGIC;
 use crate::par::parser::NONE;
 use crate::llvm::codegen::Codegen;
 use crate::lex::token::Token;
@@ -7,7 +9,7 @@ use crate::par::ty::Type;
 
 
 impl<'ctx> Codegen<'ctx>{
-    pub fn compile_stmts(&mut self, stmt_idx : usize){
+    pub fn build_stmts(&mut self, stmt_idx : usize){
         let block_node = &self.nodes[stmt_idx];
         let l_edge_idx = block_node.l_edge_idx as usize;
         let r_edge_idx = block_node.r_edge_idx as usize;
@@ -115,7 +117,7 @@ impl<'ctx> Codegen<'ctx>{
 
         //for.body
         self.builder.position_at_end(body_bb);
-        self.compile_stmts(idxs[4] as usize);
+        self.build_stmts(idxs[4] as usize);
         self.builder.build_unconditional_branch(step_bb).unwrap();
 
 
@@ -136,10 +138,107 @@ impl<'ctx> Codegen<'ctx>{
         self.builder.position_at_end(end_bb);
     }
     fn if_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
-        let idxs = &self.edges[l_edge_idx..=r_edge_idx];
+        let idxs  = &self.edges[l_edge_idx..=r_edge_idx];
         let func = self.current_fn.unwrap();
+        self.builder.position_at_end(func.get_last_basic_block().unwrap());
+        let expr_idx : Vec<u32> = idxs.iter().step_by(2).map(|&i| i).collect();
+        let stmt_idx : Vec<u32> = idxs.iter().skip(1).step_by(2).map(|&i| i).collect();
+
+        self.builder.position_at_end(func.get_last_basic_block().unwrap());
+
+        for i in 0..(idxs.len() >> 1){
+            let cond_block = self.context
+                .append_basic_block(func, format!("cond.{i}").as_str());
+
+            let body_block = self.context
+                .append_basic_block(func, format!("body.{i}").as_str());
+
+            self.cod_blocks.push(cond_block);
+            self.body_blocks.push(body_block);
+        }
+
+        let end_bb = self.context.append_basic_block(func, "end.bb");
 
 
+        self.builder.build_unconditional_branch(self.cod_blocks[0]).unwrap();
+
+        if self.cod_blocks.len() > 2 && self.body_blocks.len() > 2{
+            for i in 1..expr_idx.len(){
+                let prev_cond_bb = self.cod_blocks[i - 1];
+                let prev_body_bb = self.body_blocks[i - 1];
+                let cur_cond_bb = self.cod_blocks[i];
+
+                let is_else = expr_idx[i] == 4294967295;
+                if !is_else{
+                    //prev cond
+                    self.builder.position_at_end(prev_cond_bb);
+
+                    let prev_cond_val = self
+                        .expr(expr_idx[i - 1] as usize, &Type::i32)
+                        .into_int_value();
+                    self.builder.build_conditional_branch(prev_cond_val, prev_body_bb, cur_cond_bb).unwrap();
+
+                    //prev body
+                    self.builder.position_at_end(prev_body_bb);
+                    self.build_stmts(stmt_idx[i - 1] as usize);
+                    self.builder.build_unconditional_branch(end_bb).unwrap();
+                }else{
+                    //prev cond
+                    self.builder.position_at_end(prev_cond_bb);
+                    let prev_cond_val = self
+                        .expr(expr_idx[i - 1] as usize, &Type::i32)
+                        .into_int_value();
+                    self.builder.build_conditional_branch(prev_cond_val, prev_body_bb, cur_cond_bb).unwrap();
+
+                    //prev body
+                    self.builder.position_at_end(prev_body_bb);
+                    self.build_stmts(stmt_idx[i - 1] as usize);
+
+                    //cur cond
+                    self.builder.position_at_end(cur_cond_bb);
+                    self.builder.build_unconditional_branch(self.body_blocks[i]).unwrap();
+
+                    self.builder.position_at_end(self.body_blocks[i]);
+                    self.build_stmts(stmt_idx[i] as usize);
+                    self.builder.build_unconditional_branch(end_bb).unwrap();
+                }
+            }
+
+             if *expr_idx.last().unwrap() != 4294967295{
+                 let prev_cond_bb = *self.cod_blocks.last().unwrap();
+                 let prev_body_bb = *self.body_blocks.last().unwrap();
+
+                 //prev cond
+                 self.builder.position_at_end(prev_cond_bb);
+                 let cond_val = self
+                     .expr(*expr_idx.last().unwrap() as usize, &Type::i32)
+                     .into_int_value();
+                 self.builder.build_conditional_branch(cond_val, prev_body_bb, end_bb).unwrap();
+
+                 //prev body
+                 self.builder.position_at_end(prev_body_bb);
+                 self.build_stmts(*stmt_idx.last().unwrap() as usize);
+                 self.builder.build_unconditional_branch(end_bb).unwrap();
+
+             }
+        }else{
+            let if_cond = self.cod_blocks[0];
+            let if_body = self.body_blocks[0];
+
+            self.builder.position_at_end(if_cond);
+            let cond_val = self
+                .expr(expr_idx[0] as usize, &Type::i32)
+                .into_int_value();
+
+            self.builder.build_conditional_branch(cond_val, if_body, end_bb).unwrap();
+
+            self.builder.position_at_end(if_body);
+            self.build_stmts(stmt_idx[0] as usize);
+            self.builder.build_unconditional_branch(end_bb).unwrap();
+
+        }
+
+        self.builder.position_at_end(end_bb);
     }
     fn while_stmt(&mut self, l_edge_idx : usize, r_edge_idx : usize){
         let idxs = &self.edges[l_edge_idx..=r_edge_idx];
@@ -157,12 +256,12 @@ impl<'ctx> Codegen<'ctx>{
         //while.cond
         self.builder.build_unconditional_branch(cond_bb).unwrap();
         self.builder.position_at_end(cond_bb);
-        let cond_val = self.expr(cond_idx as usize, &Type::i64).into_int_value();
+        let cond_val = self.expr(cond_idx as usize, &Type::i32).into_int_value();
         self.builder.build_conditional_branch(cond_val, body_bb, end_bb).unwrap();
 
         //while.body
         self.builder.position_at_end(body_bb);
-        self.compile_stmts(stmt_idx as usize);
+        self.build_stmts(stmt_idx as usize);
         self.builder.build_unconditional_branch(cond_bb).unwrap();
 
         //while.end
@@ -184,8 +283,7 @@ impl<'ctx> Codegen<'ctx>{
         let idxs = &self.edges[l_edge_idx..=r_edge_idx];
         let l_idx = idxs[0];
         let r_idx = idxs[1];
-        let last_basic_block = self.current_fn.unwrap().get_last_basic_block().unwrap();
-        self.builder.position_at_end(last_basic_block);
+
 
         //return void
         if l_idx == NONE && r_idx == NONE{
@@ -258,7 +356,7 @@ impl<'ctx> Codegen<'ctx>{
 
         let mut params : Vec<BasicMetadataValueEnum> = Vec::new();
 
-        if has_param {
+        if has_param{
             for (i, &idx) in param_idxs.iter().enumerate() {
                 let ty = &param_type[i];
                 let val = if ty != &Type::bool {

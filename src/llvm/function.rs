@@ -79,7 +79,7 @@ impl<'ctx>Codegen<'ctx>{
         self.current_fn = Some(self.get_function(name_key));
         self.ret_type = self.get_ret_type(name_key);
         let stmts_idx = self.edges[r_edge_idx] as usize;
-        self.compile_stmts(stmts_idx);
+        self.build_stmts(stmts_idx);
 
         
     }

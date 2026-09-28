@@ -52,13 +52,39 @@ impl<'ctx> Codegen<'ctx>{
                             let float : f64 = var_str.parse().unwrap();
                             ty.const_float(float).into()
                         },
-                        Token::True  => {todo!()},
-                        Token::False => {todo!()}
+                        Token::True  => {
+                            let bool_ty = self.context.bool_type();
+                            bool_ty.const_int(1, true).into()
+                        },
+                        Token::False => {
+                            let bool_ty = self.context.bool_type();
+                            bool_ty.const_int(0, false).into()
+                        }
 
                         _ => unreachable!(),
                     }
                 },
-                (NONE, r_idx) => {todo!()},
+                (NONE, r_idx) => {
+                    let rhs: BasicValueEnum = self.expr(r_idx as usize, ty);
+                    match token {
+                        Token::Minus => match rhs {
+                            BasicValueEnum::IntValue(i_val) => {
+                                self.builder.build_int_neg(i_val, "NEG_INT").unwrap().into()
+                            },
+                            BasicValueEnum::FloatValue(f_val) => {
+                                self.builder.build_float_neg(f_val, "NEG_FLOAT").unwrap().into()
+                            }
+                            _ => unreachable!()
+                        },
+                        Token::CmpNot => match rhs{
+                            BasicValueEnum::IntValue(i_val) => {
+                                self.builder.build_not(i_val, "NOT_VAL").unwrap().into()
+                            },
+                            _ => unreachable!()
+                        }
+                        _ => unreachable!()
+                    }
+                },
                 (l_idx, r_idx) => {
                     let lhs = self.expr(l_idx as usize, ty);
                     let rhs = self.expr(r_idx as usize, ty);

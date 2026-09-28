@@ -32,12 +32,14 @@ pub struct Codegen<'ctx>{
     pub ret_type            : Type,
     pub ctn_goto_block      : Vec<BasicBlock<'ctx>>,
     pub brk_goto_block      : Vec<BasicBlock<'ctx>>,
+    pub cod_blocks          : Vec<BasicBlock<'ctx>>,
+    pub body_blocks         : Vec<BasicBlock<'ctx>>,
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
 }
 
 impl<'ctx> Codegen<'ctx>{
-    fn new(
+    pub fn new(
         context : &'ctx Context,
         input            : String,
         intervals        : Vec<Interval>,
@@ -70,6 +72,8 @@ impl<'ctx> Codegen<'ctx>{
             ret_type   : Type::Void,
             ctn_goto_block : Vec::new(),
             brk_goto_block : Vec::new(),
+            cod_blocks     : Vec::new(),
+            body_blocks    : Vec::new(),
             edges,
             nodes
         }
@@ -198,12 +202,8 @@ impl<'ctx> Codegen<'ctx>{
 #[test]
 pub fn small_test(){
     let input = "
-   fn add(a : i32, b : i32) -> i32{
-        return a + b;
-   }
-
    fn main(){
-     let x = add(6, 7);
+     let cmp = not(1 > 2);
      return;
    }
 
@@ -216,7 +216,7 @@ pub fn small_test(){
     let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.intervals);
     parser.build_tree();
     parser.print_node();
-    parser.print_scope();
+   // parser.print_scope();
 
 
     let context = Context::create();
@@ -237,7 +237,7 @@ pub fn small_test(){
     code_gen.compile();
     code_gen.module.print_to_stderr();
 
-    code_gen.module.print_to_file("test.ll").unwrap();
+    //code_gen.module.print_to_file("test.ll").unwrap();
 }
 
 #[test]
@@ -253,6 +253,7 @@ fn fib(n : i32) -> i32{
 fn main(){
     let n = 5;
     let sum = fib(n);
+    return;
 }
 ".to_string();
     let mut lexer = Lexer::init(input);

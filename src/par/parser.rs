@@ -19,6 +19,10 @@ pub struct Parser{
     pub current             : u32,
     pub loop_counter        : u32,
 
+    pub y1 : u8,
+    pub y2 : u8,
+    pub x  : u8,
+
     //scope
     pub var_scope_stack     : Vec<u32>,
     pub key_checker         : Vec<u32>,
@@ -26,12 +30,6 @@ pub struct Parser{
     pub func_assign         : Vec<u32>, 
     pub param_type_idxs     : Vec<Interval>,
     pub ret_types           : Vec<Type>,
-
-
-    
-
-
-
 
     //stmt
     pub ret_type            : Type,
@@ -54,7 +52,11 @@ impl Parser{
 	        types               : Vec::new(),
 	        edges               : Vec::new(),
 	        nodes               : Vec::new(),
-	        
+
+            y1 : 0,
+            y2 : 0,
+            x  : 0,
+
             key_checker         : Vec::new(),
             var_scope_stack     : Vec::new(),
 	        param_type_idxs     : Vec::new(),
@@ -155,22 +157,12 @@ impl Parser{
 fn parser_testing() {
     
     let input = "
-   fn fib(n : i32) -> i32{
-        if(n < 2){
-            return 0;
-        }else{
-            return fib(n - 1) + fib(n - 2);
-        }
-    }
-
     fn main(){
-         let n = 5;
-         let sum = fib(n);
+       let x;
     }
-
-
 
 ".to_string();
+
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     lexer.print_output();

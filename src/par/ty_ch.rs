@@ -21,22 +21,10 @@ impl Parser{
     }
 
     pub fn type_check(&mut self, expected_type : Type, expr_idx : u32){
-        let y1 = 0;
-        let y2 = 0;
-        let x = 0;
 
+        let (expr_token) = self.expr_type(expr_idx);
 
-
-        let (expr_token, y1, y2,x) = self.expr_type(expr_idx, y1, y2, x);
-
-        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-            || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
-            Token::Bool
-        }else if y1 == 0 && y2 == 0 && x == 0  {
-            expr_token
-        }else{
-            panic!("UnExpected Expression Type")
-        };
+        let result_token = expr_token;
 
 
         match (&expected_type, &result_token){
@@ -69,63 +57,61 @@ impl Parser{
         
         
     }
-    
+
     pub fn expr_type(
         &mut self, expr_idx : u32,
-        mut y1 : u16,
-        mut y2 : u16,
-        mut x  : u16,
-    ) -> (Token, u16, u16, u16) {
+    ) -> (Token) {
         let node = &self.nodes[expr_idx as usize];
         let tok = node.token.clone();
-        
+
         let l_edge_idx = node.l_edge_idx as usize;
         let r_edge_idx = node.r_edge_idx as usize;
-        
+
         let l_idx = self.edges[l_edge_idx];
         let r_idx = self.edges[r_edge_idx];
-        
+
+
+
         if tok == Token::CallStmt{
             let key = node.key;
             let ty = self.find_func_type(key);
-	        self.param_type_check(l_edge_idx, r_edge_idx);
-            (ty, y1, y2, x)
+            self.param_type_check(l_edge_idx, r_edge_idx);
+            ty
         }else{
             match (l_idx, r_idx){
                 (NONE, NONE) => {
                     match tok{
-                        Token::Int   => (Token::Int, y1, y2, x),
-                        Token::Float => (Token::Float, y1, y2, x),
+                        Token::Int   => (Token::Int),
+                        Token::Float => (Token::Float),
                         Token::Ident => {
-			                dbg!(&self.nodes);
-			                let key = node.key;
-			                let ty = self.find_ident_type(key);
-			                return (ty, y1, y2, x)
-		                },
-                        Token::True =>  return (Token::True, y1, y2, x),
-                        Token::False => return (Token::False, y1, y2, x),
+                            let key = node.key;
+                            let ty = self.find_ident_type(key);
+                            return ty
+                        },
+                        Token::True =>  return (Token::True),
+                        Token::False => return (Token::False),
                         _ => unreachable!()
                     }
                 },
                 (NONE, r_idx) => {
-                    return self.expr_type(r_idx, y1, y2, x);
+                    return self.expr_type(r_idx);
                 }
-                
+
                 (l_idx, r_idx) => {
-                    let l_node = self.nodes[l_idx as usize].clone();
-                    let r_node = self.nodes[r_idx as usize].clone();
-                    if self.is_bool_expr(l_node){y1 += 1}
-                    if self.is_bool_expr(r_node){y2 += 1}
-                    if self.is_cmp_op(tok){x += 1}
-                    let (l_type, _, _, _) = self.expr_type(l_idx, y1, y2, x);
-                    let (r_type, _, _, _) = self.expr_type(r_idx, y1, y2, x);
-                    
+                    if self.is_bool_op(tok.clone()){self.x += 1}
+                    let l_type = self.expr_type(l_idx);
+                    let r_type = self.expr_type(r_idx);
+
                     if l_type != r_type{
                         panic!("[Line {:?}] Mismatch!!!!", self.lines[self.current as usize]);
                     }
-                    
-                    
-                    return (l_type, y1, y2, x);
+
+                    if self.is_bool_op(tok) {
+                        Token::Bool
+                    }else{
+                        l_type
+                    }
+
                 }
             }
         }
@@ -156,21 +142,13 @@ impl Parser{
 	    let r_idx = param_types_interval.end as usize;
         
 	    let params_type = self.types[l_idx..=r_idx].to_vec();
-	    dbg!(&params_type);
-	    dbg!(&params_type);
+
 	    for (i, _) in (&params_idx).iter().enumerate(){
-	        let (expr_token, y1, y2,x) = self.expr_type(params_idx[i], 0, 0, 0);
-        
-	        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-		        || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[params_idx[i] as usize].clone()){
-		            Token::Bool
-		        }else if y1 == 0 && y2 == 0 && x == 0  {
-		            expr_token
-		        }else{
-		            panic!("UnExpected Expression Type")
-		        };
-            
-	        let ty = &params_type[i];
+	        let expr_token = self.expr_type(params_idx[i]);
+
+            let result_token = expr_token;
+
+            let ty = &params_type[i];
             
 	        match (result_token, ty){
 		        (Token::Int, Type::i32) => {},
@@ -193,19 +171,11 @@ impl Parser{
 	    
     }
     
-    pub fn is_bool_expr(&mut self, node : Node) -> bool{
-        let op_tok = node.token;
-       
-       match op_tok{
-            Token::Grt | Token::Les | Token::GrtEq | Token::LesEq | Token::EqEq => return true,
-            _ => return false
-        };
 
-    }
     
-    fn is_cmp_op(&mut self, tok : Token) -> bool{
+    pub fn is_bool_op(&self, tok : Token) -> bool{
         match tok{
-            Token::CmpAnd | Token::CmpOr => return true,
+            Token::CmpAnd | Token::CmpOr | Token::Grt | Token::Les | Token::GrtEq | Token::LesEq | Token::EqEq => return true,
             _ => return false
                 
         }
@@ -255,16 +225,9 @@ impl Parser{
     
  
     pub fn match_ret_type(&mut self, expr_idx : u32, expected_type : Type) -> bool{
-        let (expr_token, y1, y2,x) = self.expr_type(expr_idx, 0, 0, 0);
+        let expr_token = self.expr_type(expr_idx);
 
-        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-            || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
-            Token::Bool
-        }else if y1 == 0 && y2 == 0 && (y1 == 0 && y2 == 0 && x == 0)  {
-            expr_token
-        }else{
-            panic!("UnExpected Expression Type")
-        };
+        let result_token = expr_token;
 
         match(result_token, expected_type){
             (Token::Int, Type::i32)   => return true,
@@ -280,45 +243,20 @@ impl Parser{
 
 
     pub fn is_integer(&mut self, expr_idx : u32) -> bool{
-        let(ty,y1,y2,x) = self.expr_type(expr_idx, 0, 0, 0);
+        let ty= self.expr_type(expr_idx);
 
-
-        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-            || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
-            Token::Bool
-        }else if y1 == 0 && y2 == 0 && (y1 == 0 && y2 == 0 && x == 0)  {
-            ty
-        }else{
-            panic!("UnExpected Expression Type")
-        };
-        result_token == Token::Int
+        ty == Token::Int
     }
 
     pub fn is_bool(&mut self, expr_idx : u32) -> bool{
-        let(ty,y1,y2,x) = self.expr_type(expr_idx, 0, 0, 0);
+        let ty = self.expr_type(expr_idx);
 
-        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-            || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
-            Token::Bool
-        }else if y1 == 0 && y2 == 0 && (y1 == 0 && y2 == 0 && x == 0)  {
-            ty
-        }else{
-            panic!("UnExpected Expression Type")
-        };
-        result_token == Token::Bool
+        ty == Token::Bool
     }
 
     pub fn is_float(&mut self, expr_idx : u32) -> bool{
-        let(ty,y1,y2,x) = self.expr_type(expr_idx, 0, 0, 0);
+        let ty = self.expr_type(expr_idx);
 
-        let result_token = if (y1 & y2 == y1) && (y1 + y2 == x + 1)
-            || y1==y2 && y2 == x && self.is_bool_expr(self.nodes[expr_idx as usize].clone()) {
-            Token::Bool
-        }else if y1 == 0 && y2 == 0 && (y1 == 0 && y2 == 0 && x == 0)  {
-            ty
-        }else{
-            panic!("UnExpected Expression Type")
-        };
-        result_token == Token::Float
+        ty == Token::Float
     }
 }
