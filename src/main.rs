@@ -2,7 +2,9 @@ pub mod lex;
 pub mod par;
 
 use std::{env, fs};
-use inkwell::context::Context;
+use crate::par::table::Table;
+use crate::par::scope::Scope;
+use crate::par::parser::Parser;
 use crate::lex::lexer::Lexer;
 
 
@@ -24,6 +26,8 @@ fn main() {
 
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
+
+    let mut parser = Parser::init(lexer, Table::init(), Scope::init());
 
 
 }

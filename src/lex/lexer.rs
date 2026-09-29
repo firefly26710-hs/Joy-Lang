@@ -14,11 +14,13 @@ pub struct Lexer{
 
 impl Lexer{
     pub fn init(input : String) -> Self{
+		let alloca_size = 32;
+
         Lexer{
             input,
-            intervals: Vec::new(),
-            tokens   : Vec::new(),
-            lines    : Vec::new(),
+            intervals: Vec::with_capacity(32),
+            tokens   : Vec::with_capacity(32),
+            lines    : Vec::with_capacity(32),
             start    : 0,
             current  : 0,
             line     : 1,
@@ -71,16 +73,16 @@ impl Lexer{
                 self.lines.push(self.line);
         },
         "=" => {
-                 if matches!(self.peek(), "="){
-                     self.tokens.push(Token::EqEq);
-                     self.current += 1;
-		             self.intervals.push(Interval::new(self.start, self.current));
-                     self.lines.push(self.line);
-                 } else{
-                     self.tokens.push(Token::Equel);
-                     self.intervals.push(Interval::new(self.start, self.current));
-                     self.lines.push(self.line);
-                 }
+			if matches!(self.peek(), "="){
+				self.tokens.push(Token::EqEq);
+				self.current += 1;
+				self.intervals.push(Interval::new(self.start, self.current));
+				self.lines.push(self.line);
+			} else{
+				self.tokens.push(Token::Equel);
+				self.intervals.push(Interval::new(self.start, self.current));
+				self.lines.push(self.line);
+			}
             
         },
         ">" => {
@@ -199,7 +201,7 @@ impl Lexer{
             self.lines.push(self.line);
 	        
 	        
-	    } else{
+	    }else{
 	        self.tokens.push(Token::Int);
             self.intervals.push(Interval::new(self.start, self.current));
             self.lines.push(self.line);
@@ -209,7 +211,7 @@ impl Lexer{
     
     fn ident(&mut self){
 	    while is_alphanumeric(self.peek()) {self.current += 1}
-	    let slice = &self.input[as_usize(self.start)..as_usize(self.current)];
+	    let slice = &self.input[self.start as usize..self.current as usize];
 	    match slice{
 	        "let"      => {
 		        self.tokens.push(Token::Let);
@@ -299,32 +301,35 @@ impl Lexer{
 	        
 	    }
     }
-    
-    
+
+	#[inline(always)]
     fn eat(&mut self) -> &str{
-	    let curr = as_usize(self.current);
+	    let curr = (self.current) as usize;
         self.current += 1;
 	    
         &self.input[curr..=curr]
     }
-
+	#[inline(always)]
     fn peek(&mut self) -> &str{
-	    if self.finish() {
-            return "\0";
+	    if !self.finish() {
+            return &self.input[(self.current) as usize..=(self.current) as usize];
         }
-        &self.input[as_usize(self.current)..=as_usize(self.current)]
+		"\0"
+
     }
-    
+	#[inline(always)]
     fn peek_next(&mut self) -> &str{
-	    if self.finish() {
-            return "\0";
+	    if !self.finish() {
+            return &self.input[(self.current + 1) as usize ..= (self.current + 1) as usize];
         }
+		"\0"
         
-	    &self.input[as_usize(self.current + 1) ..= as_usize(self.current + 1)]
+
     }
     
+	#[inline(always)]
     fn finish(&mut self) -> bool{
-	    self.current >= self.input.len().try_into().unwrap()
+		self.current >= self.input.len().try_into().unwrap()
     }
     
     pub fn print_output(&mut self){
@@ -342,9 +347,7 @@ impl Lexer{
 } 
 
 
-fn as_usize(idx : u32) -> usize{
-    idx as usize
-}
+
 
 fn is_number(c : &str) -> bool{
     c >= "0" && c <= "9"

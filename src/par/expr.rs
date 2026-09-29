@@ -30,21 +30,14 @@ impl Parser{
 
         loop{
             let op_tok = match self.peek(){
-                Token::EOF | Token::Scolon | Token::Rparen |
-                Token::Comma | Token::Arrow | Token::Vartical|
-                Token::Rbracket => break,
+                Token::EOF | Token::Scolon |Token::Lbrace|
+                Token::Rparen | Token::Comma | Token::Arrow |
+                Token::Vartical| Token::Rbracket => break,
 
-                _true => self.peek()
+                _true => self.peek().clone()
             };
 
 
-            if self.regular_op_sum > 1 && self.connect_op_sum > 1 || self.compare_op_sum > 1{
-                panic!("[Line {:?}] Cannot using {:?} on bool ",self.line(), op_tok);
-            }
-
-            if self.is_regular_op(&op_tok){self.regular_op_sum += 1}
-            else if self.is_compare_op(&op_tok){self.compare_op_sum += 1}
-            else if self.is_connect_op(&op_tok){self.connect_op_sum += 1}
 
 
             let (l_bp, r_bp) = infix_binding_power(&op_tok);
@@ -52,6 +45,10 @@ impl Parser{
             if l_bp < min_bp{
                 break;
             }
+
+            if self.is_regular_op(&op_tok){self.regular_op_sum += 1}
+            else if self.is_compare_op(&op_tok){self.compare_op_sum += 1}
+            else if self.is_connect_op(&op_tok){self.connect_op_sum += 1}
 
             let op_key = self.current as u32;
             self.eat();
@@ -67,7 +64,7 @@ impl Parser{
         lhs_idx 
     }
 
-    pub fn is_expr(&self, tok : Token) -> bool{
+    pub fn is_expr(&self, tok : &Token) -> bool{
         match tok{
             Token::Int | Token::Ident | Token::Float |
             Token::Minus | Token::CmpNot => {

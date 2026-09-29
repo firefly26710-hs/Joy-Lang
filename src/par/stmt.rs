@@ -5,10 +5,11 @@ use crate::par::parser::{Parser, NONE};
 use crate::par::ty::Type;
 
 impl Parser{
+    pub fn func_stmt(&mut self) -> u32{todo!()}
 
-    pub fn match_stmt(&mut self ) -> u32{
+    pub fn match_stmt(&mut self) -> u32{
 
-        match self.eat(){
+        match self.peek(){
             Token::Let    => self.let_stmt(),
             Token::Ident  => self.call_stmt(),
             Token::If     => self.if_stmt(),
@@ -31,9 +32,10 @@ impl Parser{
 
     }
     pub fn let_stmt(&mut self) -> u32{
+        self.eat();
 
         let name_key = self.current as u32;
-        let name_idx = if self.peek() == Token::Ident{
+        let name_idx = if self.peek() == &Token::Ident{
             self.eat();
             self.nodes.push(
                 Node::new(Token::Ident, name_key.clone(), Interval::new(NONE, NONE))
@@ -45,10 +47,10 @@ impl Parser{
         };
 
         let has_declared_type
-            = self.peek() == Token::Colon && self.peek_next() == Token::Ident;
+            = self.peek() == &Token::Colon && self.peek_next() == &Token::Ident;
 
         let only_declare_colon
-            = self.peek() == Token::Colon && self.peek_next() != Token::Ident;
+            = self.peek() == &Token::Colon && self.peek_next() != &Token::Ident;
         
 
         let declared_ty = if !has_declared_type{
@@ -78,6 +80,8 @@ impl Parser{
             panic!("[Line {:?}] Expected a Expression", self.line())
         };
 
+        let expr_type = self.get_expr_nodes_type();
+
         match self.peek(){
             Token::Scolon => self.eat(),
             _ => {
@@ -88,8 +92,10 @@ impl Parser{
 
         let let_idxs = self.bt_push(name_idx, expr_idx);
         self.nodes.push(Node::new(Token::LetStmt, NONE, let_idxs));
-        
-        self.table.var_insert(name_key, self.type_check(declared_ty));
+
+
+        self.table.var_insert(name_key, self.type_check(declared_ty, expr_type));
+
         self.scope.var_scope_assign(name_key);
         
         (self.nodes.len() - 1) as u32
@@ -101,11 +107,243 @@ impl Parser{
     pub fn if_stmt(&mut self) -> u32{todo!()}
 
     pub fn ret_stmt(&mut self) -> u32 { todo!() }
-    pub fn for_stmt(&mut self) -> u32 { todo!() }
-    pub fn while_stmt(&mut self) -> u32 { todo!()}
-    pub fn brk_stmt(&mut self) -> u32 {todo!()}
+    pub fn for_stmt(&mut self) -> u32 {
+        self.scope.loop_counter += 1;
 
-    pub fn ctn_stmt(&mut self) -> u32 {todo!()}
+        self.eat();
+
+        self.scope.build_scope();
+
+        let ident_key = self.current as u32;
+        let loop_ident_idx = if self.peek() == &Token::Ident{
+
+             self.eat();
+             self.nodes.push(
+                Node::new(Token::Ident, ident_key, Interval::new(NONE, NONE))
+            );
+
+            (self.nodes.len() - 1) as u32
+        }else{
+            panic!("[Line {:?}] Expected an Identifier", self.line())
+        };
+
+        match self.peek(){
+            Token::In => self.eat(),
+            _ => {
+                panic!("[Line {:?}] Expected 'In' ", self.line())
+            }
+        };
+
+        match self.peek(){
+            Token::Lbracket => self.eat(),
+            _ => {
+                panic!("[Line {:?}] Expected '[' ", self.line())
+            }
+        };
+
+        let start_num_idx = if self.is_expr(self.peek()){
+            let int_expr = self.expr(0.0);
+            let expr_type = self.get_expr_nodes_type();
+            if self.is_int(expr_type){int_expr}
+            else { panic!("[Line {:?}] Expected Integer in start", self.line()) }
+        }else{
+            panic!("[Line {:?}] Expected Expression in start", self.line())
+        };
+
+        match self.peek(){
+            Token::Arrow => self.eat(),
+            _ => {
+                panic!("[Line {:?}] Expected '->'", self.line())
+            }
+        };
+
+        let end_num_idx = if self.is_expr(self.peek()){
+            let int_expr = self.expr(0.0);
+            let expr_type = self.get_expr_nodes_type();
+            if self.is_int(expr_type){int_expr}
+            else { panic!("[Line {:?}] Expected Integer in end", self.line()) }
+        }else{
+            panic!("[Line {:?}] Expected Expression in end", self.line())
+        };
+
+        let has_declared_step_num
+            = self.peek() == &Token::Vartical && self.is_expr(self.peek_next());
+        let step_number_idx = if has_declared_step_num{
+            self.eat();
+            let int_expr = self.expr(0.0);
+            let expr_type = self.get_expr_nodes_type();
+            if self.is_int(expr_type){int_expr}
+            else{panic!("[Line {:?}] Expected Integer in step", self.line())}
+        }else{
+            panic!("[Line {:?}] Expected Expression in step", self.line())
+        };
+
+        match self.peek(){
+            Token::Rbracket => self.eat(),
+            _ => {
+                panic!("[Line {:?}] Expected ']' ", self.line())
+            }
+        };
+
+        self.scope.var_scope_assign(loop_ident_idx);
+
+
+        let block_idx = self.block_stmt(false);
+
+        let idxs_start = self.edges.len() as u32;
+        self.edges.push(loop_ident_idx);
+        self.edges.push(start_num_idx);
+        self.edges.push(end_num_idx);
+        self.edges.push(step_number_idx);
+        self.edges.push(block_idx);
+        let idxs_end = (self.edges.len() - 1) as u32;
+
+        self.nodes.push(
+            Node::new(Token::ForStmt, NONE, Interval::new(idxs_start, idxs_end))
+        );
+
+        self.scope.destroy_scope();
+
+        (self.nodes.len() - 1) as u32
+    }
+
+    
+    pub fn while_stmt(&mut self) -> u32 {
+        self.scope.loop_counter += 1;
+
+        self.eat();
+
+        let cond_expr_idx = if self.is_expr(self.peek()){
+            let bool_expr = self.expr(0.0);
+            let expr_type = self.get_expr_nodes_type();
+            if self.is_bool(expr_type){bool_expr}
+            else{panic!("[Line {:?}] Expected Bool in Condition", self.line())}
+        }else{
+            panic!("[Line {:?}] Expected Expression in Condition", self.line())
+        };
+
+        self.scope.build_scope();
+        let block_idx = self.block_stmt(false);
+        self.scope.destroy_scope();
+
+        let idxs_interval = self.bt_push(cond_expr_idx, block_idx);
+        self.nodes.push(
+            Node::new(Token::WhileStmt, NONE, idxs_interval )
+        );
+
+        (self.nodes.len() - 1) as u32
+
+    }
+    pub fn brk_stmt(&mut self) -> u32 {
+        if self.scope.is_in_loop_stmt(){
+            self.scope.loop_counter -= 1;
+
+            let brk_key = self.current as u32;
+            let brk_idx = {
+                self.nodes.push(
+                    Node::new(Token::Brk, brk_key, Interval::new(NONE, NONE))
+                );
+                (self.nodes.len() - 1) as u32
+            };
+
+            self.eat();
+
+
+            match self.peek(){
+                Token::Scolon => self.eat(),
+                _ => {
+                    panic!("[Line {:?}], Expected ;", self.line())
+                }
+            };
+
+            let idxs_start = self.edges.len() as u32;
+            self.edges.push(brk_idx);
+            let idxs_end = (self.edges.len() - 1) as u32;
+
+            self.nodes.push(
+                Node::new(Token::BrkStmt, NONE, Interval::new(idxs_start, idxs_end))
+            );
+
+
+        }else{
+            panic!("[Line {:?}] 'break' can't not in loop", self.line());
+        }
+
+        (self.nodes.len() - 1) as u32
+    }
+
+    pub fn ctn_stmt(&mut self) -> u32 {
+        if self.scope.is_in_loop_stmt(){
+            self.scope.loop_counter -= 1;
+
+            let ctn_key = self.current as u32;
+            let ctn_idx = {
+                self.nodes.push(
+                    Node::new(Token::Ctn, ctn_key, Interval::new(NONE, NONE))
+                );
+                (self.nodes.len() - 1) as u32
+            };
+
+            self.eat();
+
+
+            match self.peek(){
+                Token::Scolon => self.eat(),
+                _ => {
+                    panic!("[Line {:?}], Expected ;", self.line())
+                }
+            };
+
+            let idxs_start = self.edges.len() as u32;
+            self.edges.push(ctn_idx);
+            let idxs_end = (self.edges.len() - 1) as u32;
+
+            self.nodes.push(
+                Node::new(Token::CtnStmt, NONE, Interval::new(idxs_start, idxs_end))
+            );
+        }else{
+            panic!("[Line {:?}] 'continue' can't not in loop", self.line());
+        }
+
+        (self.nodes.len() - 1) as u32
+
+
+    }
+
+    pub fn block_stmt(&mut self, is_on_func_stmt : bool) -> u32{
+        match self.peek(){
+            Token::Lbrace => self.eat(),
+            _ => {
+		     panic!("[Line {:?}] Expected {:?}", self.line(), '{')
+	        }
+        };
+
+
+        while self.peek() != &Token::Rbrace{
+            let stmt_idx = self.match_stmt();
+            self.stmt_recorder.push(stmt_idx);
+        }
+
+        match self.peek(){
+            Token::Rbrace => self.eat(),
+            _ => {
+                panic!("[Line {:?}] Expected {:?}", self.line(), '}')
+            }
+        };
+
+
+
+        let idxs_start = self.edges.len() as u32;
+        self.edges.extend(self.stmt_recorder.drain(..));
+        let idxs_end = (self.edges.len() - 1) as u32;
+        self.nodes.push(
+            Node::new(Token::BlockStmt, NONE, Interval::new(idxs_start, idxs_end))
+        );
+
+
+        (self.nodes.len() - 1) as u32
+
+    }
 
 
 

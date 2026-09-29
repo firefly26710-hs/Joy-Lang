@@ -24,17 +24,20 @@ pub struct Parser{
     pub connect_op_sum      : u8,
 
 
+    pub stmt_recorder       : Vec<u32>,
     pub current             : usize,
 
 }
 
 impl Parser{
-    fn init(lexer : Lexer, table: Table, scope: Scope) -> Self{
+    pub fn init(lexer : Lexer, table: Table, scope: Scope) -> Self{
+        let alloc_size = lexer.tokens.len();
+
         Self{
             lexer,
 
-            edges               : Vec::new(),
-            nodes               : Vec::new(),
+            edges               : Vec::with_capacity(alloc_size),
+            nodes               : Vec::with_capacity(alloc_size),
 
 
             table,
@@ -48,27 +51,28 @@ impl Parser{
             connect_op_sum      : 0,
 
 
+            stmt_recorder       : Vec::with_capacity(16),
             current             : 0,
         }
     }
 
+    pub fn build_tree(&mut self){todo!()}
+
     #[inline(always)]
-    pub fn peek(&self) -> Token {
-        if !self.current > self.lexer.tokens.len(){
-            return self.lexer.tokens[self.current].clone()
+    pub fn peek(&self) -> &Token {
+        if self.current < self.lexer.tokens.len(){
+            return &self.lexer.tokens[self.current]
         }
 
-        Token::EOF
+        &Token::EOF
     }
     #[inline(always)]
-    pub fn peek_next(&self) -> Token{
-        if !self.current + 1 > self.lexer.tokens.len(){
-            return self.lexer.tokens[self.current + 1].clone()
+    pub fn peek_next(&self) -> &Token{
+        if self.current + 1 < self.lexer.tokens.len(){
+            return &self.lexer.tokens[self.current + 1]
         }
 
-        Token::EOF
-
-
+        &Token::EOF
     }
     #[inline(always)]
     pub fn eat(&mut self) -> Token{
@@ -115,12 +119,16 @@ impl Parser{
 
 #[test]
 fn parser_test(){
-    let input = "let x  = 1 + 2 * 3;".to_string();
+    let input = "
+     let x = 5 + 1 > 3;
+    ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-     lexer.print_output();
+    lexer.print_output();
+
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
     parser.match_stmt();
-    parser.print_node();
+    dbg!(parser.table.types);
+    //parser.print_node();
 
 }
