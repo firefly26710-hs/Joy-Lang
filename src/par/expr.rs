@@ -32,7 +32,7 @@ impl Parser{
             let op_tok = match self.peek(){
                 Token::EOF | Token::Scolon |Token::Lbrace|
                 Token::Rparen | Token::Comma | Token::Arrow |
-                Token::Vartical| Token::Rbracket => break,
+                Token::Vartical| Token::Rbracket | Token::Rbrace => break,
 
                 _true => self.peek().clone()
             };

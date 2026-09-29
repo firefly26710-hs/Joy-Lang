@@ -14,13 +14,13 @@ pub struct Lexer{
 
 impl Lexer{
     pub fn init(input : String) -> Self{
-		let alloca_size = 32;
+		let alloca_size = 1024;
 
         Lexer{
             input,
-            intervals: Vec::with_capacity(32),
-            tokens   : Vec::with_capacity(32),
-            lines    : Vec::with_capacity(32),
+            intervals: Vec::with_capacity(alloca_size),
+            tokens   : Vec::with_capacity(alloca_size),
+            lines    : Vec::with_capacity(alloca_size),
             start    : 0,
             current  : 0,
             line     : 1,

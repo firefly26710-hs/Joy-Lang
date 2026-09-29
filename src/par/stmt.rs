@@ -104,7 +104,70 @@ impl Parser{
     pub fn call_stmt(&mut self) -> u32{todo!()}
 
 
-    pub fn if_stmt(&mut self) -> u32{todo!()}
+    pub fn if_stmt(&mut self) -> u32{
+        self.record_branch_idx();
+
+        let idxs_start = self.edges.len() as u32;
+        self.edges.extend(self.branch_recorder.drain(..));
+        let idxs_end = (self.edges.len() - 1) as u32;
+        self.nodes.push(
+            Node::new(Token::IfStmt, NONE, Interval::new(idxs_start, idxs_end))
+        );
+
+        (self.nodes.len() - 1) as u32
+
+    }
+
+    fn record_branch_idx(&mut self){
+        match self.peek(){
+            Token::Elif => {
+                if self.branch_recorder.len() >= 2{
+                    self.eat();
+                    let expr_idx = if self.is_expr(self.peek()){
+                        let bool_expr = self.expr(0.0);
+                        let expr_type = self.get_expr_nodes_type();
+                        if self.is_bool(expr_type){bool_expr}
+                        else{panic!("[Line {:?}] Expected Bool in Condition", self.line())}
+                    }else{
+                        panic!("[Line {:?}] Expected a Expression", self.line())
+                    };
+
+                    let block_idx = self.block_stmt(false);
+                    self.branch_recorder.push(expr_idx);
+                    self.branch_recorder.push(block_idx);
+                }else{
+                    panic!("[Line {:?}] Expected 'if' token, but found 'elif'", self.line() )
+                }
+            },
+            Token::If   => {
+                self.eat();
+                let expr_idx = if self.is_expr(self.peek()){
+                    let bool_expr = self.expr(0.0);
+                    let expr_type = self.get_expr_nodes_type();
+                    if self.is_bool(expr_type){bool_expr}
+                    else{panic!("[Line {:?}] Expected Bool in Condition", self.line())}
+                }else{
+                    panic!("[Line {:?}] Expected a Expression", self.line())
+                };
+
+                let block_idx = self.block_stmt(false);
+                self.branch_recorder.push(expr_idx);
+                self.branch_recorder.push(block_idx);
+            },
+            Token::Else => {
+                self.eat();
+                let block_idx = self.block_stmt(false);
+                self.branch_recorder.push(NONE);
+                self.branch_recorder.push(block_idx);
+            },
+            _ => unreachable!()
+        };
+
+        match self.peek(){
+            Token::Elif | Token::Else => self.record_branch_idx(),
+            _ => return
+        }
+    }
 
     pub fn ret_stmt(&mut self) -> u32 { todo!() }
     pub fn for_stmt(&mut self) -> u32 {
@@ -228,7 +291,7 @@ impl Parser{
 
         let idxs_interval = self.bt_push(cond_expr_idx, block_idx);
         self.nodes.push(
-            Node::new(Token::WhileStmt, NONE, idxs_interval )
+            Node::new(Token::WhileStmt, NONE, idxs_interval)
         );
 
         (self.nodes.len() - 1) as u32
@@ -256,12 +319,9 @@ impl Parser{
                 }
             };
 
-            let idxs_start = self.edges.len() as u32;
-            self.edges.push(brk_idx);
-            let idxs_end = (self.edges.len() - 1) as u32;
-
+            let idxs_interval = self.bt_push(NONE, brk_idx);
             self.nodes.push(
-                Node::new(Token::BrkStmt, NONE, Interval::new(idxs_start, idxs_end))
+                Node::new(Token::BrkStmt, NONE, idxs_interval)
             );
 
 
@@ -294,12 +354,10 @@ impl Parser{
                 }
             };
 
-            let idxs_start = self.edges.len() as u32;
-            self.edges.push(ctn_idx);
-            let idxs_end = (self.edges.len() - 1) as u32;
+            let idxs_interval = self.bt_push(NONE, ctn_idx);
 
             self.nodes.push(
-                Node::new(Token::CtnStmt, NONE, Interval::new(idxs_start, idxs_end))
+                Node::new(Token::CtnStmt, NONE, idxs_interval)
             );
         }else{
             panic!("[Line {:?}] 'continue' can't not in loop", self.line());
@@ -321,7 +379,7 @@ impl Parser{
 
         while self.peek() != &Token::Rbrace{
             let stmt_idx = self.match_stmt();
-            self.stmt_recorder.push(stmt_idx);
+            self.block_recorder.push(stmt_idx);
         }
 
         match self.peek(){
@@ -334,7 +392,7 @@ impl Parser{
 
 
         let idxs_start = self.edges.len() as u32;
-        self.edges.extend(self.stmt_recorder.drain(..));
+        self.edges.extend(self.block_recorder.drain(..));
         let idxs_end = (self.edges.len() - 1) as u32;
         self.nodes.push(
             Node::new(Token::BlockStmt, NONE, Interval::new(idxs_start, idxs_end))

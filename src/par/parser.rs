@@ -24,7 +24,8 @@ pub struct Parser{
     pub connect_op_sum      : u8,
 
 
-    pub stmt_recorder       : Vec<u32>,
+    pub block_recorder: Vec<u32>,
+    pub branch_recorder     : Vec<u32>,
     pub current             : usize,
 
 }
@@ -51,7 +52,8 @@ impl Parser{
             connect_op_sum      : 0,
 
 
-            stmt_recorder       : Vec::with_capacity(16),
+            block_recorder      : Vec::with_capacity(16),
+            branch_recorder     : Vec::with_capacity(16),
             current             : 0,
         }
     }
@@ -120,7 +122,13 @@ impl Parser{
 #[test]
 fn parser_test(){
     let input = "
-     let x = 5 + 1 > 3;
+     if 3 > 5{
+       let a = 69;
+     }elif 3 == 5{
+       let b = 68;
+     }else{
+       let c = 67;
+     }
     ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
