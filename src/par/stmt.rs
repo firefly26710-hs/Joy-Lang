@@ -1,4 +1,4 @@
-use std::ptr::addr_of_mut;
+use crate::lex::iterval::Interval;
 use crate::par::node::Node;
 use crate::lex::token::Token;
 use crate::par::parser::{Parser, NONE};
@@ -35,15 +35,14 @@ impl Parser{
         let name_key = self.current as u32;
         let name_idx = if self.peek() == Token::Ident{
             self.eat();
-            let idxs = self.bt_push(NONE, NONE);
             self.nodes.push(
-                Node::new(Token::Ident, name_key.clone(), idxs)
+                Node::new(Token::Ident, name_key.clone(), Interval::new(NONE, NONE))
             );
 
             (self.nodes.len() - 1) as u32
-
         }else{
-            panic!("[Line {:?}] Invalid Variable Name ",self.line())};
+            panic!("[Line {:?}] Invalid Variable Name ",self.line())
+        };
 
         let has_declared_type
             = self.peek() == Token::Colon && self.peek_next() == Token::Ident;
@@ -69,16 +68,28 @@ impl Parser{
         match self.peek(){
             Token::Equel => self.eat(),
             _ => {
-                panic!("[Line {:?}] expectdd '=' ", self.line())
+                panic!("[Line {:?}] expected '=' ", self.line())
             }
         };
 
-        let expr_idx = self.expr(0.0);
+        let expr_idx = if self.is_expr(self.peek()){
+            self.expr(0.0)
+        }else{
+            panic!("[Line {:?}] Expected a Expression", self.line())
+        };
+
+        match self.peek(){
+            Token::Scolon => self.eat(),
+            _ => {
+                panic!("[Line {:?}] expected ';' ", self.line())
+            }
+        };
+
 
         let let_idxs = self.bt_push(name_idx, expr_idx);
         self.nodes.push(Node::new(Token::LetStmt, NONE, let_idxs));
         
-        self.table.var_insert(name_key, declared_ty);
+        self.table.var_insert(name_key, self.type_check(declared_ty));
         self.scope.var_scope_assign(name_key);
         
         (self.nodes.len() - 1) as u32

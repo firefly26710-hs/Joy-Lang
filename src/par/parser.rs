@@ -1,10 +1,8 @@
 use crate::lex::token::Token;
-use crate::lex::iterval::Interval;
 use crate::lex::lexer::Lexer;
 use crate::par::node::Node;
 use crate::par::scope::Scope;
 use crate::par::table::Table;
-use crate::par::ty::Type;
 
 pub const NONE : u32 = u32::MAX;
 pub struct Parser{
@@ -14,9 +12,9 @@ pub struct Parser{
     pub edges               : Vec<u32>,
     pub nodes               : Vec<Node>,
 
+
     pub table               : Table,
     pub scope               : Scope,
-
 
 
     pub int_leaf_sum        : u8,
@@ -25,7 +23,6 @@ pub struct Parser{
     pub compare_op_sum      : u8,
     pub connect_op_sum      : u8,
 
-    pub ret_type            : Type,
 
     pub current             : usize,
 
@@ -50,26 +47,28 @@ impl Parser{
             compare_op_sum      : 0,
             connect_op_sum      : 0,
 
-            ret_type            : Type::void,
+
             current             : 0,
         }
     }
 
     #[inline(always)]
     pub fn peek(&self) -> Token {
-        if self.current > self.lexer.tokens.len(){
-            return Token::EOF;
+        if !self.current > self.lexer.tokens.len(){
+            return self.lexer.tokens[self.current].clone()
         }
 
-        self.lexer.tokens[self.current].clone()
+        Token::EOF
     }
     #[inline(always)]
     pub fn peek_next(&self) -> Token{
-        if self.current + 1 > self.lexer.tokens.len(){
-            return Token::EOF;
+        if !self.current + 1 > self.lexer.tokens.len(){
+            return self.lexer.tokens[self.current + 1].clone()
         }
 
-        self.lexer.tokens[self.current + 1].clone()
+        Token::EOF
+
+
     }
     #[inline(always)]
     pub fn eat(&mut self) -> Token{
@@ -78,15 +77,23 @@ impl Parser{
         tok
     }
 
+    #[inline(always)]
+    pub fn line(& self) -> u32{
+        self.lexer.lines[self.current]
+    }
+
     pub fn print_node(&mut self){
-        for (i, node) in self.nodes.iter().enumerate(){
+        for (i, node) in self.nodes.iter().enumerate() {
             println!("Number : {i}");
             println!("Node : {:?}", node);
-            let idxs = &node.idxs;
-            let l_idx = idxs.start as usize;
-            let r_idx = idxs.end as usize;
 
-            println!("Edge : {:?}", &self.edges[l_idx..=r_idx ]);
+            let idxs = &node.idxs;
+            let l_idx = idxs.start;
+            let r_idx = idxs.end;
+
+            if l_idx != NONE && r_idx != NONE {
+                println!("Edge : {:?}", &self.edges[l_idx as usize..=r_idx as usize]);
+            }
 
             let key = node.key;
             if key == NONE{continue}
@@ -97,10 +104,7 @@ impl Parser{
         }
     }
     
-    #[inline(always)]
-    pub fn line(&self) -> u32{
-        self.lexer.lines[self.current]
-    }
+
 
     pub fn print_table(&mut self){todo!()}
     pub fn print_scope(&mut self){todo!()}
@@ -111,11 +115,12 @@ impl Parser{
 
 #[test]
 fn parser_test(){
-    let input = "let x = 1 + 2 * 3".to_string();
+    let input = "let x  = 1 + 2 * 3;".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
+     lexer.print_output();
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
-    parser.let_stmt();
+    parser.match_stmt();
     parser.print_node();
 
 }
