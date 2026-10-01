@@ -5,7 +5,71 @@ use crate::par::parser::{Parser, NONE};
 use crate::par::ty::Type;
 
 impl Parser{
-    pub fn func_stmt(&mut self) -> u32{todo!()}
+    // pub fn func_stmt(&mut self) -> u32{
+    //     match self.peek(){
+    //         Token::Func => self.eat(),
+    //         _ => {
+    //             panic!("[Line {:?}], Can't find function", self.line())
+    //         }
+    //     };
+    //
+    //     let func_name_key = self.current as u32;
+    //     let func_name_node_idx = if self.peek() == &Token::Ident{
+    //         self.eat();
+    //         self.nodes.push(
+    //             Node::new(Token::Ident, func_name_key, Interval::new(NONE, NONE))
+    //         );
+    //         (self.nodes.len() - 1) as u32
+    //     }else{
+    //         panic!("[Line {:?}] Expected a function name", self.line())
+    //     };
+    //
+    //     match self.peek(){
+    //         Token::Lparen => self.eat(),
+    //         _ => {
+    //             panic!("[Line {:?}] Expected a (", self.line())
+    //         }
+    //     };
+    //
+    //     let has_declared_params = self.is_expr(self.peek());
+    //     let no_declared_params = self.peek() == &Token::Rparen;
+    //     let error_expr = !self.is_expr(self.peek()) && self.peek() !=&Token::Rparen;
+    //     let no_params_and_no_rparen = !self.is_expr(self.peek()) || self.peek() ==&Token::Rparen;
+    //
+    //     if has_declared_params{
+    //
+    //     }else if no_declared_params{
+    //         self.eat();
+    //     }else if error_expr{
+    //         todo!()
+    //     }else if no_params_and_no_rparen{
+    //         todo!()
+    //     }
+    //
+    //     let has_declared_ret_type =
+    //         self.peek() == &Token::Arrow && self.peek_next() == &Token::Ident;
+    //
+    //     let no_declared_ret_type =
+    //         self.peek() != &Token::Arrow && self.peek_next() == &Token::Ident;
+    //
+    //     let only_declare_arrow
+    //         = self.peek() == &Token::Arrow && self.peek_next() != &Token::Ident;
+    //
+    //
+    //     let ret_ty = if has_declared_ret_type{
+    //         self.eat();
+    //         let type_key = self.current;
+    //         self.type_mapping(type_key)
+    //     }else if no_declared_ret_type{
+    //         Type::void
+    //     }else if only_declare_arrow{
+    //         todo!()
+    //     }else{ // only_declare_type
+    //         todo!()
+    //     };
+    //
+    //     
+    // }
 
     pub fn match_stmt(&mut self) -> u32{
 
@@ -46,23 +110,25 @@ impl Parser{
             panic!("[Line {:?}] Invalid Variable Name ",self.line())
         };
 
-        let has_declared_type
-            = self.peek() == &Token::Colon && self.peek_next() == &Token::Ident;
-
+        let no_declared_type =
+            self.peek() != &Token::Colon && self.peek_next() != &Token::Ident;
+        let has_declared_type =
+            self.peek() == &Token::Colon && self.peek_next() == &Token::Ident;
         let only_declare_colon
-            = self.peek() == &Token::Colon && self.peek_next() != &Token::Ident;
-        
+            =  self.peek() == &Token::Colon && self.peek_next() != &Token::Ident;
 
-        let declared_ty = if !has_declared_type{
+
+        //The most frequency condition is on first,
+        // So do not change the position
+        let declared_ty = if no_declared_type{
             Type::void
         }else if has_declared_type{
             self.eat();//eat ':'
-
             let declared_type_key = self.current;
             self.eat();
             self.type_mapping(declared_type_key)
-        }else if only_declare_colon{
-            panic!("[Line {:?}] Declare a Type", self.line())
+        } else if only_declare_colon{
+                panic!("[Line {:?}] Declare a Type", self.line())
         }else{
             panic!("[Line {:?}] Misses the ':'", self.line())
         };
@@ -105,10 +171,11 @@ impl Parser{
 
 
     pub fn if_stmt(&mut self) -> u32{
+        let start_idx = self.scope.branch_recorder.len();
         self.record_branch_idx();
 
         let idxs_start = self.edges.len() as u32;
-        self.edges.extend(self.branch_recorder.drain(..));
+        self.edges.extend(self.scope.branch_recorder.drain(start_idx..));
         let idxs_end = (self.edges.len() - 1) as u32;
         self.nodes.push(
             Node::new(Token::IfStmt, NONE, Interval::new(idxs_start, idxs_end))
@@ -120,8 +187,8 @@ impl Parser{
 
     fn record_branch_idx(&mut self){
         match self.peek(){
-            Token::Elif => {
-                if self.branch_recorder.len() >= 2{
+            Token::Elif => {  //most freq
+                if self.scope.branch_recorder.len() >= 2{
                     self.eat();
                     let expr_idx = if self.is_expr(self.peek()){
                         let bool_expr = self.expr(0.0);
@@ -133,13 +200,13 @@ impl Parser{
                     };
 
                     let block_idx = self.block_stmt(false);
-                    self.branch_recorder.push(expr_idx);
-                    self.branch_recorder.push(block_idx);
+                    self.scope.branch_recorder.push(expr_idx);
+                    self.scope.branch_recorder.push(block_idx);
                 }else{
                     panic!("[Line {:?}] Expected 'if' token, but found 'elif'", self.line() )
                 }
             },
-            Token::If   => {
+            Token::If   => { // less_freq
                 self.eat();
                 let expr_idx = if self.is_expr(self.peek()){
                     let bool_expr = self.expr(0.0);
@@ -151,14 +218,14 @@ impl Parser{
                 };
 
                 let block_idx = self.block_stmt(false);
-                self.branch_recorder.push(expr_idx);
-                self.branch_recorder.push(block_idx);
+                self.scope.branch_recorder.push(expr_idx);
+                self.scope.branch_recorder.push(block_idx);
             },
-            Token::Else => {
+            Token::Else => { //less_freq
                 self.eat();
                 let block_idx = self.block_stmt(false);
-                self.branch_recorder.push(NONE);
-                self.branch_recorder.push(block_idx);
+                self.scope.branch_recorder.push(NONE);
+                self.scope.branch_recorder.push(block_idx);
             },
             _ => unreachable!()
         };
@@ -171,11 +238,9 @@ impl Parser{
 
     pub fn ret_stmt(&mut self) -> u32 { todo!() }
     pub fn for_stmt(&mut self) -> u32 {
-        self.scope.loop_counter += 1;
-
         self.eat();
 
-        self.scope.build_scope();
+        self.scope.build_func_scope(true);
 
         let ident_key = self.current as u32;
         let loop_ident_idx = if self.peek() == &Token::Ident{
@@ -265,15 +330,14 @@ impl Parser{
             Node::new(Token::ForStmt, NONE, Interval::new(idxs_start, idxs_end))
         );
 
-        self.scope.destroy_scope();
+
+        self.scope.destroy_scope(true);
 
         (self.nodes.len() - 1) as u32
     }
 
     
     pub fn while_stmt(&mut self) -> u32 {
-        self.scope.loop_counter += 1;
-
         self.eat();
 
         let cond_expr_idx = if self.is_expr(self.peek()){
@@ -285,9 +349,9 @@ impl Parser{
             panic!("[Line {:?}] Expected Expression in Condition", self.line())
         };
 
-        self.scope.build_scope();
+        self.scope.build_func_scope(true);
         let block_idx = self.block_stmt(false);
-        self.scope.destroy_scope();
+        self.scope.destroy_scope(true);
 
         let idxs_interval = self.bt_push(cond_expr_idx, block_idx);
         self.nodes.push(
@@ -298,8 +362,8 @@ impl Parser{
 
     }
     pub fn brk_stmt(&mut self) -> u32 {
-        if self.scope.is_in_loop_stmt(){
-            self.scope.loop_counter -= 1;
+        if self.scope.is_in_loop_scope(){
+
 
             let brk_key = self.current as u32;
             let brk_idx = {
@@ -333,8 +397,7 @@ impl Parser{
     }
 
     pub fn ctn_stmt(&mut self) -> u32 {
-        if self.scope.is_in_loop_stmt(){
-            self.scope.loop_counter -= 1;
+        if self.scope.is_in_loop_scope(){
 
             let ctn_key = self.current as u32;
             let ctn_idx = {
@@ -377,9 +440,10 @@ impl Parser{
         };
 
 
+        let start_idx = self.scope.block_recorder.len();
         while self.peek() != &Token::Rbrace{
             let stmt_idx = self.match_stmt();
-            self.block_recorder.push(stmt_idx);
+            self.scope.block_recorder.push(stmt_idx);
         }
 
         match self.peek(){
@@ -392,7 +456,7 @@ impl Parser{
 
 
         let idxs_start = self.edges.len() as u32;
-        self.edges.extend(self.block_recorder.drain(..));
+        self.edges.extend(self.scope.block_recorder.drain(start_idx..));
         let idxs_end = (self.edges.len() - 1) as u32;
         self.nodes.push(
             Node::new(Token::BlockStmt, NONE, Interval::new(idxs_start, idxs_end))

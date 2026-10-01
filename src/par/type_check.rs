@@ -23,20 +23,20 @@ impl Parser{
 
     #[inline(always)]
     pub fn get_expr_nodes_type(&mut self) -> Token{
-        dbg!(self.int_leaf_sum);
-        dbg!(self.flt_leaf_sum);
-        dbg!(self.regular_op_sum);
-        dbg!(self.compare_op_sum);
-        dbg!(self.connect_op_sum);
         let is_only_one_type_leaf = self.int_leaf_sum & self.flt_leaf_sum == 0;
-        let is_int = 
-            self.int_leaf_sum == self.regular_op_sum + 1 && is_only_one_type_leaf;
+        let is_int = self.int_leaf_sum == self.regular_op_sum + 1
+                && is_only_one_type_leaf
+                && self.compare_op_sum == 0
+                && self.connect_op_sum == 0;
         
-        let is_flt =
-            self.flt_leaf_sum == self.regular_op_sum + 1 && is_only_one_type_leaf;
+        let is_flt = self.flt_leaf_sum == self.regular_op_sum + 1
+            && is_only_one_type_leaf
+            && self.compare_op_sum == 0
+            && self.connect_op_sum == 0;
         
-        let is_bool = 
-            self.compare_op_sum == self.connect_op_sum + 1 && is_only_one_type_leaf;
+        let is_bool = self.compare_op_sum == self.connect_op_sum + 1
+            && is_only_one_type_leaf
+            && self.regular_op_sum == 0;
 
         let expr_type = if is_int{
             Token::Int

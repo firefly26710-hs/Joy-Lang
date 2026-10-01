@@ -34,7 +34,7 @@ impl Parser{
                 Token::Rparen | Token::Comma | Token::Arrow |
                 Token::Vartical| Token::Rbracket | Token::Rbrace => break,
 
-                _true => self.peek().clone()
+                _true => self.peek()
             };
 
 
@@ -51,7 +51,7 @@ impl Parser{
             else if self.is_connect_op(&op_tok){self.connect_op_sum += 1}
 
             let op_key = self.current as u32;
-            self.eat();
+            let op_tok =  self.eat();
 
             let rhs_idx = self.expr(r_bp);
 

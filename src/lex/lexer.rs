@@ -30,163 +30,160 @@ impl Lexer{
     pub fn tokenize(&mut self){
         while !self.finish(){
             self.start = self.current;
-            self.scan_token();
+			let c = self.eat();
+			match c{
+				"+" => {
+					self.tokens.push(Token::Plus);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+
+				"-" => {
+					if self.peek() == ">"{
+						self.tokens.push(Token::Arrow);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}else{
+						self.tokens.push(Token::Minus);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
+				},
+
+				"*" => {
+					self.tokens.push(Token::Mul);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"/" => {
+					self.tokens.push(Token::Div);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"%" => {
+					self.tokens.push(Token::Mod);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"=" => {
+					if matches!(self.peek(), "="){
+						self.tokens.push(Token::EqEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					} else{
+						self.tokens.push(Token::Equel);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
+
+				},
+				">" => {
+					if self.peek() == "="{
+						self.tokens.push(Token::GrtEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					} else{
+						self.tokens.push(Token::Grt);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
+				},
+				"<" => {
+					if self.peek() == "="{
+						self.tokens.push(Token::LesEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					} else{
+						self.tokens.push(Token::Les);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
+				},
+				"!" => {
+					if matches!(self.peek(), "="){
+						self.tokens.push(Token::NotEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					} else{
+						panic!("[Line {:?}] '!' must combine with '=' ", self.line)
+					}
+				},
+				"(" => {
+					self.tokens.push(Token::Lparen);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				")" => {
+					self.tokens.push(Token::Rparen);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"{" => {
+					self.tokens.push(Token::Lbrace);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"}" => {
+					self.tokens.push(Token::Rbrace);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				":" => {
+					self.tokens.push(Token::Colon);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				";" => {
+					self.tokens.push(Token::Scolon);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"," => {
+					self.tokens.push(Token::Comma);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"." => {
+					self.tokens.push(Token::Dot);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"[" => {
+					self.tokens.push(Token::Lbracket);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"]" => {
+					self.tokens.push(Token::Rbracket);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+				"|" => {
+					self.tokens.push(Token::Vartical);
+					self.intervals.push(Interval::new(self.start, self.current));
+					self.lines.push(self.line);
+				},
+
+				_ if is_number(c) => self.number(),
+
+				_ if is_alphanumeric(c) => self.ident(),
+
+				" " | "\r" | "\t" => {},
+
+				"\n" => self.line += 1,
+
+				e => panic!("{}",format!("Find Unknown Token : {e}"))
+			}
         }
         self.tokens.push(Token::EOF);
     } 
 
-    fn scan_token(&mut self){
-        let c = self.eat();
-	match c{
-	    "+" => {
-                self.tokens.push(Token::Plus);
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-        },
 
-        "-" => {
-		    if matches!(self.peek(), ">"){
-		        self.tokens.push(Token::Arrow);
-		        self.current += 1;
-		        self.intervals.push(Interval::new(self.start, self.current));
-		        self.lines.push(self.line);
-			}else{
-                self.tokens.push(Token::Minus);
-		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-            }
-        },
-        
-        "*" => {
-                self.tokens.push(Token::Mul);
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-        }, 
-        "/" => {
-                self.tokens.push(Token::Div);
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-        },
-	    "%" => {
-                self.tokens.push(Token::Mod);
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-        },
-        "=" => {
-			if matches!(self.peek(), "="){
-				self.tokens.push(Token::EqEq);
-				self.current += 1;
-				self.intervals.push(Interval::new(self.start, self.current));
-				self.lines.push(self.line);
-			} else{
-				self.tokens.push(Token::Equel);
-				self.intervals.push(Interval::new(self.start, self.current));
-				self.lines.push(self.line);
-			}
-            
-        },
-        ">" => {
-            if matches!(self.peek(), "="){
-                self.tokens.push(Token::GrtEq);
-                self.current += 1;
-		        self.intervals.push(Interval::new(self.start, self.current));
-		        self.lines.push(self.line);
-                } else{
-                self.tokens.push(Token::Grt);
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-            }
-        },
-        "<" => {
-		    if matches!(self.peek(), "="){
-                self.tokens.push(Token::LesEq);
-		        self.current += 1;
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-            } else{
-		        self.tokens.push(Token::Les);
-		     self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-            }
-        },
-	    "!" => {
-		    if matches!(self.peek(), "="){
-		        self.tokens.push(Token::NotEq);
-                self.current += 1;
-                self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-		    } else{
-		        panic!("[Line {:?}] '!' must combine with '=' ", self.line)
-		    }
-	    },
-	    "(" => {
-		    self.tokens.push(Token::Lparen);
-		    self.intervals.push(Interval::new(self.start, self.current));
-		    self.lines.push(self.line);
-	    },
-	    ")" => {
-		    self.tokens.push(Token::Rparen);
-		    self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
-	    },
-	    "{" => {
-		    self.tokens.push(Token::Lbrace);
-		    self.intervals.push(Interval::new(self.start, self.current));
-		    self.lines.push(self.line);
-	    },
-	    "}" => {
-		    self.tokens.push(Token::Rbrace);
-		    self.intervals.push(Interval::new(self.start, self.current));
-		    self.lines.push(self.line);
-	    },
-	    ":" => {
-		    self.tokens.push(Token::Colon);
-		    self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
-	    },
-	    ";" => {
-		    self.tokens.push(Token::Scolon);
-            self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-	    },
-	    "," => {
-		    self.tokens.push(Token::Comma);
-		    self.intervals.push(Interval::new(self.start, self.current));
-		    self.lines.push(self.line);
-	    },
-	    "." => {
-		    self.tokens.push(Token::Dot);
-		    self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
-	    },
-	    "[" => {
-		    self.tokens.push(Token::Lbracket);
-            self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
-	    },
-	    "]" => {
-		    self.tokens.push(Token::Rbracket);
-            self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
-	    },
-	    "|" => {
-		    self.tokens.push(Token::Vartical);
-            self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
-	    },
-	    
-	    _ if is_number(c) => self.number(),
-		
-	    _ if is_alphanumeric(c) => self.ident(),
-	    
-        " " | "\r" | "\t" => {},
-	    
-        "\n" => self.line += 1,
-        
-        e => panic!("{}",format!("Find Unknown Token : {e}"))
-    }
-        
-    }
     
     fn number(&mut self){
 	    while is_number(self.peek()){self.current += 1}
@@ -311,15 +308,15 @@ impl Lexer{
     }
 	#[inline(always)]
     fn peek(&mut self) -> &str{
-	    if !self.finish() {
+	    if most_freq(!self.finish()) {
             return &self.input[(self.current) as usize..=(self.current) as usize];
         }
-		"\0"
+		"\0" // less_freq
 
     }
 	#[inline(always)]
     fn peek_next(&mut self) -> &str{
-	    if !self.finish() {
+	    if most_freq(!self.finish()) {
             return &self.input[(self.current + 1) as usize ..= (self.current + 1) as usize];
         }
 		"\0"
@@ -347,8 +344,6 @@ impl Lexer{
 } 
 
 
-
-
 fn is_number(c : &str) -> bool{
     c >= "0" && c <= "9"
 }
@@ -356,6 +351,13 @@ fn is_number(c : &str) -> bool{
 fn is_alphanumeric (c : &str) -> bool{
     (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || (c >= "0" && c <= "9")
 }
+
+#[inline(always)]
+fn most_freq(cond : bool) -> bool{
+	cond
+}
+
+
 
 #[test]
 fn lexer_testing(){

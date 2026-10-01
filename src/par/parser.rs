@@ -5,6 +5,8 @@ use crate::par::scope::Scope;
 use crate::par::table::Table;
 
 pub const NONE : u32 = u32::MAX;
+
+
 pub struct Parser{
     pub lexer               : Lexer,
     
@@ -24,9 +26,10 @@ pub struct Parser{
     pub connect_op_sum      : u8,
 
 
-    pub block_recorder: Vec<u32>,
-    pub branch_recorder     : Vec<u32>,
+   
     pub current             : usize,
+
+
 
 }
 
@@ -52,14 +55,17 @@ impl Parser{
             connect_op_sum      : 0,
 
 
-            block_recorder      : Vec::with_capacity(16),
-            branch_recorder     : Vec::with_capacity(16),
+            
             current             : 0,
         }
     }
 
     pub fn build_tree(&mut self){todo!()}
 
+
+    //More Frequency in first cond
+    //Set N is the length of tokens
+    //So We only Branch Hazard in once
     #[inline(always)]
     pub fn peek(&self) -> &Token {
         if self.current < self.lexer.tokens.len(){
@@ -68,13 +74,17 @@ impl Parser{
 
         &Token::EOF
     }
+
+    //More Frequency in first cond
+    //Set N is the length of tokens
+    //So We only Branch Hazard in once
     #[inline(always)]
     pub fn peek_next(&self) -> &Token{
         if self.current + 1 < self.lexer.tokens.len(){
             return &self.lexer.tokens[self.current + 1]
         }
 
-        &Token::EOF
+        &Token::EOF // less_freq
     }
     #[inline(always)]
     pub fn eat(&mut self) -> Token{
@@ -82,6 +92,8 @@ impl Parser{
         self.current += 1;
         tok
     }
+
+
 
     #[inline(always)]
     pub fn line(& self) -> u32{
@@ -119,15 +131,15 @@ impl Parser{
 }
 
 
+
+
 #[test]
 fn parser_test(){
     let input = "
-     if 3 > 5{
-       let a = 69;
-     }elif 3 == 5{
-       let b = 68;
-     }else{
-       let c = 67;
+     for i in [0 -> 3 | 1]{
+         for j in [0 -> 3 | 1]{
+              let x = 5;
+         }
      }
     ".to_string();
     let mut lexer = Lexer::init(input);
@@ -136,7 +148,6 @@ fn parser_test(){
 
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
     parser.match_stmt();
-    dbg!(parser.table.types);
-    //parser.print_node();
+    parser.print_node();
 
 }

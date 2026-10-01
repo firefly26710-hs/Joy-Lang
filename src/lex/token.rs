@@ -1,6 +1,5 @@
 
 #[derive(Debug, Clone, PartialEq)]
-#[repr(u32)]
 pub enum Token{
 
     //type
