@@ -5,13 +5,15 @@ use crate::par::scope::Scope;
 use crate::par::table::Table;
 
 pub const NONE : u32 = u32::MAX;
+const RECORDER_SIZE : usize = 256;
 
+pub type NodeIdx = u32;
 
 pub struct Parser{
     pub lexer               : Lexer,
     
 
-    pub edges               : Vec<u32>,
+    pub edges               : Vec<NodeIdx>,
     pub nodes               : Vec<Node>,
 
 
@@ -25,6 +27,10 @@ pub struct Parser{
     pub compare_op_sum      : u8,
     pub connect_op_sum      : u8,
 
+
+    pub func_recorder       : Vec<u32>,
+    pub branch_recorder     : Vec<u32>,
+    pub block_recorder      : Vec<u32>,
 
    
     pub current             : usize,
@@ -55,7 +61,10 @@ impl Parser{
             connect_op_sum      : 0,
 
 
-            
+            func_recorder        : Vec::with_capacity(RECORDER_SIZE),
+            branch_recorder      : Vec::with_capacity(RECORDER_SIZE),
+            block_recorder       : Vec::with_capacity(RECORDER_SIZE),
+
             current             : 0,
         }
     }
@@ -124,7 +133,21 @@ impl Parser{
     
 
 
-    pub fn print_table(&mut self){todo!()}
+    pub fn print_table(&mut self){
+        for (i, ty) in self.table.var_types.iter().enumerate(){
+            println!("Var Type {i} : {:?} ", ty);
+        }
+
+
+        for (i, idx) in self.table.param_idxs.iter().enumerate(){
+            println!("param idx {i} : {:?} ", idx);
+        }
+
+        for (i, ty) in self.table.ret_types.iter().enumerate(){
+            println!("Ret Type {i} : {:?} ", ty);
+        }
+
+    }
     pub fn print_scope(&mut self){todo!()}
 
 
@@ -136,18 +159,17 @@ impl Parser{
 #[test]
 fn parser_test(){
     let input = "
-     for i in [0 -> 3 | 1]{
-         for j in [0 -> 3 | 1]{
-              let x = 5;
-         }
-     }
+    fn main(a : i32){
+        let c = 5;
+    }
     ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     lexer.print_output();
 
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
-    parser.match_stmt();
+    parser.func_stmt();
     parser.print_node();
+    parser.print_table();
 
 }

@@ -27,4 +27,18 @@ impl Table{
         self.var_keys.push(key);
         self.var_types.push(ty);
     }
+
+    pub fn func_insert(
+        &mut self,
+        key : u32,
+        param_start : u32,
+        param_end : u32,
+        ret_ty : Type
+    ){
+        self.func_keys.push(key);
+        self.param_idxs.push(Interval::new(param_start, param_end));
+        self.ret_types.push(ret_ty);
+    }
+    
+    
 }

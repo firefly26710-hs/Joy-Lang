@@ -67,7 +67,7 @@ impl Parser{
     pub fn is_expr(&self, tok : &Token) -> bool{
         match tok{
             Token::Int | Token::Ident | Token::Float |
-            Token::Minus | Token::CmpNot => {
+            Token::Minus | Token::CmpNot | Token::Lparen => {
                 true
             },
             _ => false

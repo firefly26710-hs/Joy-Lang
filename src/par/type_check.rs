@@ -4,7 +4,7 @@ use crate::par::ty::Type;
 
 impl Parser{
     #[inline(always)]
-    pub fn type_check(&self, declared_type: Type, expr_type : Token) -> Type{
+    pub fn type_check(&self, declared_type: &Type, expr_type : Token) -> Type{
 
         match(&declared_type, &expr_type){
             (Type::void, Token::Int)   => Type::i32,
@@ -22,7 +22,7 @@ impl Parser{
     }
 
     #[inline(always)]
-    pub fn get_expr_nodes_type(&mut self) -> Token{
+    pub fn get_expr_token_type(&mut self) -> Token{
         let is_only_one_type_leaf = self.int_leaf_sum & self.flt_leaf_sum == 0;
         let is_int = self.int_leaf_sum == self.regular_op_sum + 1
                 && is_only_one_type_leaf
@@ -35,8 +35,7 @@ impl Parser{
             && self.connect_op_sum == 0;
         
         let is_bool = self.compare_op_sum == self.connect_op_sum + 1
-            && is_only_one_type_leaf
-            && self.regular_op_sum == 0;
+            && is_only_one_type_leaf;
 
         let expr_type = if is_int{
             Token::Int
@@ -77,12 +76,12 @@ impl Parser{
     }
 
     pub fn is_int(&self, expr_type : Token  )->bool{
-        let match_ty = self.type_check(Type::void, expr_type);
+        let match_ty = self.type_check(&Type::void, expr_type);
         match_ty == Type::i32
     }
     
     pub fn is_bool(&self, expr_type : Token) -> bool{
-        let match_ty = self.type_check(Type::void, expr_type);
+        let match_ty = self.type_check(&Type::void, expr_type);
         match_ty == Type::bool
     }
 

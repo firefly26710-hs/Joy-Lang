@@ -13,15 +13,76 @@
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/iterval.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/iterval.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/node.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/scope.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/scope.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/table.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/table.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/type_check.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/type_check.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/CACHEDIR.TAG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/dep-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/lib-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-01cc0eb81f59c9e0/output-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-22c55c02c9dad796/dep-test-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-22c55c02c9dad796/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-22c55c02c9dad796/test-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-22c55c02c9dad796/test-bin-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/dep-test-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/test-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-6d3beca406d6378e/test-bin-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/dep-test-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/test-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-9c8cc5d9bc185886/test-lib-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/dep-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/lib-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-a8cfc6dc5280f8ff/output-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/bin-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/dep-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b4277269a34ac2cb/output-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b60e53da919824e4/dep-test-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b60e53da919824e4/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b60e53da919824e4/test-lib-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-b60e53da919824e4/test-lib-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/bin-comp.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/dep-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/invoked.timestamp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/.fingerprint/comp-cbf16f22a9f19958/output-bin-comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/comp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/comp.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-01cc0eb81f59c9e0.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-22c55c02c9dad796" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-22c55c02c9dad796.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-6d3beca406d6378e.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-9c8cc5d9bc185886.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-a8cfc6dc5280f8ff.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-b4277269a34ac2cb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-b4277269a34ac2cb.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-b60e53da919824e4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-b60e53da919824e4.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/comp-cbf16f22a9f19958.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-01cc0eb81f59c9e0.rmeta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-6d3beca406d6378e.rmeta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-9c8cc5d9bc185886.rmeta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-a8cfc6dc5280f8ff.rlib" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-a8cfc6dc5280f8ff.rmeta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/deps/libcomp-cbf16f22a9f19958.rmeta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/libcomp.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/debug/libcomp.rlib" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +117,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Cargo.Build `Run comp`.executor&quot;: &quot;Run&quot;,
     &quot;Cargo.Run comp.executor&quot;: &quot;Run&quot;,
     &quot;CidrDebugProfileConversion&quot;: &quot;true&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
@@ -193,9 +255,9 @@
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/main.rs</url>
-          <line>3</line>
-          <option name="timeStamp" value="3" />
+          <url>file://$PROJECT_DIR$/src/par/scope.rs</url>
+          <line>15</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

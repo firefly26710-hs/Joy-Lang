@@ -1,15 +1,15 @@
-
+type IntervalStart = u32;
+type IntervalEnd = u32;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Interval {
-    pub start : u32,
-    pub end   : u32
+    pub start : IntervalStart,
+    pub end   : IntervalEnd
 }
 
 impl Interval {
-    pub fn new(start : u32, end : u32) -> Self{
-	Interval {
-	    start,
-	    end 
-	}
+    pub fn new(start : IntervalStart, end : IntervalEnd) -> Self{
+	Interval { start, end }
     }
+    
+    
 }
