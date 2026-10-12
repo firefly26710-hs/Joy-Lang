@@ -6,10 +6,10 @@ use crate::par::ty::Type;
 const VAR_PART_ALLOC_SIZE: usize = 256;
 const FUNC_PART_ALLOC_SIZE : usize = 128;
 pub struct Table{
-    pub var_keys          : Vec<u32>,
-    var_types     : Vec<Type>,
-    pub func_keys         : Vec<u32>,
-    param_idxs    : Vec<Interval>,
+    pub var_keys      : Vec<u32>,
+    pub var_types     : Vec<Type>,
+    pub func_keys     : Vec<u32>,
+    param_idxs        : Vec<Interval>,
     pub ret_types     : Vec<Type>,
 }
 

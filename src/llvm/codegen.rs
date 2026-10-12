@@ -7,7 +7,7 @@ use crate::lex::lexer::Lexer;
 use crate::par::scope::Scope;
 use crate::par::table::Table;
 use crate::par::parser::Parser;
-
+use crate::par::ty::Type;
 
 pub struct Codegen<'ctx> {
     pub context             : &'ctx Context,
@@ -18,7 +18,8 @@ pub struct Codegen<'ctx> {
     pub variables           : Vec<PointerValue<'ctx>>,
 
     pub param_types_vec     : Vec<BasicMetadataTypeEnum<'ctx>>,
-    pub current_fn          : Option<FunctionValue<'ctx>>
+    pub current_fn          : Option<FunctionValue<'ctx>>,
+    pub ret_type            : Type
 }
 
 impl<'ctx> Codegen<'ctx>{
@@ -35,7 +36,8 @@ impl<'ctx> Codegen<'ctx>{
             variables : Vec::with_capacity(64),
 
             param_types_vec : Vec::with_capacity(8),
-            current_fn : None
+            current_fn : None,
+            ret_type   : Type::void
         }
     }
 

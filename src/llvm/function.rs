@@ -1,5 +1,5 @@
 use inkwell::types::BasicMetadataTypeEnum;
-use inkwell::values::FunctionValue;
+use inkwell::values::{BasicValueEnum, FunctionValue};
 use crate::par::ty::Type;
 use crate::llvm::codegen::Codegen;
 
@@ -41,7 +41,6 @@ impl<'ctx>Codegen<'ctx>{
 
         //ret type
         let ret_type = self.parser.table.get_ret_type(name_key as u32);
-
 
         //creat function
         let func  = match ret_type{
@@ -116,6 +115,65 @@ impl<'ctx>Codegen<'ctx>{
         let entry = self.context.append_basic_block(func, "entry");
         self.builder.position_at_end(entry);
 
+	    //build param
+	    let param_types = self.parser.table.get_param_types(name_key);
+
+	    let has_param = param_types.len() > 0;
+
+	    if has_param{
+	        let param_nodes = &self.parser.edges[func_child_start + 1..=func_child_end - 1];
+
+            for (i, _) in param_types.iter().enumerate(){
+                let param_name_node = &self.parser.nodes[param_nodes[i] as usize];
+                let param_name_key = param_name_node.key;
+
+                let str_interval = &self.parser.lexer.intervals[param_name_key as usize];
+                let start = str_interval.start as usize;
+                let end = str_interval.end as usize;
+                let name_str = &self.parser.lexer.input[start..end];
+
+                let param_value = func.get_nth_param(i as u32).unwrap();
+                let param_type = &param_types[i];
+
+                match param_value{
+                    BasicValueEnum::IntValue(val) => {
+                        let int_type = if param_type == &Type::i32{
+                            self.context.i32_type()
+                        }else if param_type == &Type::bool{
+                            self.context.bool_type()
+                        }else if param_type == &Type::i64{
+                          self.context.i64_type()
+                         }else{
+                            unreachable!()
+                        };
+
+                        let alloc = self.builder.build_alloca(int_type, name_str).unwrap();
+                        self.builder.build_store(alloc, val).unwrap();
+                        self.variables.push(alloc);
+
+                    },
+                    BasicValueEnum::FloatValue(val) => {
+                         let flt_type = if param_type == &Type::f32{
+                            self.context.f32_type()
+                        }else if param_type == &Type::f64{
+                            self.context.f64_type()
+                        }else{
+                            unreachable!()
+                        };
+
+                        let alloc = self.builder.build_alloca(flt_type, name_str).unwrap();
+                        self.builder.build_store(alloc, val).unwrap();
+                        self.variables.push(alloc);
+                    }
+                    _ => unreachable!()
+                };
+            }
+    	}
+
+        self.current_fn = Some(func);
+	    self.ret_type = self.parser.table.get_ret_type(name_key).clone();
+        let block_idx = *func_node_childs.last().unwrap();
+        //self.compile_block(block_idx);
     }
 
 
@@ -131,4 +189,7 @@ impl<'ctx>Codegen<'ctx>{
         }
         self.functions[current]
     }
+
+
+
 }
