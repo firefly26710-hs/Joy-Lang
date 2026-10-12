@@ -11,7 +11,22 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="" />
+    <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/llvm/function.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/llvm/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/scope.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/scope.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/table.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/table.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/type_check.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/type_check.rs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,7 +43,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="r3rd" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />

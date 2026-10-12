@@ -1,11 +1,53 @@
+use std::process::id;
 use crate::lex::iterval::Interval;
 use crate::par::parser::{Parser, NONE};
 use crate::lex::token::Token;
 use crate::par::node::Node;
+use crate::par::ty::Type;
 
 impl Parser{
     pub fn expr(&mut self, min_bp : f32) -> u32{
         let mut lhs_idx = match self.peek(){
+            Token::Ident => {
+                if self.peek_next() == &Token::Lparen {
+                    let idx =  self.func_call();
+                    let func_node = self.nodes.last().unwrap();
+                    let interval = &func_node.idxs;
+                    let start = interval.start as usize;
+                    let end = interval.end as usize;
+                    let range = &self.edges[start..=end];
+                    let name_node = &self.nodes[range[0] as usize];
+                    let name_key = name_node.key;
+                    match self.table.get_ret_type(name_key){
+                        Type::i32 | Type::i64 => self.int_leaf_sum += 1,
+                        Type::bool            => self.bool_type_node_sum += 1,
+                        Type::f32 | Type::f64 => self.flt_leaf_sum += 1,
+                        Type::void            => {},
+                        _                     => unreachable!()
+                    };
+                    idx
+                }else if self.is_expr(self.peek_next())
+                    ||matches!(self.peek_next(), &Token::Scolon | &Token::Rparen){
+                    let ident_var_key = self.current as u32;
+                    self.eat();
+                    let same_key = self.find_same_var_key(ident_var_key);
+                    match self.table.get_var_type(same_key){
+                        Type::i32 | Type::i64 => self.int_leaf_sum += 1,
+                        Type::bool            => self.bool_type_node_sum += 1,
+                        Type::f32 | Type::f64 => self.flt_leaf_sum += 1,
+                        _ => unreachable!()
+                    };
+
+                    self.nodes.push(
+                        Node::new(Token::Ident, same_key, Interval::new(NONE, NONE))
+                    );
+
+                    (self.nodes.len() - 1) as u32
+
+                }else{
+                    panic!("[Line {:?}] Expected Identifier", self.line())
+                }
+            },
             Token::Int =>{
                 self.int_leaf_sum += 1;
 
@@ -15,6 +57,7 @@ impl Parser{
                 self.nodes.push(Node::new(Token::Int, key, Interval::new(NONE, NONE)));
                 (self.nodes.len() - 1) as u32
             },
+
             Token::Float => {
                 self.flt_leaf_sum += 1;
 
@@ -47,7 +90,7 @@ impl Parser{
             }
 
             if self.is_regular_op(&op_tok){self.regular_op_sum += 1}
-            else if self.is_compare_op(&op_tok){self.compare_op_sum += 1}
+            else if self.is_compare_op(&op_tok){self.bool_type_node_sum += 1}
             else if self.is_connect_op(&op_tok){self.connect_op_sum += 1}
 
             let op_key = self.current as u32;
@@ -67,7 +110,9 @@ impl Parser{
     pub fn is_expr(&self, tok : &Token) -> bool{
         match tok{
             Token::Int | Token::Ident | Token::Float |
-            Token::Minus | Token::CmpNot | Token::Lparen => {
+            Token::Minus | Token::CmpNot | Token::Lparen |
+            Token::Plus  | Token::Minus  | Token::Mul|
+            Token::Div   | Token::Mod=> {
                 true
             },
             _ => false

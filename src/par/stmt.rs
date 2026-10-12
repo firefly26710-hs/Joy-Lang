@@ -38,7 +38,8 @@ impl Parser{
          let no_params_and_no_rparen = !self.is_expr(self.peek()) || self.peek() ==&Token::Rparen;
 
          self.scope.build_func_scope();
-         let params_start = if has_declared_params{self.table.var_types.len() as u32}else{NONE};
+         let params_start = if has_declared_params{(self.table.var_types.len()) as u32}else{NONE};
+
          if has_declared_params{
              loop {
                  let param_key = if self.peek() == &Token::Ident && self.peek_next() == &Token::Colon{
@@ -48,13 +49,14 @@ impl Parser{
                      self.nodes.push(
                        Node::new(Token::Ident, key, Interval::new(NONE, NONE))
                      );
-                     self.func_recorder.push(key);
-                     self.current as u32
+                     let node_idx = (self.nodes.len() - 1) as u32;
+                     self.func_recorder.push(node_idx);
+                     key
                  }else{
                      panic!("[Line {:?}] wtf", self.line())
                  };
 
-                 let parm_type = if self.peek() == &Token::Ident{
+                 let parm_type = if self.peek() == &Token::Type{
                      let type_key = self.current;
                      self.eat();
                      self.type_mapping(type_key)
@@ -62,6 +64,7 @@ impl Parser{
                      panic!("[Line {:?}] Expected a param type", self.line())
                  };
                  self.table.var_insert(param_key, parm_type);
+                 self.scope.var_scope_stack.push(param_key);
 
                  match self.peek(){
                      Token::Rparen => break,
@@ -86,17 +89,17 @@ impl Parser{
          let params_end = if has_declared_params{(self.table.var_types.len() - 1) as u32}else{NONE};
 
          let has_declared_ret_type =
-             self.peek() == &Token::Arrow && self.peek_next() == &Token::Ident;
+             self.peek() == &Token::Arrow && self.peek_next() == &Token::Type;
 
          let no_declared_ret_type = self.peek() == &Token::Lbrace;
 
          let only_declare_arrow
-             = self.peek() == &Token::Arrow && self.peek_next() != &Token::Ident;
-
+             = self.peek() == &Token::Arrow && self.peek_next() != &Token::Type;
 
          let ret_ty = if has_declared_ret_type{
              self.eat();
              let type_key = self.current;
+             self.eat();
              self.type_mapping(type_key)
          }else if no_declared_ret_type{
              Type::void
@@ -111,10 +114,11 @@ impl Parser{
          let stmt_idx = self.block_stmt();
          self.scope.destroy_func_scope();
 
+         self.scope.func_assigner.push(func_name_key);
 
          let idxs_start = self.edges.len() as u32;
          self.edges.push(func_name_node_idx);
-         self.edges.extend(self.scope.func_assigner.drain(..));
+         self.edges.extend(self.func_recorder.drain(..));
          self.edges.push(stmt_idx);
          let idxs_end = (self.edges.len() - 1) as u32;
          self.nodes.push(
@@ -164,12 +168,11 @@ impl Parser{
         };
 
         let no_declared_type =
-            self.peek() != &Token::Colon && self.peek_next() != &Token::Ident;
+            self.peek() != &Token::Colon && self.peek_next() != &Token::Type;
         let has_declared_type =
             self.peek() == &Token::Colon && self.peek_next() == &Token::Ident;
         let only_declare_colon
             =  self.peek() == &Token::Colon && self.peek_next() != &Token::Ident;
-
 
         //The most frequency condition is on first,
         // So do not change the position
@@ -181,10 +184,11 @@ impl Parser{
             self.eat();
             self.type_mapping(declared_type_key)
         } else if only_declare_colon{
-                panic!("[Line {:?}] Declare a Type", self.line())
+            panic!("[Line {:?}] Declare a Type", self.line())
         }else{
             panic!("[Line {:?}] Misses the ':'", self.line())
         };
+
 
         match self.peek(){
             Token::Equel => self.eat(),
@@ -260,17 +264,21 @@ impl Parser{
             }
         };
 
-        match self.peek(){
-            Token::Scolon => self.eat(),
-            _ => {
-                panic!("[Line {:?}] Expected ';'", self.line())
-            }
-        };
 
+
+        let param_types = self.table.get_param_types(func_name_key);
+        let ptr = param_types.as_ptr();
+        let len = param_types.len();
+
+        let mut counter = 0;
         if self.is_expr(self.peek()){
-            loop {
+            for i in 0..len{
                 let expr_idx = self.expr(0.0);
                 self.edges.push(expr_idx);
+                let expr_type = self.get_expr_token_type();
+                let declared_param_type = unsafe{&*ptr.add(i)};
+                self.type_check(&declared_param_type, expr_type);
+                counter += 1;
                 match self.peek() {
                     Token::Comma => self.eat(),
                     Token::Rparen => break,
@@ -280,6 +288,8 @@ impl Parser{
         }else{
             panic!("[Line {:?}] Expected a Expression", self.line())
         }
+
+
 
         match self.peek(){
             Token::Rparen => self.eat(),
@@ -296,7 +306,12 @@ impl Parser{
             Node::new(Token::CallStmt, NONE, Interval::new(idxs_start, idxs_end))
         );
 
-        (self.nodes.len() - 1 ) as u32
+        if counter == len{
+            (self.nodes.len() - 1 ) as u32
+        }else{
+            panic!("[Line {:?}] Not Declared all args in function call", self.line())
+        }
+
 
 
     }
@@ -697,6 +712,28 @@ impl Parser{
         }
     }
 
+    #[inline(always)]
+    pub fn find_same_var_key(&self, input_key : u32) -> u32{
+        let mut found_key = None;
+        for key in self.scope.var_scope_stack.iter().rev(){
+            if !self.matches_string(input_key, *key){
+                continue
+            }else{
+                found_key = Some(key);
+                break;
+            }
+        }
+
+        match found_key{
+            Some(the_key) => *the_key,
+            None => {
+                panic!("[Line {:?}] Can't find this Variable", self.line())
+            }
+        }
+
+    }
+
+    #[inline(always)]
     fn matches_string(&self ,input_key : u32, key : u32) -> bool{
         let input_key_interval = &self.lexer.intervals[input_key as usize];
         let target_key_interval = &self.lexer.intervals[key as usize];

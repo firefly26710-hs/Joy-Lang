@@ -1,5 +1,6 @@
 pub mod lex;
 pub mod par;
+pub mod llvm;
 
 use std::{env, fs};
 use std::fs::File;

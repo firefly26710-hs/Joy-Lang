@@ -26,10 +26,6 @@ impl Scope{
         }
     }
 
-    pub fn var_push(&mut self, key : u32){
-
-    }
-
 
     pub fn build_func_scope(&mut self){
         self.prev_var_stack_len = self.var_scope_stack.len();
@@ -73,10 +69,10 @@ impl Scope{
         self.loop_counter -= 1;
     }
 
-    pub fn is_in_loop_scope(&self) -> bool{
+    pub fn is_in_loop_scope(&self) -> bool {
         self.loop_counter >= 1
     }
 
-
+    
 
 }

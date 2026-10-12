@@ -1,13 +1,15 @@
+use std::thread::current;
 use crate::lex::iterval::Interval;
+use crate::par::parser::NONE;
 use crate::par::ty::Type;
 
 const VAR_PART_ALLOC_SIZE: usize = 256;
 const FUNC_PART_ALLOC_SIZE : usize = 128;
 pub struct Table{
-    var_keys          : Vec<u32>,
-    func_keys         : Vec<u32>,
-    pub param_idxs    : Vec<Interval>,
-    pub var_types     : Vec<Type>,
+    pub var_keys          : Vec<u32>,
+    var_types     : Vec<Type>,
+    pub func_keys         : Vec<u32>,
+    param_idxs    : Vec<Interval>,
     pub ret_types     : Vec<Type>,
 }
 
@@ -28,6 +30,59 @@ impl Table{
         self.var_types.push(ty);
     }
 
+    #[inline(always)]
+    pub fn get_var_type(&self, key : u32) -> &Type{
+        let mut current = 0;
+        while current < self.var_keys.len(){
+            if self.var_keys[current] != key{
+                current += 1;
+                continue;
+            }else{
+                break;
+            }
+        }
+
+        &self.var_types[current]
+
+    }
+
+    pub fn get_ret_type(&self, key : u32 ) -> &Type{
+        let mut current = 0;
+        while current < self.func_keys.len(){
+            if self.func_keys[current] != key{
+                current += 1;
+                continue
+            }else{
+                break;
+            }
+        }
+
+        &self.ret_types[current]
+    }
+
+    pub fn get_param_types(&self, key : u32) -> &[Type]{
+        let mut current = 0;
+        while current < self.func_keys.len(){
+            if self.func_keys[current] != key{
+                current += 1;
+                continue
+            }else{
+                break;
+            }
+        }
+
+        let idxs = &self.param_idxs[current];
+        let start = idxs.start;
+        let end = idxs.end;
+        if start != NONE && end != NONE{
+            &self.var_types[start as usize..=end as usize]
+        }else{
+           &[]
+        }
+
+    }
+
+
     pub fn func_insert(
         &mut self,
         key : u32,
@@ -39,6 +94,26 @@ impl Table{
         self.param_idxs.push(Interval::new(param_start, param_end));
         self.ret_types.push(ret_ty);
     }
+
+    pub fn print_table(&mut self){
+        for (i, ty) in self.var_types.iter().enumerate(){
+            println!("Var Type {i} : {:?} ", ty);
+        }
+
+
+        for (i, idx) in self.param_idxs.iter().enumerate(){
+            println!("param idx {i} : {:?} ", idx);
+        }
+
+        for (i, ty) in self.ret_types.iter().enumerate(){
+            println!("Ret Type {i} : {:?} ", ty);
+        }
+
+    }
+
+
+
+
     
     
 }

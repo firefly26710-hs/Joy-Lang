@@ -1,3 +1,4 @@
+use crate::lex::iterval::Interval;
 use crate::lex::token::Token;
 use crate::lex::lexer::Lexer;
 use crate::par::node::Node;
@@ -24,9 +25,8 @@ pub struct Parser{
     pub int_leaf_sum        : u8,
     pub flt_leaf_sum        : u8,
     pub regular_op_sum      : u8,
-    pub compare_op_sum      : u8,
+    pub bool_type_node_sum  : u8,
     pub connect_op_sum      : u8,
-
 
     pub func_recorder       : Vec<u32>,
     pub branch_recorder     : Vec<u32>,
@@ -57,7 +57,7 @@ impl Parser{
             int_leaf_sum        : 0,
             flt_leaf_sum        : 0,
             regular_op_sum      : 0,
-            compare_op_sum      : 0,
+            bool_type_node_sum: 0,
             connect_op_sum      : 0,
 
 
@@ -69,7 +69,20 @@ impl Parser{
         }
     }
 
-    pub fn build_tree(&mut self){todo!()}
+    pub fn build_tree(&mut self){
+        let mut program_recorder = Vec::with_capacity(128);
+        while self.lexer.tokens[self.current] != Token::EOF{
+            program_recorder.push(self.func_stmt());
+        }
+        let l_edge_idx = self.edges.len() as u32;
+        self.edges.extend(program_recorder.drain(..));
+        let r_edge_idx = (self.edges.len() - 1) as u32;
+        let program_node = Node::new(
+            Token::Program, NONE, Interval::new(l_edge_idx, r_edge_idx)
+        );
+
+        self.nodes.push(program_node);
+    }
 
 
     //More Frequency in first cond
@@ -133,21 +146,7 @@ impl Parser{
     
 
 
-    pub fn print_table(&mut self){
-        for (i, ty) in self.table.var_types.iter().enumerate(){
-            println!("Var Type {i} : {:?} ", ty);
-        }
 
-
-        for (i, idx) in self.table.param_idxs.iter().enumerate(){
-            println!("param idx {i} : {:?} ", idx);
-        }
-
-        for (i, ty) in self.table.ret_types.iter().enumerate(){
-            println!("Ret Type {i} : {:?} ", ty);
-        }
-
-    }
     pub fn print_scope(&mut self){todo!()}
 
 
@@ -159,17 +158,21 @@ impl Parser{
 #[test]
 fn parser_test(){
     let input = "
-    fn main(a : i32){
-        let c = 5;
+    fn add(a : i32, b: i32) -> i32{
+        return a + b;
+    }
+
+
+    fn main(){
+        let c = add(6, 7);
+        return;
     }
     ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    lexer.print_output();
+   // lexer.print_output();
 
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
-    parser.func_stmt();
-    parser.print_node();
-    parser.print_table();
+    parser.build_tree();
 
 }

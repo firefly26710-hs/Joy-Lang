@@ -8,6 +8,8 @@ pub enum Token{
     Bool,
     Ident,
 
+    Type,
+
     //operator
     Plus,
     Minus,

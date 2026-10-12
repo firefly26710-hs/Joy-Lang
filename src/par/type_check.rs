@@ -26,15 +26,15 @@ impl Parser{
         let is_only_one_type_leaf = self.int_leaf_sum & self.flt_leaf_sum == 0;
         let is_int = self.int_leaf_sum == self.regular_op_sum + 1
                 && is_only_one_type_leaf
-                && self.compare_op_sum == 0
+                && self.bool_type_node_sum == 0
                 && self.connect_op_sum == 0;
         
         let is_flt = self.flt_leaf_sum == self.regular_op_sum + 1
             && is_only_one_type_leaf
-            && self.compare_op_sum == 0
+            && self.bool_type_node_sum == 0
             && self.connect_op_sum == 0;
         
-        let is_bool = self.compare_op_sum == self.connect_op_sum + 1
+        let is_bool = self.bool_type_node_sum == self.connect_op_sum + 1
             && is_only_one_type_leaf;
 
         let expr_type = if is_int{
@@ -51,7 +51,7 @@ impl Parser{
         self.flt_leaf_sum = 0;
         self.regular_op_sum = 0;
 
-        self.compare_op_sum = 0;
+        self.bool_type_node_sum = 0;
         self.connect_op_sum = 0;
 
         expr_type
