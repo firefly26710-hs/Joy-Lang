@@ -90,6 +90,6 @@ fn compile_test(){
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
 
-   // llvm.module.print_to_stderr();
+    llvm.module.print_to_stderr();
 
 }

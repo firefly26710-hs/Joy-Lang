@@ -3,22 +3,46 @@ use comp::par::parser::Parser;
 use comp::par::table::Table;
 use comp::par::scope::Scope;
 use criterion::{criterion_group, criterion_main, Criterion};
+use inkwell::context::Context;
+use comp::llvm::codegen::Codegen;
 
 fn bench_joyc(c : &mut Criterion){
     let input = "
-    fn fib(a : i32){
-           return;
+    fn add(a: i32, b: i32) -> i32 {
+        return a + b;
     }
 
-    fn main(){
-         let n = 5;
-         fib(n);
+    fn check_range(val: i32) -> i32 {
+        if val < 10 {
+            return 1;
+        } elif val < 50 {
+            return 2;
+        } else {
+            return 3;
+        }
+        return 4;
+    }
+
+    fn factorial(n: i32) -> i32 {
+        if n <= 1 {
+            return 1;
+        }
+        return n * factorial(n - 1);
+    }
+
+    fn main() {
+        let x = add(15, 35);
+        let status = check_range(x);
+        let fact = factorial(5);
+
+        let total = 0;
+        for i in [1 -> 10 | 1]{
+            break;
+        }
+
         return;
     }
-
-
-
-";
+    ".to_string();
 
 
     c.bench_function("joyc",|b| {
@@ -27,6 +51,9 @@ fn bench_joyc(c : &mut Criterion){
             lexer.tokenize();
             let mut parser = Parser::init(lexer, Table::init(), Scope::init() );
             parser.build_tree();
+            let context = Context::create();
+            let mut llvm = Codegen::init(&context, parser);
+            llvm.compile();
         })
     });
 
