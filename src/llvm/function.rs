@@ -173,7 +173,7 @@ impl<'ctx>Codegen<'ctx>{
         self.current_fn = Some(func);
 	    self.ret_type = self.parser.table.get_ret_type(name_key).clone();
         let block_idx = *func_node_childs.last().unwrap();
-        //self.compile_block(block_idx);
+        self.build_block(block_idx);
     }
 
 
