@@ -36,7 +36,7 @@ impl<'ctx>Codegen<'ctx>{
                 Type::f32 => self.context.f32_type().into(),
                 _ => unreachable!()
             };
-            self.param_types_vec.push(type_context);
+            self.param_types.push(type_context);
         }
 
         //ret type
@@ -46,38 +46,37 @@ impl<'ctx>Codegen<'ctx>{
         let func  = match ret_type{
             Type::i32 =>{
                 let ret_type = self.context.i32_type();
-                let fn_type = ret_type.fn_type(&self.param_types_vec, false);
+                let fn_type = ret_type.fn_type(&self.param_types, false);
                 self.module.add_function(name_str, fn_type, None)
             },
             Type::i64 =>{
                 let ret_type = self.context.i64_type();
-                let fn_type = ret_type.fn_type(&self.param_types_vec, false);
+                let fn_type = ret_type.fn_type(&self.param_types, false);
                 self.module.add_function(name_str, fn_type, None)
             },
             Type::f32 =>{
                 let ret_type = self.context.f32_type();
-                let fn_type = ret_type.fn_type(&self.param_types_vec, false);
+                let fn_type = ret_type.fn_type(&self.param_types, false);
                 self.module.add_function(name_str, fn_type, None)
             },
             Type::f64 =>{
                 let ret_type = self.context.f64_type();
-                let fn_type = ret_type.fn_type(&self.param_types_vec, false);
+                let fn_type = ret_type.fn_type(&self.param_types, false);
                 self.module.add_function(name_str, fn_type, None)
             }
             Type::bool =>{
                 let ret_type = self.context.bool_type();
-                let fn_type = ret_type.fn_type(&self.param_types_vec, false);
+                let fn_type = ret_type.fn_type(&self.param_types, false);
                 self.module.add_function(name_str, fn_type, None)
             },
             Type::void =>{
                 let ret_type = self.context.void_type();
-                let fn_type = ret_type.fn_type(&self.param_types_vec, false);
+                let fn_type = ret_type.fn_type(&self.param_types, false);
                 self.module.add_function(name_str, fn_type, None)
             },
-            _ => unreachable!()
         };
 
-        self.param_types_vec.clear();
+        self.param_types.clear();
 
         let has_param = param_types.len() > 0;
 
@@ -177,10 +176,10 @@ impl<'ctx>Codegen<'ctx>{
     }
 
 
-    fn get_function(&self, key : u32) -> FunctionValue<'ctx>{
+    pub fn get_function(&self, key : u32) -> FunctionValue<'ctx>{
         let mut current = 0;
-        while current < self.parser.table.var_keys.len(){
-            if self.parser.table.var_keys[current] != key{
+        while current < self.parser.table.func_keys.len(){
+            if self.parser.table.func_keys[current] != key{
                 current += 1;
                 continue;
             }else{

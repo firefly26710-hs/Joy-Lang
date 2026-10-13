@@ -1,4 +1,3 @@
-use std::thread::current;
 use crate::lex::iterval::Interval;
 use crate::par::parser::NONE;
 use crate::par::ty::Type;
@@ -43,6 +42,8 @@ impl Table{
         }
 
         &self.var_types[current]
+
+
 
     }
 

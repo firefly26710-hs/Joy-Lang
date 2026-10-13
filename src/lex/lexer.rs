@@ -313,7 +313,7 @@ impl Lexer{
     }
 	#[inline(always)]
     fn peek(&mut self) -> &str{
-	    if most_freq(!self.finish()) {
+	    if !self.finish() {
             return &self.input[(self.current) as usize..=(self.current) as usize];
         }
 		"\0" // less_freq
@@ -321,7 +321,7 @@ impl Lexer{
     }
 	#[inline(always)]
     fn peek_next(&mut self) -> &str{
-	    if most_freq(!self.finish()) {
+	    if !self.finish() {
             return &self.input[(self.current + 1) as usize ..= (self.current + 1) as usize];
         }
 		"\0"
@@ -357,17 +357,7 @@ fn is_alphanumeric (c : &str) -> bool{
     (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || (c >= "0" && c <= "9")
 }
 
-#[inline(always)]
-fn most_freq(cond : bool) -> bool{
-	cond
-}
 
 
 
-#[test]
-fn lexer_testing(){
-    let input ="let x = 1".to_string();
-    let mut lexer = Lexer::init(input);
-    lexer.tokenize();
-    lexer.print_output();
-}
+

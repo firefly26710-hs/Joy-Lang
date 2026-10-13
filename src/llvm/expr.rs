@@ -1,6 +1,7 @@
 use crate::llvm::codegen::Codegen;
-use inkwell::values::{BasicValue, BasicValueEnum};
+use inkwell::values::{BasicValueEnum};
 use inkwell::{IntPredicate, FloatPredicate};
+use inkwell::types::BasicTypeEnum;
 use crate::par::ty::Type;
 use crate::par::parser::NONE;
 use crate::lex::token::Token;
@@ -8,29 +9,46 @@ use crate::lex::token::Token;
 impl<'ctx>Codegen<'ctx>{
 
     pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
-        let node = &self.parser.nodes[expr_idx];
-        let tok = &node.tok;
-        let key = node.key;
-        let idxs = &node.idxs;
+        let tok = self.parser.nodes[expr_idx].tok.clone();
+        let key = &self.parser.nodes[expr_idx].key;
+        let idxs = &self.parser.nodes[expr_idx].idxs;
         let start = idxs.start;
         let end = idxs.end;
-        let str_interval = &self.parser.lexer.intervals[key as usize];
-        let str_s = str_interval.start as usize;
-        let str_e = str_interval.end as usize;
+
         
-        if !matches!(tok, &Token::CallStmt){
+        if !matches!(tok, Token::CallStmt){
             match(start, end){
                 (NONE, NONE) => match tok{
                     Token::Int => {
+                        let str_interval = &self.parser.lexer.intervals[*key as usize];
+                        let str_s = str_interval.start as usize;
+                        let str_e = str_interval.end as usize;
                         let int_ty = self.int_type_mapping(&ty);
                         let var_str = &self.parser.lexer.input[str_s..str_e];
                         let u_integer : u64 = var_str.parse().unwrap();
                         int_ty.const_int(u_integer, false).into()
                     },
                     Token::Ident => {
-                        todo!()
+                        let str_interval = &self.parser.lexer.intervals[*key as usize];
+                        let str_s = str_interval.start as usize;
+                        let str_e = str_interval.end as usize;
+                        let name_str = &self.parser.lexer.input[str_s ..str_e];
+                        let alloc = self.get_variable(*key);
+                        let var_type = self.parser.table.get_var_type(*key);
+
+                        let basic_ty: BasicTypeEnum<'ctx> = match var_type {
+                            Type::i32 | Type::i64 => self.int_type_mapping(var_type).into(),
+                            Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
+                            _ => unreachable!(),
+                        };
+
+                        self.builder.build_load(basic_ty, alloc, name_str).unwrap()
+
                     },
                     Token::Float => {
+                        let str_interval = &self.parser.lexer.intervals[*key as usize];
+                        let str_s = str_interval.start as usize;
+                        let str_e = str_interval.end as usize;
                         let flt_ty = self.flt_type_mapping(&ty);
                         let var_str = &self.parser.lexer.input[str_s..str_e];
                         let float : f64 = var_str.parse().unwrap();
@@ -72,8 +90,10 @@ impl<'ctx>Codegen<'ctx>{
                         },
                         (l_idx,r_idx) => {
                             let idxs = &self.parser.edges[start as usize..=end as usize];
-                            let lhs = self.build_expr(idxs[0] as usize, ty);
-                            let rhs = self.build_expr(idxs[1] as usize, ty);
+                            let lhs_idx = idxs[0] as usize;
+                            let rhs_idx = idxs[1] as usize;
+                            let lhs = self.build_expr(lhs_idx, ty);
+                            let rhs = self.build_expr(rhs_idx, ty);
 
                             match(lhs, rhs){
                                 (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match tok{
@@ -195,8 +215,40 @@ impl<'ctx>Codegen<'ctx>{
 
 
         }else{
-            todo!()//self.build_call_stmt(l_idx, r_idx);
+            self.build_call(start as usize, end as usize)
         }
+
+    }
+
+    pub fn build_call(&mut self, start : usize, end : usize) -> BasicValueEnum<'ctx> {
+
+        let name_idx = self.parser.edges[start..=end][0];
+        let name_key = self.parser.nodes[name_idx as usize].key;
+        let has_param = self.parser.edges[start..=end].len() > 1;
+        let len = &self.parser.edges[start..=end].len() - 1;
+
+        if has_param{
+            for i in 0..len{
+                let ty = &self.parser.table.get_param_types(name_key)[i].clone();
+                let expr_idx = self.parser.edges[start + 1 +i] as usize;
+                let val = if ty != &Type::bool {
+                    self.build_expr(expr_idx, &ty)
+                } else {
+                    self.build_expr(expr_idx, &Type::i64)
+                };
+
+                self.call_param_types.push(val.into());
+            }
+        }
+
+        let func = self.get_function(name_key);
+        let str_interval = &self.parser.lexer.intervals[name_key as usize];
+        let str_s = str_interval.start as usize;
+        let str_e = str_interval.end as usize;
+        let name_str = &self.parser.lexer.input[str_s..str_e];
+        let func_call_val = self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
+        self.call_param_types.clear();
+        func_call_val.try_as_basic_value().unwrap_basic()
 
     }
 

@@ -153,26 +153,3 @@ impl Parser{
 }
 
 
-
-
-#[test]
-fn parser_test(){
-    let input = "
-    fn add(a : i32, b: i32) -> i32{
-        return a + b;
-    }
-
-
-    fn main(){
-        let c = add(6, 7);
-        return;
-    }
-    ".to_string();
-    let mut lexer = Lexer::init(input);
-    lexer.tokenize();
-   // lexer.print_output();
-
-    let mut parser = Parser::init(lexer, Table::init(), Scope::init());
-    parser.build_tree();
-
-}

@@ -5,13 +5,12 @@ pub mod llvm;
 use std::{env, fs};
 use std::fs::File;
 use std::io::{ Read};
-use std::os::unix::fs::MetadataExt;
+use inkwell::context::Context;
 use crate::par::table::Table;
 use crate::par::scope::Scope;
 use crate::par::parser::Parser;
 use crate::lex::lexer::Lexer;
-
-
+use crate::llvm::codegen::Codegen;
 
 fn main() {
     let args : Vec<String> = env::args().collect();
@@ -30,6 +29,49 @@ fn main() {
     lexer.tokenize();
 
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
+    parser.build_tree();
 
+    let context = Context::create();
+    let mut llvm = Codegen::init(&context, parser);
+    llvm.compile();
+    llvm.module.print_to_stderr();
+    llvm.module.print_to_file("output.ll").unwrap();
+
+
+
+}
+
+#[test]
+fn compile_test(){
+    let input = "
+    fn add(a : i32, b: i32) -> i32{
+        if a > b{
+            return a + b;
+        }elif a == b{
+            return a - b;
+        }else{
+            return a * b;
+        }
+        return a / b;
+    }
+
+
+    fn main(){
+        let c = add(6, 7);
+        return;
+    }
+    ".to_string();
+    let mut lexer = Lexer::init(input);
+    lexer.tokenize();
+    lexer.print_output();
+
+    let mut parser = Parser::init(lexer, Table::init(), Scope::init());
+    parser.build_tree();
+    parser.print_node();
+
+    let context = Context::create();
+    let mut llvm = Codegen::init(&context, parser);
+    llvm.compile();
+    llvm.module.print_to_stderr();
 
 }

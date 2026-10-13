@@ -1,39 +1,60 @@
-; ModuleID = 'joyc'
-source_filename = "joyc"
+; ModuleID = 'Joy IR'
+source_filename = "Joy IR"
 
-define i32 @fib(i32 %n) {
+define i32 @add(i32 %a, i32 %b) {
 entry:
-  %n1 = alloca i32, align 4
-  store i32 %n, ptr %n1, align 4
+  %a1 = alloca i32, align 4
+  store i32 %a, ptr %a1, align 4
+  %b2 = alloca i32, align 4
+  store i32 %b, ptr %b2, align 4
   br label %cond.0
 
 cond.0:                                           ; preds = %entry
-  %n2 = load i32, ptr %n1, align 4
-  %INT_LESSER = icmp slt i32 %n2, 2
-  br i1 %INT_LESSER, label %body.0, label %end.bb
+  %a3 = load i32, ptr %a1, align 4
+  %b4 = load i32, ptr %b2, align 4
+  %Int_Greater = icmp sgt i32 %a3, %b4
+  br i1 %Int_Greater, label %body.0, label %cond.1
 
 body.0:                                           ; preds = %cond.0
-  ret i32 1
+  %a5 = load i32, ptr %a1, align 4
+  %b6 = load i32, ptr %b2, align 4
+  %Int_Add = add i32 %a5, %b6
+  ret i32 %Int_Add
   br label %end.bb
 
-end.bb:                                           ; preds = %body.0, %cond.0
-  %n3 = load i32, ptr %n1, align 4
-  %INT_SUB = sub i32 %n3, 1
-  %func_fib = call i32 @fib(i32 %INT_SUB)
-  %n4 = load i32, ptr %n1, align 4
-  %INT_SUB5 = sub i32 %n4, 2
-  %func_fib6 = call i32 @fib(i32 %INT_SUB5)
-  %INT_ADD = add i32 %func_fib, %func_fib6
-  ret i32 %INT_ADD
+cond.1:                                           ; preds = %cond.0
+  %a7 = load i32, ptr %a1, align 4
+  %b8 = load i32, ptr %b2, align 4
+  %Int_EqEq = icmp eq i32 %a7, %b8
+  br i1 %Int_EqEq, label %body.1, label %cond.2
+
+body.1:                                           ; preds = %cond.1
+  %a9 = load i32, ptr %a1, align 4
+  %b10 = load i32, ptr %b2, align 4
+  %Int_Sub = sub i32 %a9, %b10
+  ret i32 %Int_Sub
+
+cond.2:                                           ; preds = %cond.1
+  br label %body.2
+
+body.2:                                           ; preds = %cond.2
+  %a11 = load i32, ptr %a1, align 4
+  %b12 = load i32, ptr %b2, align 4
+  %Int_Mul = mul i32 %a11, %b12
+  ret i32 %Int_Mul
+  br label %end.bb
+
+end.bb:                                           ; preds = %body.2, %body.0
+  %a13 = load i32, ptr %a1, align 4
+  %b14 = load i32, ptr %b2, align 4
+  %Int_Div = sdiv i32 %a13, %b14
+  ret i32 %Int_Div
 }
 
 define void @main() {
 entry:
-  %n = alloca i32, align 4
-  store i32 5, ptr %n, align 4
-  %n1 = load i32, ptr %n, align 4
-  %func_fib = call i32 @fib(i32 %n1)
-  %sum = alloca i32, align 4
-  store i32 %func_fib, ptr %sum, align 4
+  %"function add" = call i32 @add(i32 6, i32 7)
+  %c = alloca i32, align 4
+  store i32 %"function add", ptr %c, align 4
   ret void
 }

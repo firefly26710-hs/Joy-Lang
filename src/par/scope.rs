@@ -34,11 +34,13 @@ impl Scope{
     #[inline(always)]
     pub fn build_branch_scope(&mut self) {
         self.prev_var_stack_len = self.var_scope_stack.len();
+        self.is_in_func = false;
     }
 
     pub fn build_loop_scope(&mut self){
         self.prev_var_stack_len = self.var_scope_stack.len();
         self.loop_counter += 1;
+        self.is_in_func = false;
     }
 
     pub fn destroy_func_scope(&mut self){
@@ -57,6 +59,7 @@ impl Scope{
             self.var_scope_stack.pop();
             self.curr_var_stack_len -= 1;
         }
+        self.is_in_func = true;
     }
 
 
@@ -67,6 +70,7 @@ impl Scope{
             self.curr_var_stack_len -= 1;
         }
         self.loop_counter -= 1;
+        self.is_in_func = true;
     }
 
     pub fn is_in_loop_scope(&self) -> bool {

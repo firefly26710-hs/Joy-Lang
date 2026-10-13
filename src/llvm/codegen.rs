@@ -1,11 +1,9 @@
+use inkwell::basic_block::BasicBlock;
 use inkwell::builder::Builder;
 use inkwell::context::Context;
 use inkwell::module::Module;
 use inkwell::types::BasicMetadataTypeEnum;
-use inkwell::values::{FunctionValue, PointerValue};
-use crate::lex::lexer::Lexer;
-use crate::par::scope::Scope;
-use crate::par::table::Table;
+use inkwell::values::{BasicMetadataValueEnum, FunctionValue, PointerValue};
 use crate::par::parser::Parser;
 use crate::par::ty::Type;
 
@@ -17,7 +15,16 @@ pub struct Codegen<'ctx> {
     pub functions           : Vec<FunctionValue<'ctx>>,
     pub variables           : Vec<PointerValue<'ctx>>,
 
-    pub param_types_vec     : Vec<BasicMetadataTypeEnum<'ctx>>,
+    pub param_types         : Vec<BasicMetadataTypeEnum<'ctx>>,
+    pub call_param_types    : Vec<BasicMetadataValueEnum<'ctx>>,
+
+
+    pub ctn_goto_block      : Vec<BasicBlock<'ctx>>,
+    pub brk_goto_block      : Vec<BasicBlock<'ctx>>,
+    pub cod_blocks          : Vec<BasicBlock<'ctx>>,
+    pub body_blocks         : Vec<BasicBlock<'ctx>>,
+
+
     pub current_fn          : Option<FunctionValue<'ctx>>,
     pub ret_type            : Type
 }
@@ -35,7 +42,14 @@ impl<'ctx> Codegen<'ctx>{
             functions : Vec::with_capacity(512),
             variables : Vec::with_capacity(64),
 
-            param_types_vec : Vec::with_capacity(8),
+            ctn_goto_block : Vec::with_capacity(8),
+            brk_goto_block : Vec::with_capacity(8),
+            cod_blocks     : Vec::with_capacity(64),
+            body_blocks    : Vec::with_capacity(64),
+
+
+            param_types: Vec::with_capacity(16),
+            call_param_types : Vec::with_capacity(16),
             current_fn : None,
             ret_type   : Type::void
         }
@@ -72,29 +86,3 @@ impl<'ctx> Codegen<'ctx>{
 }
 
 
-#[test]
-fn compile_test(){
-    let input = "
-    fn add(a : i32, b: i32) -> i32{
-        return a + b;
-    }
-
-
-    fn main(){
-        let c = add(6, 7);
-        return;
-    }
-    ".to_string();
-    let mut lexer = Lexer::init(input);
-    lexer.tokenize();
-
-    let mut parser = Parser::init(lexer, Table::init(), Scope::init());
-    parser.build_tree();
-   // parser.print_node();
-
-    let context = Context::create();
-    let mut llvm = Codegen::init(&context,parser);
-    llvm.compile();
-    llvm.module.print_to_stderr();
-
-}
