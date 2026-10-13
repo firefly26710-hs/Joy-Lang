@@ -110,11 +110,12 @@ impl Parser{
          };
 
          self.table.func_insert(func_name_key, params_start, params_end, ret_ty);
+         self.scope.func_assigner.push(func_name_key);
 
          let stmt_idx = self.block_stmt();
          self.scope.destroy_func_scope();
 
-         self.scope.func_assigner.push(func_name_key);
+
 
          let idxs_start = self.edges.len() as u32;
          self.edges.push(func_name_node_idx);
@@ -244,8 +245,6 @@ impl Parser{
         let func_name_key = self.find_prev_func_key(unknown_name_key);
 
 
-        let idxs_start = self.edges.len() as u32;
-
         let func_name_node_idx = {
             self.nodes.push(
                 Node::new(Token::Ident, func_name_key, Interval::new(NONE, NONE))
@@ -253,7 +252,7 @@ impl Parser{
 
             (self.nodes.len() - 1) as u32
         };
-        self.edges.push(func_name_node_idx);
+
 
         match self.peek(){
             Token::Lparen => {
@@ -279,6 +278,7 @@ impl Parser{
                 let declared_param_type = unsafe{&*ptr.add(i)};
                 self.type_check(&declared_param_type, expr_type);
                 counter += 1;
+                self.func_call_recorder.push(expr_idx);
                 match self.peek() {
                     Token::Comma => self.eat(),
                     Token::Rparen => break,
@@ -299,7 +299,9 @@ impl Parser{
         };
 
 
-
+        let idxs_start = self.edges.len() as u32;
+        self.edges.push(func_name_node_idx);
+        self.edges.extend(self.func_call_recorder.drain(..));
         let idxs_end = (self.edges.len() - 1) as u32;
 
         self.nodes.push(
@@ -694,7 +696,6 @@ impl Parser{
 
     pub fn find_prev_func_key(&self, input_key : u32) -> u32{
         let mut found_key = None;
-
         for key in &self.scope.func_assigner{
             if !self.matches_string(input_key, *key){
                 continue;
@@ -703,7 +704,6 @@ impl Parser{
                 break;
             }
         }
-
         match found_key{
             Some(the_key) => *the_key,
             None => {

@@ -2,7 +2,7 @@ pub mod lex;
 pub mod par;
 pub mod llvm;
 
-use std::{env, fs};
+use std::env;
 use std::fs::File;
 use std::io::{ Read};
 use inkwell::context::Context;
@@ -34,7 +34,6 @@ fn main() {
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
-    llvm.module.print_to_stderr();
     llvm.module.print_to_file("output.ll").unwrap();
 
 
@@ -44,34 +43,53 @@ fn main() {
 #[test]
 fn compile_test(){
     let input = "
-    fn add(a : i32, b: i32) -> i32{
-        if a > b{
-            return a + b;
-        }elif a == b{
-            return a - b;
-        }else{
-            return a * b;
-        }
-        return a / b;
+    fn add(a: i32, b: i32) -> i32 {
+        return a + b;
     }
 
+    fn check_range(val: i32) -> i32 {
+        if val < 10 {
+            return 1;
+        } elif val < 50 {
+            return 2;
+        } else {
+            return 3;
+        }
+        return 4;
+    }
 
-    fn main(){
-        let c = add(6, 7);
+    fn factorial(n: i32) -> i32 {
+        if n <= 1 {
+            return 1;
+        }
+        return n * factorial(n - 1);
+    }
+
+    fn main() {
+        let x = add(15, 35);
+        let status = check_range(x);
+        let fact = factorial(5);
+
+        let total = 0;
+        for i in [1 -> 10 | 1]{
+            break;
+        }
+
         return;
     }
     ".to_string();
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    lexer.print_output();
+   // lexer.print_output();
 
     let mut parser = Parser::init(lexer, Table::init(), Scope::init());
     parser.build_tree();
-    parser.print_node();
+    //parser.print_node();
 
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
-    llvm.module.print_to_stderr();
+
+   // llvm.module.print_to_stderr();
 
 }

@@ -354,7 +354,7 @@ fn is_number(c : &str) -> bool{
 }
 
 fn is_alphanumeric (c : &str) -> bool{
-    (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || (c >= "0" && c <= "9")
+    (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || (c >= "0" && c <= "9") || c == "_"
 }
 
 

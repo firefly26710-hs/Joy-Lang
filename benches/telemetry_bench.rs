@@ -1,6 +1,9 @@
 use comp::lex::lexer::Lexer;
 use comp::par::parser::Parser;
+use comp::par::table::Table;
+use comp::par::scope::Scope;
 use criterion::{criterion_group, criterion_main, Criterion};
+
 fn bench_joyc(c : &mut Criterion){
     let input = "
     fn fib(a : i32){
@@ -10,6 +13,7 @@ fn bench_joyc(c : &mut Criterion){
     fn main(){
          let n = 5;
          fib(n);
+        return;
     }
 
 
@@ -21,7 +25,7 @@ fn bench_joyc(c : &mut Criterion){
         b.iter(|| {
             let mut lexer = Lexer::init(input.to_string());
             lexer.tokenize();
-            let mut parser = Parser::init(lexer.input, lexer.tokens, lexer.lines, lexer.intervals);
+            let mut parser = Parser::init(lexer, Table::init(), Scope::init() );
             parser.build_tree();
         })
     });

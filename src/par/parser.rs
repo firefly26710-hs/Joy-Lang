@@ -31,6 +31,7 @@ pub struct Parser{
     pub func_recorder       : Vec<u32>,
     pub branch_recorder     : Vec<u32>,
     pub block_recorder      : Vec<u32>,
+    pub func_call_recorder  : Vec<u32>,
 
    
     pub current             : usize,
@@ -64,6 +65,7 @@ impl Parser{
             func_recorder        : Vec::with_capacity(RECORDER_SIZE),
             branch_recorder      : Vec::with_capacity(RECORDER_SIZE),
             block_recorder       : Vec::with_capacity(RECORDER_SIZE),
+            func_call_recorder   : Vec::with_capacity(RECORDER_SIZE),
 
             current             : 0,
         }
@@ -147,7 +149,6 @@ impl Parser{
 
 
 
-    pub fn print_scope(&mut self){todo!()}
 
 
 }

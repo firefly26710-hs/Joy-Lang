@@ -221,12 +221,10 @@ impl<'ctx>Codegen<'ctx>{
     }
 
     pub fn build_call(&mut self, start : usize, end : usize) -> BasicValueEnum<'ctx> {
-
         let name_idx = self.parser.edges[start..=end][0];
         let name_key = self.parser.nodes[name_idx as usize].key;
         let has_param = self.parser.edges[start..=end].len() > 1;
-        let len = &self.parser.edges[start..=end].len() - 1;
-
+        let len = &self.parser.edges[start..=end].len() - 2;
         if has_param{
             for i in 0..len{
                 let ty = &self.parser.table.get_param_types(name_key)[i].clone();
@@ -265,8 +263,8 @@ impl<'ctx>Codegen<'ctx>{
     #[inline(always)]
     fn flt_type_mapping(&self, ty : &Type) -> inkwell::types::FloatType<'ctx>{
         match ty{
-            Type::f64 => return self.context.f64_type().into(),
-            Type::f32 => return self.context.f32_type().into(),
+            Type::f64 => self.context.f64_type().into(),
+            Type::f32 => self.context.f32_type().into(),
             _ => unreachable!()
         }
     }

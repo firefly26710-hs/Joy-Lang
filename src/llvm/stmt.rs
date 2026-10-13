@@ -202,7 +202,6 @@ impl<'ctx> Codegen<'ctx>{
 			for i in 0..len{
 				let ty = &self.parser.table.get_param_types(name_key)[i].clone();
 				let expr_idx = self.parser.edges[start + 1 +i] as usize;
-				dbg!(expr_idx);
 				let val = if ty != &Type::bool {
 					self.build_expr(expr_idx, &ty)
 				} else {
