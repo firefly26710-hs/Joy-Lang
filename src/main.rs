@@ -60,7 +60,7 @@ fn str(){
         return fib(n - 1) + fib(n - 2);
     }
     fn main(){
-        let a = fib(5);
+        let a = \"Hello World!\";
         print(a);
         return;
     }
