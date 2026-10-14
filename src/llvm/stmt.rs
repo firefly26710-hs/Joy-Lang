@@ -1,8 +1,7 @@
 use inkwell::types::BasicTypeEnum;
-use inkwell::values::{BasicValueEnum, FunctionValue, PointerValue};
+use inkwell::values::{BasicValueEnum, PointerValue};
 use crate::lex::token::Token;
 use crate::llvm::codegen::Codegen;
-use crate::par::parser::NONE;
 use crate::par::ty::Type;
 
 impl<'ctx> Codegen<'ctx>{
@@ -29,6 +28,7 @@ impl<'ctx> Codegen<'ctx>{
 				Token::WhileStmt => self.build_while_stmt(start, end),
 				Token::BrkStmt => self.build_brk_stmt(),
 				Token::CtnStmt => self.build_ctn_stmt(),
+				Token::PrintStmt => self.build_print_stmt(start, end),
 				_ => unreachable!()
 			}
 		}
@@ -57,6 +57,7 @@ impl<'ctx> Codegen<'ctx>{
 		let var_type : BasicTypeEnum<'ctx> = match expr{
 			BasicValueEnum::IntValue(v) => v.get_type().into(),
 			BasicValueEnum::FloatValue(v) => v.get_type().into(),
+			BasicValueEnum::PointerValue(v) => v.get_type().into(),
 			_ => unreachable!()
 		};
 
@@ -179,7 +180,7 @@ impl<'ctx> Codegen<'ctx>{
 		self.builder.position_at_end(end_bb);
 	}
 	fn build_ret_stmt(&mut self, start : usize, end : usize){
-		let is_return_void = (start as u32) == NONE && (end as u32) == NONE;
+		let is_return_void = self.ret_type == Type::void;
 
 		if!is_return_void{
 			let childs = &self.parser.edges[start..=end];
@@ -343,6 +344,52 @@ impl<'ctx> Codegen<'ctx>{
 	fn build_ctn_stmt(&mut self){
 		let bb = self.ctn_goto_block.pop().unwrap();
 		self.builder.build_unconditional_branch(bb).unwrap();
+	}
+
+	fn build_print_stmt(&mut self, start : usize, end : usize){
+		let i32_type = self.context.i32_type();
+		let i8_ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+		let print_type = i32_type.fn_type(
+			&[i8_ptr_type.into()], true
+		);
+		let print_func = self.module.add_function("printf", print_type, None);
+
+		let expr_idx = self.parser.edges[start..=end][1] as usize;
+		let tok = &self.parser.nodes[expr_idx].tok;
+		let ty = match tok{
+			Token::Int    => &Type::i32,
+			Token::Float  => &Type::f64,
+			Token::String => &Type::String,
+			Token::Bool   => &Type::bool,
+			Token::Ident  => {
+				let key = self.parser.nodes[expr_idx].key;
+				&self.parser.table.get_var_type(key).clone()
+			},
+			_ => unreachable!()
+		};
+
+		let format = match ty{
+			Type::i32 | Type::bool    => "%d",
+			Type::f64    			  => "%f",
+			Type::String 			  => "&s",
+			_ => unreachable!()
+		};
+
+		let expr_val = self.build_expr(expr_idx, ty);
+		let format_str = self.builder.build_global_string_ptr(
+			format, "print_fmt"
+		).unwrap();
+		self.builder.build_call(
+			print_func,
+			&[
+				format_str.as_pointer_value().into(),
+				expr_val.into()
+			],
+			"print_call"
+		).unwrap();
+
+
+
 	}
 
 	pub fn get_variable(&self, key : u32) -> PointerValue<'ctx>{

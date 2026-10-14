@@ -40,6 +40,7 @@ impl Parser{
                         Type::bool            => self.bool_type_node_sum += 1,
                         Type::f32 | Type::f64 => self.flt_leaf_sum += 1,
                         Type::void            => {},
+                        _ => unreachable!()
                     };
                     idx
 
@@ -56,7 +57,6 @@ impl Parser{
                 self.nodes.push(Node::new(Token::Int, key, Interval::new(NONE, NONE)));
                 (self.nodes.len() - 1) as u32
             },
-
             Token::Float => {
                 self.flt_leaf_sum += 1;
 
@@ -65,6 +65,9 @@ impl Parser{
 
                 self.nodes.push(Node::new(Token::Float, key, Interval::new(NONE, NONE)));
                 (self.nodes.len() - 1) as u32
+            },
+            Token::String => {
+                panic!("[Line {:?}] Expression can't include string", self.line())
             },
             _ => panic!("[Line {:?}] Expected a expression", self.line())
         };
@@ -106,14 +109,44 @@ impl Parser{
         lhs_idx 
     }
 
+
+    #[inline(always)]
     pub fn is_expr(&self, tok : &Token) -> bool{
+        self.is_number(tok) || self.is_identifier(tok) || self.is_paren(tok)
+        || self.peek() == &Token::Minus || self.peek() == &Token::CmpNot
+    }
+
+    pub fn is_paren(&self, tok : &Token) -> bool{
         match tok{
-            Token::Int | Token::Ident | Token::Float | Token::Lparen=> {
-                true
-            },
+            Token::Lparen | Token::Rparen => true,
             _ => false
         }
     }
+
+    pub fn is_brace(&self, tok : &Token) -> bool{
+        match tok{
+            Token::Lbrace | Token::Rbrace => true,
+            _ => false
+        }
+    }
+
+    #[inline(always)]
+    pub fn is_identifier(&self, tok : &Token) -> bool{
+        match tok{
+            Token::Ident => true,
+            _ => false
+        }
+    }
+
+    #[inline(always)]
+    pub fn is_number(&self, tok : &Token) -> bool{
+        match tok{
+            Token::Int | Token::Float => true,
+            _ => false
+        }
+    }
+
+
 
     #[inline(always)]
     pub fn is_op(&self, tok : &Token) -> bool{

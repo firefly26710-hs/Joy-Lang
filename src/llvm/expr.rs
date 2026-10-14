@@ -39,8 +39,11 @@ impl<'ctx>Codegen<'ctx>{
                         let basic_ty: BasicTypeEnum<'ctx> = match var_type {
                             Type::i32 | Type::i64 => self.int_type_mapping(var_type).into(),
                             Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
-                            _ => unreachable!(),
+                            Type::bool => self.context.bool_type().into(),
+                            Type::String => self.context.i8_type().ptr_type(inkwell::AddressSpace::default()).into(), // 記得字串也是 ptr
+                            _ => unreachable!()
                         };
+
 
                         self.builder.build_load(basic_ty, alloc, name_str).unwrap()
 
@@ -62,6 +65,17 @@ impl<'ctx>Codegen<'ctx>{
                         let bool_ty = self.context.bool_type();
                         bool_ty.const_int(0, false).into()
                     }
+                    Token::String =>{
+                        let str_interval = &self.parser.lexer.intervals[*key as usize];
+                        let str_s = str_interval.start as usize;
+                        let str_e = str_interval.end as usize;
+                        let string_content = &self.parser.lexer.input[str_s..str_e];
+
+                        self.builder.build_global_string_ptr(string_content, "str_lit")
+                            .unwrap()
+                            .as_pointer_value()
+                            .into()
+                    },
                     _ => unreachable!()
                 },
                 (start, end) =>{
@@ -206,7 +220,6 @@ impl<'ctx>Codegen<'ctx>{
                             }
 
                         }
-                        _ => unreachable!()
                     }
                 }
 

@@ -7,6 +7,7 @@ pub enum Token{
     Float,
     Bool,
     Ident,
+    String,
 
     Type,
 
@@ -67,9 +68,11 @@ pub enum Token{
     RetStmt,
     BlockStmt,
     CallStmt,
+    PrintStmt,
     
     
     Program,
+    Print,
     EOF
 
 

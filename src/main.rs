@@ -1,11 +1,13 @@
 pub mod lex;
 pub mod par;
+
 pub mod llvm;
 
 use std::env;
 use std::fs::File;
 use std::io::{ Read};
 use inkwell::context::Context;
+use inkwell::OptimizationLevel;
 use crate::par::table::Table;
 use crate::par::scope::Scope;
 use crate::par::parser::Parser;
@@ -34,9 +36,47 @@ fn main() {
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
-    llvm.module.print_to_file("output.ll").unwrap();
+
+    let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::None).unwrap();
+
+    unsafe {
+        let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
+            engine.get_function("main").unwrap();
+
+        main_fn.call();
+    }
 
 
+
+}
+
+#[test]
+fn str(){
+    let input = "
+    fn main(){
+        let a = 10;
+        print(a);
+        return;
+    }
+    ";
+    let mut lexer = Lexer::init(input.to_string());
+    lexer.tokenize();
+
+    let mut parser = Parser::init(lexer, Table::init(), Scope::init());
+    parser.build_tree();
+
+    let context = Context::create();
+    let mut llvm = Codegen::init(&context, parser);
+    llvm.compile();
+    llvm.module.print_to_stderr();
+    let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::None).unwrap();
+
+    unsafe {
+        let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
+            engine.get_function("main").unwrap();
+
+        main_fn.call();
+    }
 
 }
 
@@ -91,5 +131,6 @@ fn compile_test(){
     llvm.compile();
 
     llvm.module.print_to_stderr();
+    llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
 
 }

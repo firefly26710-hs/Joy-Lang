@@ -1,4 +1,4 @@
-use inkwell::types::BasicMetadataTypeEnum;
+use inkwell::types::{BasicMetadataTypeEnum};
 use inkwell::values::{BasicValueEnum, FunctionValue};
 use crate::par::ty::Type;
 use crate::llvm::codegen::Codegen;
@@ -34,6 +34,8 @@ impl<'ctx>Codegen<'ctx>{
                 Type::bool => self.context.bool_type().into(),
                 Type::f64 => self.context.f64_type().into(),
                 Type::f32 => self.context.f32_type().into(),
+                Type::String => self.context.i8_type().ptr_type(inkwell::AddressSpace::default()).into(),
+
                 _ => unreachable!()
             };
             self.param_types.push(type_context);
@@ -42,40 +44,24 @@ impl<'ctx>Codegen<'ctx>{
         //ret type
         let ret_type = self.parser.table.get_ret_type(name_key as u32);
 
-        //creat function
-        let func  = match ret_type{
-            Type::i32 =>{
-                let ret_type = self.context.i32_type();
-                let fn_type = ret_type.fn_type(&self.param_types, false);
-                self.module.add_function(name_str, fn_type, None)
+        let fn_type = match ret_type {
+            Type::i32 => self.context.i32_type().fn_type(&self.param_types, false),
+            Type::i64 => self.context.i64_type().fn_type(&self.param_types, false),
+            Type::f32 => self.context.f32_type().fn_type(&self.param_types, false),
+            Type::f64 => self.context.f64_type().fn_type(&self.param_types, false),
+            Type::bool => self.context.bool_type().fn_type(&self.param_types, false),
+            Type::void => self.context.void_type().fn_type(&self.param_types, false),
+
+            Type::String => {
+                let i8_ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+                i8_ptr_type.fn_type(&self.param_types, false)
             },
-            Type::i64 =>{
-                let ret_type = self.context.i64_type();
-                let fn_type = ret_type.fn_type(&self.param_types, false);
-                self.module.add_function(name_str, fn_type, None)
-            },
-            Type::f32 =>{
-                let ret_type = self.context.f32_type();
-                let fn_type = ret_type.fn_type(&self.param_types, false);
-                self.module.add_function(name_str, fn_type, None)
-            },
-            Type::f64 =>{
-                let ret_type = self.context.f64_type();
-                let fn_type = ret_type.fn_type(&self.param_types, false);
-                self.module.add_function(name_str, fn_type, None)
-            }
-            Type::bool =>{
-                let ret_type = self.context.bool_type();
-                let fn_type = ret_type.fn_type(&self.param_types, false);
-                self.module.add_function(name_str, fn_type, None)
-            },
-            Type::void =>{
-                let ret_type = self.context.void_type();
-                let fn_type = ret_type.fn_type(&self.param_types, false);
-                self.module.add_function(name_str, fn_type, None)
-            },
+
         };
 
+        let func = self.module.add_function(name_str, fn_type, None);
+
+        //creat function
         self.param_types.clear();
 
         let has_param = param_types.len() > 0;
@@ -164,6 +150,12 @@ impl<'ctx>Codegen<'ctx>{
                         self.builder.build_store(alloc, val).unwrap();
                         self.variables.push(alloc);
                     }
+                    BasicValueEnum::PointerValue(val) => {
+                        let ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+                        let alloc = self.builder.build_alloca(ptr_type, name_str).unwrap();
+                        self.builder.build_store(alloc, val).unwrap();
+                        self.variables.push(alloc);
+                    },
                     _ => unreachable!()
                 };
             }

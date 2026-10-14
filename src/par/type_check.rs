@@ -7,14 +7,16 @@ impl Parser{
     pub fn type_check(&self, declared_type: &Type, expr_type : Token) -> Type{
 
         match(&declared_type, &expr_type){
-            (Type::void, Token::Int)   => Type::i32,
-            (Type::void, Token::Bool)  => Type::bool,
-            (Type::void, Token::Float) => Type::f64,
-            (Type::i64,  Token::Int)   => Type::i64,
-            (Type::f32,  Token::Float) => Type::f32,
-            (Type::i32,  Token::Int)   => Type::i32,
-            (Type::bool, Token::Bool)  => Type::bool,
-            (Type::f64,  Token::Float) => Type::f64,
+            (Type::void, Token::Int)        => Type::i32,
+            (Type::void, Token::Bool)       => Type::bool,
+            (Type::void, Token::Float)      => Type::f64,
+            (Type::void, Token::String)     => Type::String,
+            (Type::i64,  Token::Int)        => Type::i64,
+            (Type::f32,  Token::Float)      => Type::f32,
+            (Type::i32,  Token::Int)        => Type::i32,
+            (Type::String, Token::String)   => Type::String,
+            (Type::bool, Token::Bool)       => Type::bool,
+            (Type::f64,  Token::Float)      => Type::f64,
             _ => {
                 panic!("[Line {:?}]Declared {:?}, but find {:?}", self.line(), declared_type, expr_type)
             }
@@ -43,6 +45,8 @@ impl Parser{
             Token::Float
         }else if is_bool{
             Token::Bool
+        }else if self.is_string{
+            Token::String
         }else{
             panic!("[Line {:?}] Unknown Type", self.line());
         };
@@ -53,6 +57,7 @@ impl Parser{
 
         self.bool_type_node_sum = 0;
         self.connect_op_sum = 0;
+        self.is_string = false;
 
         expr_type
     }
@@ -66,11 +71,12 @@ impl Parser{
         let type_str = &self.lexer.input[start..end];
 
         match type_str {
-            "i32" => Type::i32,
-            "bool"=> Type::bool,
-            "f32" => Type::f32,
-            "i64" => Type::i64,
-            "f64" => Type::f64,
+            "i32"    => Type::i32,
+            "bool"   => Type::bool,
+            "f32"    => Type::f32,
+            "i64"    => Type::i64,
+            "f64"    => Type::f64,
+            "String" => Type::String,
             _ => unreachable!()
         }
     }

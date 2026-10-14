@@ -28,7 +28,7 @@ impl Lexer{
     }
 
     pub fn tokenize(&mut self){
-        while !self.finish(){
+        while !self.is_finish(){
             self.start = self.current;
 			let c = self.eat();
 			match c{
@@ -173,6 +173,8 @@ impl Lexer{
 
 				_ if is_alphanumeric(c) => self.ident(),
 
+				"\"" => self.string(),
+
 				" " | "\r" | "\t" => {},
 
 				"\n" => self.line += 1,
@@ -290,7 +292,12 @@ impl Lexer{
 		        self.intervals.push(Interval::new(self.start, self.current));
                 self.lines.push(self.line);
 	        }
-			"i32" | "i64" | "f32" | "f64" | "bool" => {
+			"print"     => {
+				self.tokens.push(Token::Print);
+				self.intervals.push(Interval::new(self.start, self.current));
+				self.lines.push(self.line);
+			}
+			"i32" | "i64" | "f32" | "f64" | "bool" | "String" => {
 				self.tokens.push(Token::Type);
 				self.intervals.push(Interval::new(self.start, self.current));
 				self.lines.push(self.line)
@@ -304,6 +311,30 @@ impl Lexer{
 	    }
     }
 
+
+	fn string(&mut self){
+		while self.peek() != "\"" && !self.is_finish(){
+			if self.peek() != "\n"{
+				self.eat();
+			}else{
+				self.line += 1;
+				self.eat();
+			}
+		}
+
+		if self.is_finish(){
+			panic!("[Line {}] Unterminated string.", self.line);
+		}
+
+		//the closing
+		self.eat();
+
+		self.tokens.push(Token::String);
+		self.intervals.push(Interval::new(self.start + 1, self.current - 1));
+		self.lines.push(self.line);
+
+	}
+
 	#[inline(always)]
     fn eat(&mut self) -> &str{
 	    let curr = (self.current) as usize;
@@ -312,8 +343,8 @@ impl Lexer{
         &self.input[curr..=curr]
     }
 	#[inline(always)]
-    fn peek(&mut self) -> &str{
-	    if !self.finish() {
+    fn peek(&self) -> &str{
+	    if !self.is_finish() {
             return &self.input[(self.current) as usize..=(self.current) as usize];
         }
 		"\0" // less_freq
@@ -321,7 +352,7 @@ impl Lexer{
     }
 	#[inline(always)]
     fn peek_next(&mut self) -> &str{
-	    if !self.finish() {
+	    if !self.is_finish() {
             return &self.input[(self.current + 1) as usize ..= (self.current + 1) as usize];
         }
 		"\0"
@@ -330,7 +361,7 @@ impl Lexer{
     }
     
 	#[inline(always)]
-    fn finish(&mut self) -> bool{
+    fn is_finish(&self) -> bool{
 		self.current >= self.input.len().try_into().unwrap()
     }
     

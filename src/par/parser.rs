@@ -27,6 +27,7 @@ pub struct Parser{
     pub regular_op_sum      : u8,
     pub bool_type_node_sum  : u8,
     pub connect_op_sum      : u8,
+    pub is_string           : bool,
 
     pub func_recorder       : Vec<u32>,
     pub branch_recorder     : Vec<u32>,
@@ -58,8 +59,9 @@ impl Parser{
             int_leaf_sum        : 0,
             flt_leaf_sum        : 0,
             regular_op_sum      : 0,
-            bool_type_node_sum: 0,
+            bool_type_node_sum  : 0,
             connect_op_sum      : 0,
+            is_string           : false,
 
 
             func_recorder        : Vec::with_capacity(RECORDER_SIZE),
@@ -67,7 +69,7 @@ impl Parser{
             block_recorder       : Vec::with_capacity(RECORDER_SIZE),
             func_call_recorder   : Vec::with_capacity(RECORDER_SIZE),
 
-            current             : 0,
+            current             : 0
         }
     }
 
