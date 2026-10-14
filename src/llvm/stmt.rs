@@ -347,12 +347,15 @@ impl<'ctx> Codegen<'ctx>{
 	}
 
 	fn build_print_stmt(&mut self, start : usize, end : usize){
-		let i32_type = self.context.i32_type();
-		let i8_ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
-		let print_type = i32_type.fn_type(
-			&[i8_ptr_type.into()], true
-		);
-		let print_func = self.module.add_function("printf", print_type, None);
+		let print_func = match self.module.get_function("printf") {
+			Some(func) => func,
+			None => {
+				let i32_type = self.context.i32_type();
+				let i8_ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+				let print_type = i32_type.fn_type(&[i8_ptr_type.into()], true);
+				self.module.add_function("printf", print_type, None)
+			}
+		};
 
 		let expr_idx = self.parser.edges[start..=end][1] as usize;
 		let tok = &self.parser.nodes[expr_idx].tok;
