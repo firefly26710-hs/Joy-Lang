@@ -53,8 +53,14 @@ fn main() {
 #[test]
 fn str(){
     let input = "
+    fn fib(n : i32) -> i32{
+        if n < 2{
+            return 1;
+        }
+        return fib(n - 1) + fib(n - 2);
+    }
     fn main(){
-        let a = 10;
+        let a = fib(5);
         print(a);
         return;
     }

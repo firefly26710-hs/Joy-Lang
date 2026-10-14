@@ -203,20 +203,42 @@ impl Parser{
             self.expr(0.0)
         }else if self.is_identifier(self.peek()){
             let ident_var_key = self.current as u32;
-            let same_key = self.find_same_var_key(ident_var_key);
-            match self.table.get_var_type(same_key){
-                Type::i32 | Type::i64 | Type::f32 | Type::f64 | Type::bool =>{
-                    self.expr(0.0)
+            let same_key = if self.peek_next()!=&Token::Lparen{
+                self.find_same_var_key(ident_var_key)
+            }else{
+                self.find_prev_func_key(ident_var_key)
+            };
+
+            if self.peek_next()!=&Token::Lparen{
+                match self.table.get_var_type(same_key){
+                    Type::i32 | Type::i64 | Type::f32 | Type::f64 | Type::bool =>{
+                        self.expr(0.0)
+                    }
+                    Type::String =>{
+                        let idx =self.parse_string();
+                        let node : &mut Node  = self.nodes.last_mut().unwrap();
+                        node.key = same_key;
+                        node.tok = Token::Ident;
+                        idx
+                    }
+                    _ => unreachable!()
                 }
-                Type::String =>{
-                    let idx =self.parse_string();
-                    let node : &mut Node  = self.nodes.last_mut().unwrap();
-                    node.key = same_key;
-                    node.tok = Token::Ident;
-                    idx
+            }else{
+                match self.table.get_ret_type(same_key){
+                    Type::i32 | Type::i64 | Type::f32 | Type::f64 | Type::bool =>{
+                        self.expr(0.0)
+                    }
+                    Type::String =>{
+                        let idx =self.parse_string();
+                        let node : &mut Node  = self.nodes.last_mut().unwrap();
+                        node.key = same_key;
+                        node.tok = Token::Ident;
+                        idx
+                    }
+                    _ => unreachable!()
                 }
-                _ => unreachable!()
             }
+
         }else if self.peek() == &Token::String{
             self.parse_string()
         }else{
@@ -289,7 +311,7 @@ impl Parser{
         let len = param_types.len();
 
         let mut counter = 0;
-        if self.is_identifier(self.peek()){
+        if self.is_number(self.peek()) || self.is_identifier(self.peek()){
             for i in 0..len{
                 let expr_idx = self.expr(0.0);
                 self.edges.push(expr_idx);
@@ -298,11 +320,13 @@ impl Parser{
                 self.type_check(&declared_param_type, expr_type);
                 counter += 1;
                 self.func_call_recorder.push(expr_idx);
+
                 match self.peek() {
                     Token::Comma => self.eat(),
                     Token::Rparen => break,
                     _ => break,
                 };
+
             }
         }else{
             panic!("[Line {:?}] Expected a Expression", self.line())

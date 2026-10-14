@@ -8,8 +8,8 @@ impl Parser{
     pub fn expr(&mut self, min_bp : f32) -> u32{
         let mut lhs_idx = match self.peek(){
             Token::Ident => {
-                if self.is_op(self.peek_next()) ||
-                    matches!(self.peek_next(), &Token::Scolon | &Token::Lbrace | &Token::Rbrace | &Token::Rparen){
+                //Just a Literal
+                if self.literal(self.peek_next()){
                     let ident_var_key = self.current as u32;
                     self.eat();
                     let same_key = self.find_same_var_key(ident_var_key);
@@ -26,7 +26,8 @@ impl Parser{
 
                     (self.nodes.len() - 1) as u32
 
-                }else if matches!(self.peek_next(), &Token::Lparen | &Token::Comma | &Token::Rparen | &Token::Lbrace){
+                    //Function call
+                }else if self.is_function_call(self.peek_next()){
                     let idx =  self.func_call();
                     let func_node = self.nodes.last().unwrap();
                     let interval = &func_node.idxs;
@@ -107,6 +108,15 @@ impl Parser{
             lhs_idx = (self.nodes.len() - 1) as u32;
         }
         lhs_idx 
+    }
+
+    pub fn literal(&self ,peeker : &Token) -> bool{
+        self.is_op(peeker) ||
+            matches!(peeker, &Token::Scolon | &Token::Lbrace | &Token::Rbrace | &Token::Rparen)
+    }
+
+    pub fn is_function_call(&self, peeker : &Token) -> bool{
+        matches!(self.peek_next(), &Token::Lparen | &Token::Comma | &Token::Rparen | &Token::Lbrace)
     }
 
 
