@@ -17,6 +17,7 @@ impl Parser{
                         Type::i32 | Type::i64 => self.int_leaf_sum += 1,
                         Type::bool            => self.bool_type_node_sum += 1,
                         Type::f32 | Type::f64 => self.flt_leaf_sum += 1,
+                        Type::String => self.is_string = true,
                         _ => unreachable!()
                     };
 
@@ -68,7 +69,14 @@ impl Parser{
                 (self.nodes.len() - 1) as u32
             },
             Token::String => {
-                panic!("[Line {:?}] Expression can't include string", self.line())
+                self.is_string = true;
+                let key = self.current as u32;
+                self.eat();
+                self.nodes.push(
+                    Node::new(Token::String, key, Interval::new(NONE, NONE))
+                );
+
+                (self.nodes.len() - 1) as u32
             },
             _ => panic!("[Line {:?}] Expected a expression", self.line())
         };
@@ -124,6 +132,7 @@ impl Parser{
     pub fn is_expr(&self, tok : &Token) -> bool{
         self.is_number(tok) || self.is_identifier(tok) || self.is_paren(tok)
         || self.peek() == &Token::Minus || self.peek() == &Token::CmpNot
+        || self.peek() == &Token::String
     }
 
     pub fn is_paren(&self, tok : &Token) -> bool{

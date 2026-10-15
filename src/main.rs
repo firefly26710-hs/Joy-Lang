@@ -37,7 +37,7 @@ fn main() {
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
 
-    let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::None).unwrap();
+    let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
 
     unsafe {
         let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
@@ -60,7 +60,7 @@ fn str(){
         return fib(n - 1) + fib(n - 2);
     }
     fn main(){
-        let a = fib(5);
+        let a = \"Hello World\";
         print(\"fib sum : \");
         print(a);
         return;
