@@ -1,4 +1,8 @@
 #![allow(warnings)]
+
+pub mod table;
+pub mod tys;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type{
     i32,

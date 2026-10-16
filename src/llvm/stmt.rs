@@ -28,7 +28,6 @@ impl<'ctx> Codegen<'ctx>{
 				Token::WhileStmt => self.build_while_stmt(start, end),
 				Token::BrkStmt => self.build_brk_stmt(),
 				Token::CtnStmt => self.build_ctn_stmt(),
-				Token::PrintStmt => self.build_print_stmt(start, end),
 				_ => unreachable!()
 			}
 		}

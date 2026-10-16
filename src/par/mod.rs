@@ -7,3 +7,4 @@ pub mod table;
 pub mod expr;
 pub mod stmt;
 pub mod type_check;
+pub mod ast;

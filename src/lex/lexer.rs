@@ -298,11 +298,6 @@ impl Lexer{
 		        self.intervals.push(Interval::new(self.start, self.current));
                 self.lines.push(self.line);
 	        }
-			"print"     => {
-				self.tokens.push(Token::Print);
-				self.intervals.push(Interval::new(self.start, self.current));
-				self.lines.push(self.line);
-			}
 			"i32" | "i64" | "f32" | "f64" | "bool" | "String" => {
 				self.tokens.push(Token::Type);
 				self.intervals.push(Interval::new(self.start, self.current));
