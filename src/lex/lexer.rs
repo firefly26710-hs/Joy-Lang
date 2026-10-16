@@ -57,9 +57,15 @@ impl Lexer{
 					self.lines.push(self.line);
 				},
 				"/" => {
-					self.tokens.push(Token::Div);
-					self.intervals.push(Interval::new(self.start, self.current));
-					self.lines.push(self.line);
+					if matches!(self.peek(), "/"){
+						while !matches!(self.peek(), "\n")&& !self.is_finish(){
+							self.eat();
+						}
+					}else {
+						self.tokens.push(Token::Div);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
 				},
 				"%" => {
 					self.tokens.push(Token::Mod);
