@@ -1,17 +1,19 @@
 use crate::lex::iterval::Interval;
 use crate::lex::token::Token;
-use crate::par::node::KeyId;
+
+pub type Key = u32;
+
 #[derive(Debug)]
 pub struct Node{
-    pub tok    : Token,
-    pub key    : KeyId,
-    pub childs : Interval
+    pub token    : Token,
+    pub key      : Key,
+    pub childs   : Interval
 }
 
 impl Node {
-    pub fn new(tok : Token, key : KeyId, childs : Interval) -> Self{
+    pub fn new(token: Token, key : Key, childs : Interval) -> Self{
         Self{
-            tok,
+            token,
             key,
             childs
         }

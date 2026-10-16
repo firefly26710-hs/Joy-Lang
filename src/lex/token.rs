@@ -2,13 +2,10 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token{
 
-    //type
     Int,
     Float,
-    Bool,
-    Ident,
     String,
-
+    Ident,
     Type,
 
     //operator
@@ -17,7 +14,7 @@ pub enum Token{
     Mul,
     Div,
     Mod,
-    Equel,
+    Equal,
     NotEq,
     EqEq,
     Grt,
@@ -35,7 +32,7 @@ pub enum Token{
     Lbracket,
     Rbracket,
     Arrow,
-    Vartical,
+    Vertical,
     Colon,
     Comma,
     Dot,
@@ -56,8 +53,7 @@ pub enum Token{
     Ret,
     Brk,
     Ctn,
-   
-    //Statment Kind
+
     LetStmt,
     IfStmt,
     ForStmt,
@@ -68,7 +64,6 @@ pub enum Token{
     RetStmt,
     BlockStmt,
     CallStmt,
-    PrintStmt,
     
     
     Program,

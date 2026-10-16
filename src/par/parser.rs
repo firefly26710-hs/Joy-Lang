@@ -1,9 +1,12 @@
-use crate::lex::iterval::Interval;
+use crate::lex::iterval::{End, Interval, Start};
+use crate::par::ast::node::Node;
 use crate::lex::token::Token;
+use crate::par::ast::node::Key;
 use crate::lex::lexer::Lexer;
-use crate::par::node::Node;
-use crate::par::scope::Scope;
-use crate::par::table::Table;
+use crate::par::ast::ast::AST;
+use crate::par::Scope::scope::Scope;
+use crate::par::ty::table::Table;
+use crate::par::ty::tys::Type;
 
 pub const NONE : u32 = u32::MAX;
 const RECORDER_SIZE : usize = 256;
@@ -11,132 +14,173 @@ const RECORDER_SIZE : usize = 256;
 pub type NodeIdx = u32;
 
 pub struct Parser{
-    pub lexer               : Lexer,
-    
+    lexer : Lexer,
+    pub ast : AST,
+    pub table : Table,
+    pub scope : Scope,
 
-    pub edges               : Vec<NodeIdx>,
-    pub nodes               : Vec<Node>,
+    pub int_node_sum   : u8,
+    pub flt_node_sum   : u8,
+    pub bool_node_sum  : u8,
+    pub regular_op_sum : u8,
+    pub compare_op_sum : u8,
+    pub is_string      : bool,
 
+    pub stmt_recorder: Vec<NodeIdx>,
+    pub prev_end      : usize,
 
-    pub table               : Table,
-    pub scope               : Scope,
-
-
-    pub int_leaf_sum        : u8,
-    pub flt_leaf_sum        : u8,
-    pub regular_op_sum      : u8,
-    pub bool_type_node_sum  : u8,
-    pub connect_op_sum      : u8,
-    pub is_string           : bool,
-
-    pub func_recorder       : Vec<u32>,
-    pub branch_recorder     : Vec<u32>,
-    pub block_recorder      : Vec<u32>,
-    pub func_call_recorder  : Vec<u32>,
-
-   
-    pub current             : usize,
-
-
-
+    pub current : usize
 }
 
 impl Parser{
-    pub fn init(lexer : Lexer, table: Table, scope: Scope) -> Self{
-        let alloc_size = lexer.tokens.len();
-
+    pub fn init(lexer : Lexer) -> Self{
         Self{
             lexer,
+            ast   : AST::init(),
+            table : Table::init(),
+            scope : Scope::init(),
 
-            edges               : Vec::with_capacity(alloc_size),
-            nodes               : Vec::with_capacity(alloc_size),
+            int_node_sum : 0,
+            flt_node_sum : 0,
+            bool_node_sum : 0,
+            regular_op_sum : 0,
+            compare_op_sum : 0,
+            is_string : false,
 
+            stmt_recorder: Vec::with_capacity(64),
+            prev_end     : 0,
 
-            table,
-            scope,
-
-
-            int_leaf_sum        : 0,
-            flt_leaf_sum        : 0,
-            regular_op_sum      : 0,
-            bool_type_node_sum  : 0,
-            connect_op_sum      : 0,
-            is_string           : false,
-
-
-            func_recorder        : Vec::with_capacity(RECORDER_SIZE),
-            branch_recorder      : Vec::with_capacity(RECORDER_SIZE),
-            block_recorder       : Vec::with_capacity(RECORDER_SIZE),
-            func_call_recorder   : Vec::with_capacity(RECORDER_SIZE),
-
-            current             : 0
+            current : 0
         }
     }
 
     pub fn build_tree(&mut self){
-        let mut program_recorder = Vec::with_capacity(128);
         while self.lexer.tokens[self.current] != Token::EOF{
-            program_recorder.push(self.func_stmt());
+            self.parse_function();
         }
-        let l_edge_idx = self.edges.len() as u32;
-        self.edges.extend(program_recorder.drain(..));
-        let r_edge_idx = (self.edges.len() - 1) as u32;
-        let program_node = Node::new(
-            Token::Program, NONE, Interval::new(l_edge_idx, r_edge_idx)
+    }
+
+    pub fn find_same_ident_key(&self, input_key : Key) -> Key{
+        let mut target_key : Option<Key> = None;
+        for key in self.scope.var_scope_stack.iter().rev(){
+            if self.is_matches_string(input_key, *key){
+                target_key = Some(*key);
+            }
+        }
+
+        match target_key{
+            Some(key) => key,
+            None => {
+                panic!(
+                    "[Line {:?}] Can't find the value in this scope",
+                    self.current_line()
+                )
+            }
+        }
+
+
+    }
+
+
+    pub fn push_node(
+        &mut self,
+        tok : Token,
+        key : Key,
+        start: Start,
+        end: End
+    ) -> NodeIdx{
+
+        self.record_node(tok, key, start, end)
+
+    }
+    pub fn push_leaf(
+        &mut self,
+        tok : Token,
+        key : Key
+    ) ->NodeIdx{
+        self.record_node(tok, key, NONE, NONE)
+    }
+    fn record_node(
+        &mut self,
+        tok : Token,
+        key : Key,
+        start: Start,
+        end: End
+    ) -> NodeIdx{
+        self.ast.nodes.push(
+            Node::new(tok, key, Interval::new(start, end))
         );
 
-        self.nodes.push(program_node);
+        (self.ast.nodes.len() - 1) as NodeIdx
     }
 
 
-    //More Frequency in first cond
-    //Set N is the length of tokens
-    //So We only Branch Hazard in once
+
+    #[inline(always)]
+    pub fn current_line(&self) -> u32{
+        self.lexer.lines[self.current]
+    }
+
+
+
     #[inline(always)]
     pub fn peek(&self) -> &Token {
-        if self.current < self.lexer.tokens.len(){
-            return &self.lexer.tokens[self.current]
-        }
+        &self.lexer.tokens[self.current]
 
-        &Token::EOF
     }
 
-    //More Frequency in first cond
-    //Set N is the length of tokens
-    //So We only Branch Hazard in once
     #[inline(always)]
     pub fn peek_next(&self) -> &Token{
-        if self.current + 1 < self.lexer.tokens.len(){
-            return &self.lexer.tokens[self.current + 1]
-        }
+        &self.lexer.tokens[self.current + 1]
 
-        &Token::EOF // less_freq
     }
+
     #[inline(always)]
     pub fn eat(&mut self) -> Token{
         let tok = self.lexer.tokens[self.current].clone();
         self.current += 1;
         tok
     }
+    pub fn is_matches_string(&self, key1 : Key, key2 : Key) ->bool{
+        self.look_string(key1) == self.look_string(key2)
+    }
 
+    pub fn look_string(&self, key : Key) -> &str{
+        let interval = &self.lexer.intervals[key as usize];
+        let slice_start = interval.start as usize;
+        let slice_end = (interval.end - 1) as usize;
 
+        &self.lexer.input[slice_start..=slice_end]
+    }
 
-    #[inline(always)]
-    pub fn line(& self) -> u32{
-        self.lexer.lines[self.current]
+    pub fn type_mapping(&self, input_key: Key) -> Type{
+        let interval = &self.lexer.intervals[input_key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+        let type_str = &self.lexer.input[start..end];
+
+        match type_str {
+            "i32"    => Type::i32,
+            "bool"   => Type::bool,
+            "f32"    => Type::f32,
+            "i64"    => Type::i64,
+            "f64"    => Type::f64,
+            "String" => Type::String,
+            _ => panic!("UnExpected str {:?}", type_str)
+        }
     }
 
     pub fn print_node(&mut self){
-        for (i, node) in self.nodes.iter().enumerate() {
+        for (i, node) in self.ast.nodes.iter().enumerate() {
             println!("Number : {i}");
             println!("Node : {:?}", node);
 
-            let idxs = &node.idxs;
+            let idxs = &node.childs;
             let l_idx = idxs.start;
             let r_idx = idxs.end;
 
             if l_idx != NONE && r_idx != NONE {
-                println!("Edge : {:?}", &self.edges[l_idx as usize..=r_idx as usize]);
+                println!("Edge : {:?}", &self.ast.childs[l_idx as usize..=r_idx as usize]);
             }
 
             let key = node.key;
@@ -147,12 +191,11 @@ impl Parser{
             println!("String : {:?}\n", &self.lexer.input[start..end]);
         }
     }
-    
-
-
 
 
 
 }
+
+
 
 

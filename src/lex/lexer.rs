@@ -14,13 +14,13 @@ pub struct Lexer{
 
 impl Lexer{
     pub fn init(input : String) -> Self{
-		let alloca_size = 1024;
+		let alloc_size = 1024;
 
         Lexer{
             input,
-            intervals: Vec::with_capacity(alloca_size),
-            tokens   : Vec::with_capacity(alloca_size),
-            lines    : Vec::with_capacity(alloca_size),
+            intervals: Vec::with_capacity(alloc_size),
+            tokens   : Vec::with_capacity(alloc_size),
+            lines    : Vec::with_capacity(alloc_size),
             start    : 0,
             current  : 0,
             line     : 1,
@@ -79,7 +79,7 @@ impl Lexer{
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
 					} else{
-						self.tokens.push(Token::Equel);
+						self.tokens.push(Token::Equal);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
 					}
@@ -170,7 +170,7 @@ impl Lexer{
 					self.lines.push(self.line);
 				},
 				"|" => {
-					self.tokens.push(Token::Vartical);
+					self.tokens.push(Token::Vertical);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
 				},
@@ -189,6 +189,8 @@ impl Lexer{
 			}
         }
         self.tokens.push(Token::EOF);
+		self.tokens.push(Token::EOF);
+		self.tokens.push(Token::EOF);
     } 
 
 
@@ -204,8 +206,6 @@ impl Lexer{
 	        self.tokens.push(Token::Float);
             self.intervals.push(Interval::new(self.start, self.current));
             self.lines.push(self.line);
-	        
-	        
 	    }else{
 	        self.tokens.push(Token::Int);
             self.intervals.push(Interval::new(self.start, self.current));
@@ -298,7 +298,8 @@ impl Lexer{
 		        self.intervals.push(Interval::new(self.start, self.current));
                 self.lines.push(self.line);
 	        }
-			"i32" | "i64" | "f32" | "f64" | "bool" | "String" => {
+			"i8" | "i16" | "i32" | "i64" |
+			"f32" | "f64" | "bool" | "String" => {
 				self.tokens.push(Token::Type);
 				self.intervals.push(Interval::new(self.start, self.current));
 				self.lines.push(self.line)
@@ -335,6 +336,7 @@ impl Lexer{
 		self.lines.push(self.line);
 
 	}
+	
 
 	#[inline(always)]
     fn eat(&mut self) -> &str{
@@ -345,26 +347,19 @@ impl Lexer{
     }
 	#[inline(always)]
     fn peek(&self) -> &str{
-	    if !self.is_finish() {
-            return &self.input[(self.current) as usize..=(self.current) as usize];
-        }
-		"\0" // less_freq
+		&self.input[self.current as usize..=self.current as usize]
 
     }
 	#[inline(always)]
     fn peek_next(&mut self) -> &str{
-	    if !self.is_finish() {
-            return &self.input[(self.current + 1) as usize ..= (self.current + 1) as usize];
-        }
-		"\0"
-        
-
+            &self.input[(self.current + 1) as usize ..= (self.current + 1) as usize]
     }
     
 	#[inline(always)]
     fn is_finish(&self) -> bool{
-		self.current >= self.input.len().try_into().unwrap()
+		&self.input[self.current as usize..=self.current as usize] == "\0"
     }
+	
     
     pub fn print_output(&mut self){
 	    println!("Tokens   : {:?}", &self.tokens);
