@@ -19,7 +19,6 @@ impl Parser{
         self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> NodeIdx{
-        dbg!(self.peek());
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
                 self.ast.int_node_sum += 1;
@@ -33,7 +32,7 @@ impl Parser{
                 let key = self.current as Key;
                 self.update_flt_max(key);
                 self.eat();
-                self.push_leaf(Token::Int, key)
+                self.push_leaf(Token::Float, key)
             }
             Token::String => {
                 self.ast.is_string = true;
@@ -55,21 +54,23 @@ impl Parser{
             }
             Token::Ident =>{
                 if self.is_func_call(self.peek_next()){
-                    return self.expr_func_call();
+                    self.expr_func_call()
+                }else {
+                    let key = self.find_same_ident_key(self.current as Key);
+                    self.eat();
+                    match self.table.look_var_type(key) {
+                        Type::i8 | Type::i16 | Type::i32 |
+                        Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
+                        Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
+                        Type::bool => self.ast.bool_node_sum += 1,
+                        Type::String => self.ast.is_string = true,
+                        Type::void => panic!(
+                            "[Line {:?}] Unknown Type {:?}", self.current_line(), self.table.look_var_type(key)
+                        )
+                    };
+
+                    self.push_leaf(Token::Ident, key)
                 }
-
-                let key = self.find_same_ident_key(self.current as Key);
-                self.eat();
-                match self.table.look_var_type(key){
-                    Type::i8 | Type::i16 |Type::i32 |
-                    Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
-                    Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
-                    Type::bool            => self.ast.bool_node_sum += 1,
-                    Type::String => self.ast.is_string = true,
-                    _ => unreachable!()
-                };
-
-                self.push_leaf(Token::Ident, key)
             }
             _ => panic!("[Line {:?}] Unknown Expression : {:?} ", self.current_line(), self.peek())
         };
@@ -113,7 +114,7 @@ impl Parser{
 
 
     fn is_func_call(&self, peek : &Token) -> bool {
-        matches!(peek, &Token::Lparen | &Token::Comma | &Token::Rparen | &Token::Lbrace)
+        matches!(peek, &Token::Lparen)
     }
 
     pub fn is_expr(&self, peek : &Token) -> bool{

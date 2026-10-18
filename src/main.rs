@@ -20,8 +20,9 @@ fn main() {
 
     let mut file =File::open(&args[1]).expect("Can't find file");
     let file_size = file.metadata().map(|m| m.len() as usize).unwrap_or(0);
-    let mut input = String::with_capacity(file_size);
+    let mut input = String::with_capacity(file_size + 3);
     file.read_to_string(&mut input).expect("Failed Read to String");
+    input.push_str("\0\0\0");
 
 
     let mut lexer = Lexer::init(input);
@@ -49,14 +50,16 @@ fn main() {
 #[test]
 fn test(){
     let input =
-        "
-        fn add(a : i32, b : i32) = i32{
-            return a + b;
+        "fn fib(n : i32) = i32{
+            if n < 2{
+                return n;
+            }
 
+            return fib(n - 1) + fib(n - 2);
         }
+
         fn main() = void{
-            var x = 1;
-            x = x + 1;
+            fib(5);
         }
     ".to_string();
     let input = input + "\0\0\0";

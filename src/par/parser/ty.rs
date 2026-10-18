@@ -124,7 +124,11 @@ impl Parser{
         }
     }
 
-    pub fn get_expr_type(&self ) -> Type{
+    pub fn get_expr_type(&self) -> Type{
+        dbg!(self.is_int());
+        dbg!(self.is_flt());
+        dbg!(self.is_bool());
+        dbg!(self.is_string());
         let expr_type = if self.is_int(){
             self.get_int_type()
         }else if self.is_flt(){
@@ -316,7 +320,7 @@ impl Parser{
     
     pub fn is_flt(&self) -> bool{
         self.ast.flt_node_sum == self.ast.regular_op_sum + 1
-            &&  self.ast.int_node_sum & self.ast.flt_node_sum == 0
+            && self.ast.int_node_sum & self.ast.flt_node_sum == 0
             && self.ast.bool_node_sum == 0
             && self.ast.compare_op_sum == 0
             && !self.ast.is_string

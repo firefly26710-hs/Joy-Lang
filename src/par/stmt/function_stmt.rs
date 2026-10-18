@@ -73,7 +73,7 @@ impl Parser{
         self.check_legal_ret_stmt_position(&ret_type, stmt_idx);
         self.push_node(Token::FuncStmt, NONE, start, end)
 
-        
+
     }
 
 
@@ -81,22 +81,16 @@ impl Parser{
     pub fn parse_ret(&mut self) -> NodeIdx{
         self.eat();
 
-        let expr_idx = if !matches!(self.table.get_last_ret_type(), Type::void){
-            let expr_idx = self.parse_expression();
-
-            let ret_type = self.table.get_last_ret_type().clone();
-            self.matches_var_type(&ret_type);
-            expr_idx
-        }else if !matches!(self.table.get_last_ret_type(), Type::void) &&
-            self.is_expr(self.peek()) {
-            panic!(
-                "[Line {:?}] Expected {:?} but found ()"
-                , self.current_line(),
-                self.table.get_last_ret_type()
-            )
-        }else {
+        let expr_idx = if matches!(self.table.last_ret_type(), Type::void){
             NONE
+        }else if !matches!(self.table.last_ret_type(), Type::void) && self.is_expr(self.peek()){
+            let expr_idx = self.parse_expression();
+            self.is_matches_type(self.table.last_ret_type().clone());
+            expr_idx
+        }else {
+            panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.table.last_ret_type())
         };
+
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
@@ -109,9 +103,11 @@ impl Parser{
     }
 
     pub fn parse_func_call(&mut self) -> NodeIdx{
-        let func_call_idx = self.expr_func_call();
+        let expr_func_idx = self.expr_func_call();
+
         self.matches_token(&Token::Scolon, "Expected ;");
-        func_call_idx
+
+        expr_func_idx
     }
 
     pub fn expr_func_call(&mut self) -> NodeIdx {
@@ -120,6 +116,15 @@ impl Parser{
             self.eat();
             self.push_leaf(Token::Ident, func_name_key)
         };
+
+        match self.table.look_ret_type(func_name_key){
+            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
+            Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
+            Type::bool => self.ast.bool_node_sum += 1,
+            Type::String => self.ast.is_string = true,
+            Type::void => panic!("[Line {:?}] Expression can't with void type", self.current_line())
+        };
+
         self.func_call_recorder.push(func_name_idx);
         self.matches_token(&Token::Lparen, "Expected '('");
 

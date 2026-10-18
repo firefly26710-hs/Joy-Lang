@@ -199,9 +199,9 @@ impl<'ctx>Codegen<'ctx>{
         let len = self.get_edge_slice(start, end).len() - 1;
 
         if has_param{
-            let params_idxs = &self.parser.table.param_idxs[name_key as usize];
-            let param_start = params_idxs.start as usize;
-            let param_end = params_idxs.end as usize;
+            let param_type_intervals = self.parser.table.look_param_interval(name_key);
+            let param_start = param_type_intervals.start as usize;
+            let param_end = param_type_intervals.end as usize;
 
             for i in 0..len{
                 let ty = &self.parser.table.var_types[param_start..=param_end][i].clone();

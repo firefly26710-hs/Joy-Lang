@@ -86,7 +86,7 @@ impl Table{
 
     }
 
-    pub fn get_last_ret_type(&self) -> &Type{
+    pub fn last_ret_type(&self) -> &Type{
         self.ret_types.last().unwrap()
     }
 }
