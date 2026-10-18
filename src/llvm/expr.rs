@@ -104,7 +104,7 @@ impl<'ctx>Codegen<'ctx>{
                                 _ => unreachable!()
                             }
                         },
-                        (l_idx,r_idx) => {
+                        (__l_idx__,__r_idx__) => {
                             let idxs = self.get_edge_slice(start, end);
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;

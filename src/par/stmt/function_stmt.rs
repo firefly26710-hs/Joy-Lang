@@ -56,7 +56,7 @@ impl Parser{
             self.type_mapping((self.current - 1) as Key)
         };
 
-        self.table.insert_func_type(func_name_key, param_start, param_end, ret_type);
+        self.table.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
 
         self.matches_token(&Token::Lbrace, "Expected {");
@@ -70,7 +70,10 @@ impl Parser{
 
         let end = self.ast.edge_end();
 
+        self.check_legal_ret_stmt_position(&ret_type, stmt_idx);
         self.push_node(Token::FuncStmt, NONE, start, end)
+
+        
     }
 
 
@@ -160,6 +163,30 @@ impl Parser{
         let end = self.ast.edge_end();
 
         self.push_node(Token::CallStmt, NONE, start, end)
+    }
+
+    fn check_legal_ret_stmt_position(&self, ret_type : &Type, stmt_idx : NodeIdx){
+        if matches!(ret_type, Type::void){
+            return;
+        }
+
+
+        if self.already_full_ret_in_if {
+            return;
+        }
+
+        let stmt_edge = &self.ast.nodes[stmt_idx as usize].edge_span;
+        let start = stmt_edge.start as usize;
+        let end = stmt_edge.end as usize;
+        let stmt_node_idx = *self.ast.edges[start..=end].last().unwrap();
+        let stmt_tok = &self.ast.nodes[stmt_node_idx as usize].token;
+
+        if matches!(stmt_tok, Token::RetStmt){
+            return;
+        }else{
+            panic!("Expected return {:?}",  ret_type );
+        }
+
     }
 
 

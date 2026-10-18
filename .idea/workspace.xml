@@ -12,40 +12,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/llvm/stmt/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/parser/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/parser/ty.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/stmt/branch_stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/stmt/loop_stmt.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/stmt/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/par/stmt/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/llvm/codegen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/llvm/function.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/llvm/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/llvm/stmt.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/Scope/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/scope/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/Scope/scope.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/scope/scope.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ast/ast.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/ast/ast.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ast/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ast/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/ast/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ast/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/ast/node.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ast/stmt.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/parser.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ty/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/table/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ty/table.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/table/table.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/ty/tys.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/ty.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/ty.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -238,7 +215,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/llvm/stmt/stmt.rs</url>
-          <line>132</line>
+          <line>138</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">

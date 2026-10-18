@@ -1,4 +1,4 @@
-use inkwell::types::{BasicMetadataTypeEnum, BasicTypeEnum};
+use inkwell::types::{BasicTypeEnum};
 use inkwell::values::{BasicValueEnum, PointerValue};
 use crate::lex::iterval::{End, Start};
 use crate::lex::token::Token;
@@ -26,7 +26,7 @@ impl<'ctx> Codegen<'ctx>{
 
             match tok{
                 Token::LetStmt => self.build_var_stmt(start, end),
-                Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq|
+                Token::Equal|Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq|
                 Token::ModEq => self.build_update_data(start, end, tok.clone()),
                 Token::IfStmt => self.build_if_stmt(start, end),
                 Token::RetStmt => self.build_ret_stmt(start, end),
@@ -97,6 +97,12 @@ impl<'ctx> Codegen<'ctx>{
         let prev_val = self.builder.build_load(ty_context, var_ptr, name_str).unwrap();
 
         let rhs_val = self.build_expr(edges[1] as usize, &ty);
+
+        if matches!(op_tok, Token::Equal){
+            self.builder.build_store(var_ptr, rhs_val).unwrap();
+            return;
+        }
+
 
         let new_val : BasicValueEnum = match (prev_val, rhs_val){
             (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match op_tok{

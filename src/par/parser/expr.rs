@@ -39,7 +39,7 @@ impl Parser{
                 self.ast.is_string = true;
                 let key = self.current as Key;
                 self.eat();
-                self.push_leaf(Token::Int, key)
+                self.push_leaf(Token::String, key)
             }
             Token::True =>{
                 self.ast.bool_node_sum += 1;
@@ -60,7 +60,6 @@ impl Parser{
 
                 let key = self.find_same_ident_key(self.current as Key);
                 self.eat();
-                dbg!(self.table.look_var_type(key));
                 match self.table.look_var_type(key){
                     Type::i8 | Type::i16 |Type::i32 |
                     Type::i64 | Type::i128 => self.ast.int_node_sum += 1,

@@ -28,9 +28,15 @@ pub struct Parser{
     pub branch_recorder:Vec<NodeIdx>,
     pub loop_recorder : Vec<NodeIdx>,
     pub func_call_recorder : Vec<NodeIdx>,
-    pub prev_end   : usize,
 
-    pub current : usize
+    pub current : usize,
+
+    pub ret_times_in_branch: u8,
+    pub real_times_in_branch: u8,
+    pub is_have_else       : bool,
+    pub already_full_ret_in_if: bool
+
+
 }
 
 impl Parser{
@@ -42,14 +48,18 @@ impl Parser{
             scope : Scope::init(),
 
 
-            programs : Vec::with_capacity(64),
-            func_recorder: Vec::with_capacity(64),
-            branch_recorder : Vec::with_capacity(64),
-            loop_recorder   : Vec::with_capacity(64),
-            func_call_recorder : Vec::with_capacity(64),
-            prev_end     : 0,
+            programs : Vec::with_capacity(RECORDER_SIZE),
+            func_recorder: Vec::with_capacity(RECORDER_SIZE),
+            branch_recorder : Vec::with_capacity(RECORDER_SIZE),
+            loop_recorder   : Vec::with_capacity(RECORDER_SIZE),
+            func_call_recorder : Vec::with_capacity(RECORDER_SIZE),
 
-            current : 0
+            current : 0,
+
+            ret_times_in_branch: 0,
+            real_times_in_branch: 0,
+            is_have_else : false,
+            already_full_ret_in_if: false
         }
     }
 

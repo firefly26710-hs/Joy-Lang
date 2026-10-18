@@ -6,6 +6,7 @@ use std::env;
 use std::fs::File;
 use std::io::{ Read};
 use inkwell::context::Context;
+use inkwell::OptimizationLevel;
 use crate::lex::lexer::Lexer;
 use crate::llvm::codegen::Codegen;
 use crate::par::parser::parser::Parser;
@@ -26,6 +27,20 @@ fn main() {
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
+    parser.build_tree();
+
+    let context = Context::create();
+    let mut llvm = Codegen::init(&context, parser);
+    llvm.compile();
+
+    let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
+
+    unsafe {
+        let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
+            engine.get_function("main").unwrap();
+
+        main_fn.call();
+    }
 
 
 
@@ -34,14 +49,14 @@ fn main() {
 #[test]
 fn test(){
     let input =
-        "fn add(a : i32, b : i32) = i32{
+        "
+        fn add(a : i32, b : i32) = i32{
             return a + b;
-        }
 
+        }
         fn main() = void{
-            while false{
-                var x = 5;
-            }
+            var x = 1;
+            x = x + 1;
         }
     ".to_string();
     let input = input + "\0\0\0";
@@ -52,6 +67,7 @@ fn test(){
     let mut parser = Parser::init(lexer);
     parser.build_tree();
     parser.print_node();
+    dbg!(&parser.table.var_keys);
     dbg!(&parser.table.func_keys);
     dbg!(&parser.table.param_idxs);
     dbg!(&parser.table.var_types);

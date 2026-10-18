@@ -30,7 +30,7 @@ impl<'ctx>Codegen<'ctx>{
                 self.parser.table.var_types[param_start as usize..=param_end as usize].len();
 
             for i in 0..len{
-                let ty = &self.parser.table.var_types[param_start as usize..=param_end as usize][0];
+                let ty = &self.parser.table.var_types[param_start as usize..=param_end as usize][i];
                 let type_context : BasicMetadataTypeEnum = match ty{
                     Type::i8 => self.context.i8_type().into(),
                     Type::i16 => self.context.i16_type().into(),
@@ -171,8 +171,11 @@ impl<'ctx>Codegen<'ctx>{
         self.current_fn = Some(func);
         self.ret_type = self.parser.table.look_ret_type(name_key).clone();
         let block_idx = self.get_edge_slice(func_child_end, func_child_end)[0];
-        dbg!(block_idx);
         self.build_stmts(block_idx);
+
+        if self.builder.get_insert_block().unwrap().get_terminator().is_none() {
+            self.builder.build_return(None).unwrap();
+        }
     }
 
     pub fn build_ret_stmt(&mut self ,start : Start, end : End){

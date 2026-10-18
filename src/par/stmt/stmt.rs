@@ -74,7 +74,7 @@ impl Parser{
     fn ident_branch(&mut self) -> NodeIdx{
         match self.peek_next(){
             Token::Lparen => self.parse_func_call(),
-            Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq
+            Token::Equal |Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq
             |Token::ModEq | Token::Scolon => self.parse_var_update(),
             _ => panic!("[Line {:?}] Expected ; ", self.current_line())
         }

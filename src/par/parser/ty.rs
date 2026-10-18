@@ -22,8 +22,106 @@ impl Parser{
         self.table.insert_var_type(key, ty);
     }
 
-    pub fn is_matches_type(&self, input_type : Type) -> bool{
-        input_type == self.get_expr_type()
+    pub fn is_matches_type(&self, expected_type: Type) -> bool{
+        match (expected_type, self.get_expr_type()){
+            (Type::i8, Type::i8) => true,
+            (Type::i8, Type::i16) => {
+                self.out_of_type_range(&Type::i8);
+                false
+            },
+            (Type::i8, Type::i32) => {
+                self.out_of_type_range(&Type::i8);
+                false
+            },
+            (Type::i8, Type::i64) => {
+                self.out_of_type_range(&Type::i8);
+                false
+            },
+            (Type::i8, Type::i128) => {
+                self.out_of_type_range(&Type::i8);
+                false
+            },
+            (Type::i16, Type::i8) => true,
+            (Type::i16, Type::i16) => true,
+            (Type::i16, Type::i32) => {
+                self.out_of_type_range(&Type::i16);
+                false
+            },
+            (Type::i16, Type::i64) => {
+                self.out_of_type_range(&Type::i16);
+                false
+            },
+            (Type::i16, Type::i128) => {
+                self.out_of_type_range(&Type::i16);
+                false
+            },
+
+            (Type::i32, Type::i8) => true,
+            (Type::i32, Type::i16) => true,
+            (Type::i32, Type::i32) => true,
+            (Type::i32, Type::i64) => {
+                self.out_of_type_range(&Type::i32);
+                false
+            },
+            (Type::i32, Type::i128) => {
+                self.out_of_type_range(&Type::i32);
+                false
+            },
+
+            (Type::i64, Type::i8) => true,
+            (Type::i64, Type::i16) => true,
+            (Type::i64, Type::i32) => true,
+            (Type::i64, Type::i64) => true,
+            (Type::i64, Type::i128) => {
+                self.out_of_type_range(&Type::i32);
+                false
+            },
+
+            (Type::i128, Type::i8) => true,
+            (Type::i128, Type::i16) => true,
+            (Type::i128, Type::i32) => true,
+            (Type::i128, Type::i64) => true,
+            (Type::i128, Type::i128) => true,
+
+            (Type::f32, Type::f32) => true,
+            (Type::f32, Type::f64) => {
+                self.out_of_type_range(&Type::i32);
+                false
+            },
+
+            (Type::f64, Type::f32) => true,
+            (Type::f64, Type::f64) => true,
+
+            (Type::bool, Type::bool) => true,
+            (Type::String, Type::String) => true,
+
+            (ty1,ty2) if is_int_type(&ty1) &&
+                is_flt_type(&ty2) || is_bool_type(&ty2) || is_string_type(&ty2) => {
+                self.expected(&ty1, ty2);
+                false
+            },
+
+            (ty1,ty2) if is_flt_type(&ty1) &&
+                is_int_type(&ty2) || is_bool_type(&ty2) || is_string_type(&ty2) => {
+                self.expected(&ty1, ty2);
+                false
+            },
+
+            (ty1,ty2) if is_bool_type(&ty1) &&
+                (is_int_type(&ty2) || is_flt_type(&ty2) || is_string_type(&ty2)) => {
+                self.expected(&ty1, ty2);
+                false
+            },
+
+            (ty1,ty2) if is_string_type(&ty1) &&
+                (is_flt_type(&ty2) || is_flt_type(&ty2) || is_bool_type(&ty2)) => {
+                self.expected(&ty1, ty2);
+                false
+            },
+
+            _ => panic!("[Line {:?}] Unknown Type", self.current_line())
+
+        }
     }
 
     pub fn get_expr_type(&self ) -> Type{
@@ -36,7 +134,7 @@ impl Parser{
         }else if self.is_string(){
             Type::String
         }else{
-            panic!("[Line {:?}] Expected Type", self.current_line())
+            panic!("[Line {:?}] Mismatch Type", self.current_line())
         };
 
         expr_type
@@ -94,6 +192,8 @@ impl Parser{
 
             (Type::f64, Type::f32) => Type::f32,
             (Type::f64, Type::f64) => Type::f64,
+
+            (Type::bool, Type::bool) => Type::bool,
 
             (Type::String, Type::String) => Type::String,
 
@@ -227,6 +327,7 @@ impl Parser{
             && self.ast.int_node_sum & self.ast.flt_node_sum == 0
             && !self.ast.is_string
     }
+
 
     pub fn is_string(&self) -> bool{
         self.ast.compare_op_sum == 0
