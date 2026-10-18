@@ -13,12 +13,18 @@
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/opt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/opt.ll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output.ll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/parser/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/expr.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/parser/ty.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/ty.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/table/table.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/table/table.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -207,11 +213,6 @@
           <url>file://$PROJECT_DIR$/src/llvm/expr.rs</url>
           <line>10</line>
           <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/llvm/stmt/stmt.rs</url>
-          <line>138</line>
-          <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/par/ast/ast.rs</url>

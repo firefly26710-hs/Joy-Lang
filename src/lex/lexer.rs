@@ -333,7 +333,12 @@ impl Lexer{
 		        self.tokens.push(Token::False);
 		        self.intervals.push(Interval::new(self.start, self.current));
                 self.lines.push(self.line);
-	        }
+	        },
+			"print"    => {
+				self.tokens.push(Token::Print);
+				self.intervals.push(Interval::new(self.start, self.current));
+				self.lines.push(self.line);
+			},
 			"void"|"i8" | "i16" | "i32" | "i64" |
 			"f32" | "f64" | "bool" | "String" => {
 				self.tokens.push(Token::Type);

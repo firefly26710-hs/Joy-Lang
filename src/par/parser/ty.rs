@@ -125,10 +125,6 @@ impl Parser{
     }
 
     pub fn get_expr_type(&self) -> Type{
-        dbg!(self.is_int());
-        dbg!(self.is_flt());
-        dbg!(self.is_bool());
-        dbg!(self.is_string());
         let expr_type = if self.is_int(){
             self.get_int_type()
         }else if self.is_flt(){

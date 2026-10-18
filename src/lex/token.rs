@@ -70,6 +70,7 @@ pub enum Token{
     RetStmt,
     BlockStmt,
     CallStmt,
+    PrintStmt,
     
     
     Program,

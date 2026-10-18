@@ -31,6 +31,7 @@ impl Parser{
             Token::Ret    => self.parse_ret(),
             Token::Brk   => self.parse_break(),
             Token::Ctn   => self.parse_ctn(),
+            Token::Print => self.parse_print(),
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }
     }
@@ -130,6 +131,36 @@ impl Parser{
         self.matches_token(&Token::Scolon, "Expected ;");
 
         self.push_leaf(Token::CtnStmt, NONE)
+
+    }
+
+
+    fn parse_print(&mut self) -> NodeIdx{
+        self.eat();
+
+        self.matches_token(&Token::Lparen, "Expected (");
+        let type_idx = self.ret_matches_token_idx(&Token::Type, "Expected Type");
+
+        let ty = self.type_mapping((self.current - 1) as Key);
+        self.matches_token(&Token::Comma, "Expected ,");
+        let expr_idx = self.parse_expression();
+
+        if !self.is_matches_type(ty){
+            panic!("[Line {:?}] Expected", self.current_line());
+        }
+
+        self.matches_token(&Token::Rparen, "Expected )");
+        self.matches_token(&Token::Scolon, "Expected ;");
+
+        let edges_start = self.ast.edge_start();
+        self.ast.edges.push(type_idx);
+        self.ast.edges.push(expr_idx);
+        let edges_end = self.ast.edge_end();
+
+        self.push_node(Token::PrintStmt, NONE, edges_start, edges_end)
+
+
+
 
     }
 

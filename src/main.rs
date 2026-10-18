@@ -5,8 +5,11 @@ pub mod llvm;
 use std::env;
 use std::fs::File;
 use std::io::{ Read};
+use std::path::Path;
+use std::process::Command;
 use inkwell::context::Context;
 use inkwell::OptimizationLevel;
+use inkwell::targets::{CodeModel, FileType, InitializationConfig, RelocMode, Target, TargetMachine};
 use crate::lex::lexer::Lexer;
 use crate::llvm::codegen::Codegen;
 use crate::par::parser::parser::Parser;
@@ -34,6 +37,7 @@ fn main() {
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
 
+
     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
 
     unsafe {
@@ -43,23 +47,13 @@ fn main() {
         main_fn.call();
     }
 
-
-
 }
 
 #[test]
 fn test(){
     let input =
-        "fn fib(n : i32) = i32{
-            if n < 2{
-                return n;
-            }
-
-            return fib(n - 1) + fib(n - 2);
-        }
-
-        fn main() = void{
-            fib(5);
+        "fn main() = void{
+            print(String,\"Hello World\n\");
         }
     ".to_string();
     let input = input + "\0\0\0";
@@ -80,6 +74,9 @@ fn test(){
 
 
     llvm.module.print_to_stderr();
+
+
+
 
 }
 

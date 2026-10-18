@@ -242,7 +242,6 @@ impl<'ctx>Codegen<'ctx>{
     fn build_expr_call(&mut self ,start : Start, end : End) -> BasicValueEnum<'ctx>{
         let name_idx = self.get_edge_slice(start, end)[0];
         let name_key = self.get_node(name_idx).key;
-        dbg!(name_key);
         let has_param = self.get_edge_slice(start, end).len() > 1;
         let len = self.get_edge_slice(start, end).len() - 1;
 
@@ -251,7 +250,6 @@ impl<'ctx>Codegen<'ctx>{
             let params_idxs = &self.parser.table.look_param_interval(name_key);
             let param_start = params_idxs.start as usize;
             let param_end = params_idxs.end as usize;
-            dbg!(param_start, param_end);
 
             for i in 0..len{
                 let ty = &self.parser.table.var_types[param_start..=param_end][i].clone();
