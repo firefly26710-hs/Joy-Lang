@@ -1,6 +1,7 @@
 use crate::lex::iterval::{Start, End, Interval};
 use crate::par::ast::node::Key;
-use crate::par::ty::tys::Type;
+use crate::par::parser::parser::{NodeIdx, NONE};
+use crate::par::parser::ty::Type;
 const VAR_PART_ALLOC_SIZE: usize = 256;
 const FUNC_PART_ALLOC_SIZE : usize = 128;
 
@@ -26,7 +27,7 @@ impl Table{
 
     pub fn look_var_type(&self, input_key : Key) -> &Type{
         for i in 0..self.var_keys.len(){
-            if self.var_keys[i] != input_key{
+            if self.var_keys[i] == input_key{
                 return &self.var_types[i];
             }
         }
@@ -52,13 +53,41 @@ impl Table{
     }
 
     pub fn params_start(&self) -> Start{
-        self.param_idxs.len() as Start
+        self.var_types.len() as Start
     }
 
     pub fn params_end(&self) -> End{
-        (self.param_idxs.len() - 1) as End
+        (self.var_types.len() - 1) as End
+    }
+
+    pub fn look_param_interval(&self, key : u32 ) -> &Interval{
+
+        for i in 0.. self.func_keys.len(){
+            if self.func_keys[i] == key{
+                return &self.param_idxs[i];
+            }
+        }
+
+        unreachable!()
+
     }
 
 
+
+    pub fn look_ret_type(&self, key : u32 ) -> &Type{
+
+        for i in 0.. self.func_keys.len(){
+            if self.func_keys[i] == key{
+                return &self.ret_types[i];
+            }
+        }
+
+        unreachable!()
+
+    }
+
+    pub fn get_last_ret_type(&self) -> &Type{
+        self.ret_types.last().unwrap()
+    }
 }
 

@@ -1,4 +1,6 @@
 pub mod parser;
-pub mod ty;
+pub mod table;
 pub mod ast;
-pub mod Scope;
+pub mod scope;
+
+pub mod stmt;

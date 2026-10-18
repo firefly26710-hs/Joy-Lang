@@ -2,61 +2,63 @@ use crate::llvm::codegen::Codegen;
 use inkwell::values::{BasicValueEnum};
 use inkwell::{IntPredicate, FloatPredicate};
 use inkwell::types::BasicTypeEnum;
-use crate::par::ty::Type;
-use crate::par::parser::NONE;
+use crate::lex::iterval::{End, Start};
+use crate::par::parser::ty::Type;
+use crate::par::parser::parser::NONE;
 use crate::lex::token::Token;
 
 impl<'ctx>Codegen<'ctx>{
-
     pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
-        let tok = self.parser.nodes[expr_idx].tok.clone();
-        let key = &self.parser.nodes[expr_idx].key;
-        let idxs = &self.parser.nodes[expr_idx].idxs;
+        let tok = self.parser.ast.nodes[expr_idx].token.clone();
+        let key = self.parser.ast.nodes[expr_idx].key;
+        let idxs = &self.parser.ast.nodes[expr_idx].edge_span;
         let start = idxs.start;
         let end = idxs.end;
 
-        
-        if !matches!(tok, Token::CallStmt){
-            match(start, end){
-                (NONE, NONE) => match tok{
-                    Token::Int => {
-                        let str_interval = &self.parser.lexer.intervals[*key as usize];
-                        let str_s = str_interval.start as usize;
-                        let str_e = str_interval.end as usize;
-                        let int_ty = self.int_type_mapping(&ty);
-                        let var_str = &self.parser.lexer.input[str_s..str_e];
-                        let u_integer : u64 = var_str.parse().unwrap();
-                        int_ty.const_int(u_integer, false).into()
+        if matches!(tok, Token::CallStmt){
+           return self.build_expr_call(start , end)
+        }
+
+        match(start, end){
+            (NONE, NONE) => match tok{
+                Token::Int => {
+                    let str_interval = &self.parser.lexer.intervals[key as usize];
+                    let str_s = str_interval.start as usize;
+                    let str_e = str_interval.end as usize;
+                    let int_ty = self.int_type_mapping(&ty);
+                    let var_str = &self.parser.lexer.input[str_s..str_e];
+                    let u_integer : u64 = var_str.parse().unwrap();
+                    int_ty.const_int(u_integer, false).into()
+                },
+                Token::Float => {
+                    let str_interval = &self.parser.lexer.intervals[key as usize];
+                    let str_s = str_interval.start as usize;
+                    let str_e = str_interval.end as usize;
+                    let flt_ty = self.flt_type_mapping(&ty);
+                    let var_str = &self.parser.lexer.input[str_s..str_e];
+                    let float : f64 = var_str.parse().unwrap();
+                    flt_ty.const_float(float).into()
+                },
+                Token::Ident => {
+                    let str_interval = &self.parser.lexer.intervals[key as usize];
+                    let str_s = str_interval.start as usize;
+                    let str_e = str_interval.end as usize;
+                    let name_str = &self.parser.lexer.input[str_s ..str_e];
+                    let alloc = self.get_var_ptr(key);
+                    let var_type = self.parser.table.look_var_type(key);
+
+                    let basic_ty: BasicTypeEnum<'ctx> = match var_type {
+                        Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),
+                        Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
+                        Type::bool => self.context.bool_type().into(),
+                        Type::String => self.context.i8_type().ptr_type(inkwell::AddressSpace::default()).into(),
+                        _ => panic!("Expected Type{:?}", var_type)
+                    };
+
+                    self.builder.build_load(basic_ty, alloc, name_str).unwrap()
+
                     },
-                    Token::Ident => {
-                        let str_interval = &self.parser.lexer.intervals[*key as usize];
-                        let str_s = str_interval.start as usize;
-                        let str_e = str_interval.end as usize;
-                        let name_str = &self.parser.lexer.input[str_s ..str_e];
-                        let alloc = self.get_variable(*key);
-                        let var_type = self.parser.table.get_var_type(*key);
 
-                        let basic_ty: BasicTypeEnum<'ctx> = match var_type {
-                            Type::i32 | Type::i64 => self.int_type_mapping(var_type).into(),
-                            Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
-                            Type::bool => self.context.bool_type().into(),
-                            Type::String => self.context.i8_type().ptr_type(inkwell::AddressSpace::default()).into(), // 記得字串也是 ptr
-                            _ => unreachable!()
-                        };
-
-
-                        self.builder.build_load(basic_ty, alloc, name_str).unwrap()
-
-                    },
-                    Token::Float => {
-                        let str_interval = &self.parser.lexer.intervals[*key as usize];
-                        let str_s = str_interval.start as usize;
-                        let str_e = str_interval.end as usize;
-                        let flt_ty = self.flt_type_mapping(&ty);
-                        let var_str = &self.parser.lexer.input[str_s..str_e];
-                        let float : f64 = var_str.parse().unwrap();
-                        flt_ty.const_float(float).into()
-                    },
                     Token::True => {
                         let bool_ty = self.context.bool_type();
                         bool_ty.const_int(1, true).into()
@@ -66,7 +68,7 @@ impl<'ctx>Codegen<'ctx>{
                         bool_ty.const_int(0, false).into()
                     }
                     Token::String =>{
-                        let str_interval = &self.parser.lexer.intervals[*key as usize];
+                        let str_interval = &self.parser.lexer.intervals[key as usize];
                         let str_s = str_interval.start as usize;
                         let str_e = str_interval.end as usize;
                         let string_content = &self.parser.lexer.input[str_s..str_e];
@@ -79,7 +81,7 @@ impl<'ctx>Codegen<'ctx>{
                     _ => unreachable!()
                 },
                 (start, end) =>{
-                    let childs = &self.parser.edges[start as usize..=end as usize];
+                    let childs = self.get_edge_slice(start, end);
                     match (childs[0], childs[1]){
                         (NONE, r_idx) => {
                             let rhs = self.build_expr(r_idx as usize, ty);
@@ -103,11 +105,21 @@ impl<'ctx>Codegen<'ctx>{
                             }
                         },
                         (l_idx,r_idx) => {
-                            let idxs = &self.parser.edges[start as usize..=end as usize];
+                            let idxs = self.get_edge_slice(start, end);
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;
-                            let lhs = self.build_expr(lhs_idx, ty);
-                            let rhs = self.build_expr(rhs_idx, ty);
+
+                            let lhs = if is_bool_op(&tok){
+                                self.build_expr(lhs_idx, &Type::i32)
+                            }else{
+                                self.build_expr(lhs_idx, ty)
+                            };
+
+                            let rhs = if is_bool_op(&tok){
+                                self.build_expr(rhs_idx, &Type::i32)
+                            }else{
+                                self.build_expr(rhs_idx, ty)
+                            };
 
                             match(lhs, rhs){
                                 (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match tok{
@@ -121,7 +133,7 @@ impl<'ctx>Codegen<'ctx>{
                                         self.builder.build_int_mul(l, r, "Int_Mul").unwrap().into()
                                     },
                                     Token::Div    => {
-                                    self.builder.build_int_signed_div(l, r, "Int_Div").unwrap().into()
+                                        self.builder.build_int_signed_div(l, r, "Int_Div").unwrap().into()
                                     },
                                     Token::Mod    => {
                                         self.builder.build_int_signed_rem(l, r, "Int_Mod").unwrap().into()
@@ -166,7 +178,7 @@ impl<'ctx>Codegen<'ctx>{
                                 (BasicValueEnum::FloatValue(l), BasicValueEnum::FloatValue(r)) => match tok{
                                     Token::Plus   =>{
                                         self.builder.build_float_add(l, r, "Flt_Add").unwrap().into()
-                                    }, 
+                                    },
                                     Token::Minus  =>{
                                         self.builder.build_float_sub(l, r, "Flt_Sub").unwrap().into()
                                     },
@@ -225,23 +237,25 @@ impl<'ctx>Codegen<'ctx>{
 
             }
 
-
-
-        }else{
-            self.build_call(start as usize, end as usize)
-        }
-
     }
 
-    pub fn build_call(&mut self, start : usize, end : usize) -> BasicValueEnum<'ctx> {
-        let name_idx = self.parser.edges[start..=end][0];
-        let name_key = self.parser.nodes[name_idx as usize].key;
-        let has_param = self.parser.edges[start..=end].len() > 1;
-        let len = &self.parser.edges[start..=end].len() - 1;
+    fn build_expr_call(&mut self ,start : Start, end : End) -> BasicValueEnum<'ctx>{
+        let name_idx = self.get_edge_slice(start, end)[0];
+        let name_key = self.get_node(name_idx).key;
+        dbg!(name_key);
+        let has_param = self.get_edge_slice(start, end).len() > 1;
+        let len = self.get_edge_slice(start, end).len() - 1;
+
+
         if has_param{
+            let params_idxs = &self.parser.table.look_param_interval(name_key);
+            let param_start = params_idxs.start as usize;
+            let param_end = params_idxs.end as usize;
+            dbg!(param_start, param_end);
+
             for i in 0..len{
-                let ty = &self.parser.table.get_param_types(name_key)[i].clone();
-                let expr_idx = self.parser.edges[start + 1 +i] as usize;
+                let ty = &self.parser.table.var_types[param_start..=param_end][i].clone();
+                let expr_idx = self.parser.ast.edges[(start as usize) + 1 + i] as usize;
                 let val = if ty != &Type::bool {
                     self.build_expr(expr_idx, &ty)
                 } else {
@@ -252,7 +266,7 @@ impl<'ctx>Codegen<'ctx>{
             }
         }
 
-        let func = self.get_function(name_key);
+        let func = self.get_func_ptr(name_key);
         let str_interval = &self.parser.lexer.intervals[name_key as usize];
         let str_s = str_interval.start as usize;
         let str_e = str_interval.end as usize;
@@ -260,26 +274,32 @@ impl<'ctx>Codegen<'ctx>{
         let func_call_val = self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
         self.call_param_types.clear();
         func_call_val.try_as_basic_value().unwrap_basic()
-
     }
 
 
-    #[inline(always)]
+
     fn int_type_mapping(&self, ty : &Type)  -> inkwell::types::IntType<'ctx>{
         match ty{
-            Type::i32 => return self.context.i32_type().into(),
-            Type::i64 => return self.context.i64_type().into(),
+            Type::i8 => self.context.i8_type(),
+            Type::i16 => self.context.i16_type(),
+            Type::i32 =>  self.context.i32_type(),
+            Type::i64 =>  self.context.i64_type(),
+            Type::i128 => self.context.i8_type(),
             _ => unreachable!()
         }
     }
 
-    #[inline(always)]
     fn flt_type_mapping(&self, ty : &Type) -> inkwell::types::FloatType<'ctx>{
         match ty{
-            Type::f64 => self.context.f64_type().into(),
             Type::f32 => self.context.f32_type().into(),
+            Type::f64 => self.context.f64_type().into(),
             _ => unreachable!()
         }
     }
+
+}
+
+pub fn is_bool_op(tok : &Token) -> bool{
+    matches!(tok, Token::EqEq   | Token::NotEq | Token::Grt | Token::Les| Token::GrtEq  | Token::LesEq )
 }
     

@@ -33,14 +33,26 @@ impl Lexer{
 			let c = self.eat();
 			match c{
 				"+" => {
-					self.tokens.push(Token::Plus);
-					self.intervals.push(Interval::new(self.start, self.current));
-					self.lines.push(self.line);
+					if matches!(self.peek(), "="){
+						self.tokens.push(Token::PlusEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}else{
+						self.tokens.push(Token::Plus);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
 				},
 
 				"-" => {
-					if self.peek() == ">"{
+					if matches!(self.peek(), ">"){
 						self.tokens.push(Token::Arrow);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}else if matches!(self.peek(), "="){
+						self.tokens.push(Token::MinusEq);
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
@@ -52,25 +64,44 @@ impl Lexer{
 				},
 
 				"*" => {
-					self.tokens.push(Token::Mul);
-					self.intervals.push(Interval::new(self.start, self.current));
-					self.lines.push(self.line);
+					if matches!(self.peek(), ">"){
+						self.tokens.push(Token::MulEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}else{
+						self.tokens.push(Token::Mul);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
 				},
 				"/" => {
 					if matches!(self.peek(), "/"){
 						while !matches!(self.peek(), "\n")&& !self.is_finish(){
 							self.eat();
 						}
-					}else {
+					}else if matches!(self.peek(), "="){
+						self.tokens.push(Token::DivEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}else{
 						self.tokens.push(Token::Div);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
 					}
 				},
 				"%" => {
-					self.tokens.push(Token::Mod);
-					self.intervals.push(Interval::new(self.start, self.current));
-					self.lines.push(self.line);
+					if matches!(self.peek(), ">"){
+						self.tokens.push(Token::ModEq);
+						self.current += 1;
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}else {
+						self.tokens.push(Token::Mod);
+						self.intervals.push(Interval::new(self.start, self.current));
+						self.lines.push(self.line);
+					}
 				},
 				"=" => {
 					if matches!(self.peek(), "="){
@@ -86,7 +117,7 @@ impl Lexer{
 
 				},
 				">" => {
-					if self.peek() == "="{
+					if matches!(self.peek(), "="){
 						self.tokens.push(Token::GrtEq);
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
@@ -98,7 +129,7 @@ impl Lexer{
 					}
 				},
 				"<" => {
-					if self.peek() == "="{
+					if matches!(self.peek(), "="){
 						self.tokens.push(Token::LesEq);
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
@@ -218,11 +249,16 @@ impl Lexer{
 	    while is_alphanumeric(self.peek()) {self.current += 1}
 	    let slice = &self.input[self.start as usize..self.current as usize];
 	    match slice{
-	        "let"      => {
-		        self.tokens.push(Token::Let);
+			"val"      => {
+				self.tokens.push(Token::Val);
+				self.intervals.push(Interval::new(self.start, self.current));
+				self.lines.push(self.line);
+			}
+	        "var"      => {
+		        self.tokens.push(Token::Var);
 		        self.intervals.push(Interval::new(self.start, self.current));
                 self.lines.push(self.line);
-	        }
+	        },
 	        "for"      => {
 		        self.tokens.push(Token::For);
 		        self.intervals.push(Interval::new(self.start, self.current));
@@ -298,7 +334,7 @@ impl Lexer{
 		        self.intervals.push(Interval::new(self.start, self.current));
                 self.lines.push(self.line);
 	        }
-			"i8" | "i16" | "i32" | "i64" |
+			"void"|"i8" | "i16" | "i32" | "i64" |
 			"f32" | "f64" | "bool" | "String" => {
 				self.tokens.push(Token::Type);
 				self.intervals.push(Interval::new(self.start, self.current));

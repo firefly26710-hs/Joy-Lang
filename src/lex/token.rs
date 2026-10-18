@@ -10,13 +10,18 @@ pub enum Token{
 
     //operator
     Plus,
+    PlusEq,
     Minus,
+    MinusEq,
     Mul,
+    MulEq,
     Div,
+    DivEq,
     Mod,
+    ModEq,
     Equal,
-    NotEq,
     EqEq,
+    NotEq,
     Grt,
     GrtEq,
     Les,
@@ -40,7 +45,8 @@ pub enum Token{
     
 
     //keyword
-    Let,
+    Val,
+    Var,
     Func,
     For,
     In,

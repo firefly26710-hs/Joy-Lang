@@ -1,12 +1,14 @@
 pub mod lex;
 pub mod par;
-
+pub mod llvm;
 
 use std::env;
 use std::fs::File;
 use std::io::{ Read};
-use crate::par::parser::Parser;
+use inkwell::context::Context;
 use crate::lex::lexer::Lexer;
+use crate::llvm::codegen::Codegen;
+use crate::par::parser::parser::Parser;
 
 fn main() {
     let args : Vec<String> = env::args().collect();
@@ -23,7 +25,7 @@ fn main() {
 
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    let mut patser = Parser::init(lexer);
+    let mut parser = Parser::init(lexer);
 
 
 
@@ -31,7 +33,17 @@ fn main() {
 
 #[test]
 fn test(){
-    let input = "fn main() -> i32{}".to_string();
+    let input =
+        "fn add(a : i32, b : i32) = i32{
+            return a + b;
+        }
+
+        fn main() = void{
+            while false{
+                var x = 5;
+            }
+        }
+    ".to_string();
     let input = input + "\0\0\0";
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
@@ -40,5 +52,15 @@ fn test(){
     let mut parser = Parser::init(lexer);
     parser.build_tree();
     parser.print_node();
+    dbg!(&parser.table.func_keys);
+    dbg!(&parser.table.param_idxs);
+    dbg!(&parser.table.var_types);
+    let context = Context::create();
+    let mut llvm = Codegen::init(&context, parser);
+    llvm.compile();
+
+
+    llvm.module.print_to_stderr();
+
 }
 

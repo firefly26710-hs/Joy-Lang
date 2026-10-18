@@ -4,8 +4,10 @@ use inkwell::context::Context;
 use inkwell::module::Module;
 use inkwell::types::BasicMetadataTypeEnum;
 use inkwell::values::{BasicMetadataValueEnum, FunctionValue, PointerValue};
-use crate::par::parser::Parser;
-use crate::par::ty::Type;
+use crate::lex::iterval::{End, Start};
+use crate::par::ast::node::{Key, Node};
+use crate::par::parser::parser::{NodeIdx, Parser};
+use crate::par::parser::ty::Type;
 
 pub struct Codegen<'ctx> {
     pub context             : &'ctx Context,
@@ -56,27 +58,35 @@ impl<'ctx> Codegen<'ctx>{
     }
 
     pub fn compile(&mut self){
-        let programs_node = self.parser.nodes.last().unwrap();
-        let interval = &programs_node.idxs;
+        let programs_node = self.parser.ast.nodes.last().unwrap();
+        let interval = &programs_node.edge_span;
         let start = interval.start as usize;
         let end = interval.end as usize;
 
-        let func_idxs = &self.parser.edges[start..=end];
-        let len = func_idxs.len();
-        let ptr = func_idxs.as_ptr();
-
+        let len = self.parser.ast.edges[start..=end].len();
         for i in 0..len{
-            self.build_function(unsafe{*ptr.add(i)});
+            self.build_function(self.parser.ast.edges[start..=end][i]);
         }
 
         for i in 0..len{
-            self.compile_function(unsafe{*ptr.add(i)});
+            self.compile_function(self.parser.ast.edges[start..=end][i]);
         }
-
 
     }
 
+    pub fn get_edge_slice(&self, start : Start, end : End) -> &[NodeIdx]{
+        &self.parser.ast.edges[start as usize..=end as usize]
+    }
+    
+    
+    pub fn get_str_interval(&self, key : Key) -> (Start, End){
+        let interval = &self.parser.lexer.intervals[key as usize];
+        (interval.start, interval.end)
+    }
 
+    pub fn get_node(&self, idx : NodeIdx) -> &Node{
+        &self.parser.ast.nodes[idx as usize]
+    }
 
 
 

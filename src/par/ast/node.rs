@@ -7,7 +7,7 @@ pub type Key = u32;
 pub struct Node{
     pub token    : Token,
     pub key      : Key,
-    pub childs   : Interval
+    pub edge_span: Interval
 }
 
 impl Node {
@@ -15,7 +15,7 @@ impl Node {
         Self{
             token,
             key,
-            childs
+            edge_span: childs
         }
     }
 }
