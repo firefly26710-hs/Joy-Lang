@@ -4,12 +4,16 @@ pub type ColStart = u32;
 pub type ColEnd = u32;
 
 
+#[derive(Debug, Clone, PartialEq)]
 
 pub struct Error{
     file_name : String,
-    spans     : Vec<(SpanStart, SpanLength)>,
-    span_id   : Vec<usize>,
+    pub spans     : Vec<(SpanStart, SpanLength)>,
+    pub span_ids: Vec<usize>,
     cols      : Vec<(ColStart, ColEnd)>,
+	
+	pub span_id: usize,
+	pub spans_start : u32
 }
 
 impl Error{
@@ -18,8 +22,10 @@ impl Error{
 		Self{
 	    	file_name,
 	    	spans   : Vec::with_capacity(alloc),
-	    	span_id : Vec::with_capacity(alloc),
-	    	cols    : Vec::with_capacity(alloc)
+	    	span_ids: Vec::with_capacity(alloc),
+	    	cols    : Vec::with_capacity(alloc),
+			span_id: 0,
+			spans_start : 0
 		} 
 	
 	}

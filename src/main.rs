@@ -24,9 +24,10 @@ fn main() {
     file.read_to_string(&mut input).expect("Failed Read to String");
     input.push_str("\0\0\0");
 
-    let mut lexer = Lexer::init(input);
+    let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-    let mut parser = Parser::init(lexer, "main.joy".to_string());
+    lexer.print_output();
+    let mut parser = Parser::init(lexer);
     parser.build_tree();
     
     let context = Context::create();
@@ -47,18 +48,16 @@ fn main() {
 #[test]
 fn test(){
     let input =
-        "fn main() = void{
-            print(String, \"Hello World\");
-        }
+        "fn main() = void{\n    print(String, \"Hello World\");\n}
     ".to_string();
     let input = input + "\0\0\0";
-    let mut lexer = Lexer::init(input);
+    let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     lexer.print_output();
 
-    let mut parser = Parser::init(lexer, "test.joy".to_string());
+    let mut parser = Parser::init(lexer);
     parser.build_tree();
-    parser.print_node();
+   // parser.print_node();
     dbg!(&parser.table.var_keys);
     dbg!(&parser.table.func_keys);
     dbg!(&parser.table.param_idxs);
@@ -68,7 +67,7 @@ fn test(){
     llvm.compile();
 
 
-    llvm.module.print_to_stderr();
+    //llvm.module.print_to_stderr();
 
 
 

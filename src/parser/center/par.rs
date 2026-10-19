@@ -1,7 +1,7 @@
-use crate::lexer::interval::{End, Interval, Start};
 use crate::lexer::Lexer::Lexer;
+use crate::lexer::diagnostic::error::Error;
+use crate::lexer::interval::{End, Interval, Start};
 use crate::lexer::token::Token;
-use crate::parser::diagnostic::error::Error;
 use crate::parser::scope::data::Scope;
 use crate::parser::stmt::stmt_data::Stmt;
 use crate::parser::tree::ast::{AST, NONE, NodeIdx};
@@ -24,12 +24,11 @@ pub struct Parser{
     pub current : usize,
 
     
-    pub error  : Error
 
 }
 
 impl Parser{
-    pub fn init(lexer : Lexer, file_name : String) -> Self{
+    pub fn init(lexer : Lexer) -> Self{
         let alloc_size = lexer.tokens.len();
         
         Self{
@@ -41,7 +40,6 @@ impl Parser{
 
             current : 0,
 
-            error : Error::init(file_name, alloc_size)
         }
     }
 

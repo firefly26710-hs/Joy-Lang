@@ -1,7 +1,9 @@
+use crate::lexer::diagnostic::error::Error;
 use crate::lexer::interval::Interval;
 use crate::lexer::token::Token;
 
 #[derive(Debug, Clone, PartialEq)]
+
 pub struct Lexer {
 	pub input    : String,
     pub intervals: Vec<Interval>,
@@ -9,11 +11,14 @@ pub struct Lexer {
     pub lines    : Vec<u32>,
     pub start    : u32,
     pub current  : u32,
-    pub line     : u32
+    pub line     : u32,
+
+
+	pub error     : Error
 }
 
 impl Lexer {
-    pub fn init(input : String) -> Self{
+    pub fn init(input : String, file_name : String) -> Self{
 		let alloc_size = input.len();
 
         Lexer {
@@ -24,6 +29,8 @@ impl Lexer {
             start    : 0,
             current  : 0,
             line     : 1,
+
+			error    : Error::init(file_name, alloc_size)
         }
     }
 
@@ -38,10 +45,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}else{
 						self.tokens.push(Token::Plus);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 
@@ -51,15 +60,18 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}else if matches!(self.peek(), "="){
 						self.tokens.push(Token::MinusEq);
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}else{
 						self.tokens.push(Token::Minus);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 
@@ -69,10 +81,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}else{
 						self.tokens.push(Token::Mul);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 				"/" => {
@@ -85,10 +99,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}else{
 						self.tokens.push(Token::Div);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 				"%" => {
@@ -97,10 +113,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}else {
 						self.tokens.push(Token::Mod);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 				"=" => {
@@ -109,10 +127,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					} else{
 						self.tokens.push(Token::Equal);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 
 				},
@@ -122,10 +142,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					} else{
 						self.tokens.push(Token::Grt);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 				"<" => {
@@ -134,10 +156,12 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					} else{
 						self.tokens.push(Token::Les);
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					}
 				},
 				"!" => {
@@ -146,6 +170,7 @@ impl Lexer {
 						self.current += 1;
 						self.intervals.push(Interval::new(self.start, self.current));
 						self.lines.push(self.line);
+						self.error.span_ids.push(self.error.span_id);
 					} else{
 						panic!("[Line {:?}] '!' must combine with '=' ", self.line)
 					}
@@ -154,56 +179,67 @@ impl Lexer {
 					self.tokens.push(Token::Lparen);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				")" => {
 					self.tokens.push(Token::Rparen);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"{" => {
 					self.tokens.push(Token::Lbrace);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"}" => {
 					self.tokens.push(Token::Rbrace);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				":" => {
 					self.tokens.push(Token::Colon);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				";" => {
 					self.tokens.push(Token::Scolon);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"," => {
 					self.tokens.push(Token::Comma);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"." => {
 					self.tokens.push(Token::Dot);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"[" => {
 					self.tokens.push(Token::Lbracket);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"]" => {
 					self.tokens.push(Token::Rbracket);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 				"|" => {
 					self.tokens.push(Token::Vertical);
 					self.intervals.push(Interval::new(self.start, self.current));
 					self.lines.push(self.line);
+					self.error.span_ids.push(self.error.span_id);
 				},
 
 				_ if is_number(c) => self.number(),
@@ -214,7 +250,13 @@ impl Lexer {
 
 				" " | "\r" | "\t" => {},
 
-				"\n" => self.line += 1,
+				"\n" => {
+					self.error.spans.push((self.error.spans_start, self.current));
+					self.error.spans_start = self.current;
+
+					self.error.span_id += 1;
+					self.line += 1;
+				},
 
 				e => panic!("{}",format!("Find Unknown Token : {e}"))
 			}
@@ -236,11 +278,13 @@ impl Lexer {
             
 	        self.tokens.push(Token::Float);
             self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
+			self.lines.push(self.line);
+			self.error.span_ids.push(self.error.span_id);
 	    }else{
 	        self.tokens.push(Token::Int);
             self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
+			self.lines.push(self.line);
+			self.error.span_ids.push(self.error.span_id);
 	    }
     }
     
@@ -253,102 +297,122 @@ impl Lexer {
 				self.tokens.push(Token::Val);
 				self.intervals.push(Interval::new(self.start, self.current));
 				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 			}
 	        "var"      => {
 		        self.tokens.push(Token::Var);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        },
 	        "for"      => {
 		        self.tokens.push(Token::For);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "in"       => {
 		        self.tokens.push(Token::In);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "while"    => {
 		        self.tokens.push(Token::While);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "continue" =>{
 		        self.tokens.push(Token::Ctn);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        } 
 	        "break"    => {
 		        self.tokens.push(Token::Brk);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "if"       => {
 		        self.tokens.push(Token::If);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "elif"     => {
 		        self.tokens.push(Token::Elif);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "else"     => {
 		        self.tokens.push(Token::Else);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "not"      => {
 		        self.tokens.push(Token::CmpNot);
 		        self.intervals.push(Interval::new(self.start, self.current));
-            self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "and"      => {
 		        self.tokens.push(Token::CmpAnd);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "or"       => {
 		        self.tokens.push(Token::CmpOr);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "fn"       => {
 		        self.tokens.push(Token::Func);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "return"   => {
 		        self.tokens.push(Token::Ret);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "true"     => {
 		        self.tokens.push(Token::True);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        "false"     => {
 		        self.tokens.push(Token::False);
 		        self.intervals.push(Interval::new(self.start, self.current));
-                self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        },
 			"print"    => {
 				self.tokens.push(Token::Print);
 				self.intervals.push(Interval::new(self.start, self.current));
 				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 			},
 			"void"|"i8" | "i16" | "i32" | "i64" |
 			"f32" | "f64" | "bool" | "String" => {
 				self.tokens.push(Token::Type);
 				self.intervals.push(Interval::new(self.start, self.current));
-				self.lines.push(self.line)
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 			},
 	        _          => {
 		        self.tokens.push(Token::Ident);
 		        self.intervals.push(Interval::new(self.start, self.current));
-		        self.lines.push(self.line);
+				self.lines.push(self.line);
+				self.error.span_ids.push(self.error.span_id);
 	        }
 	        
 	    }
@@ -361,6 +425,7 @@ impl Lexer {
 				self.eat();
 			}else{
 				self.line += 1;
+				self.error.span_id += 1;
 				self.eat();
 			}
 		}
@@ -403,15 +468,19 @@ impl Lexer {
 	
     
     pub fn print_output(&mut self){
-	    println!("Tokens   : {:?}", &self.tokens);
-	    println!("Lines    : {:?}", &self.lines);
-	    println!("Intervals : {:?}", &self.intervals);
 	    for (i, interval) in self.intervals.iter().enumerate(){
 	        let start = interval.start as usize;
 	        let end   = interval.end   as usize;
 	        let slice = &self.input[start..end];
 	        println!("number : {i}, {slice} ");
 	    }
+
+		for (i, interval) in self.error.spans.iter().enumerate(){
+			let start = interval.0 as usize;
+			let end   = interval.1  as usize;
+			let slice = &self.input[start..end];
+			println!("number : {i}, {slice} ");
+		}
     }
     
 } 
