@@ -1,11 +1,11 @@
-use inkwell::types::{BasicTypeEnum};
-use inkwell::values::{BasicValueEnum, PointerValue};
-use crate::lex::tokenize::iterval::{End, Start};
-use crate::lex::tokenize::token::Token;
+use crate::lexer::interval::{End, Start};
+use crate::lexer::token::Token;
 use crate::llvm::codegen::Codegen;
-use crate::par::tree::node::Key;
-use crate::par::build_tree::ty::Type;
-use crate::par::tree::ast::NodeIdx;
+use crate::parser::tree::ast::NodeIdx;
+use crate::parser::tree::node::Key;
+use crate::parser::types::logic::Type;
+use inkwell::types::BasicTypeEnum;
+use inkwell::values::{BasicValueEnum, PointerValue};
 
 impl<'ctx> Codegen<'ctx>{
     pub fn build_stmts(&mut self, stmts_idx : NodeIdx){
@@ -47,7 +47,7 @@ impl<'ctx> Codegen<'ctx>{
         let name_key = name_node.key;
 
         //build expression
-        let declared_type = self.parser.table.look_var_type(name_key).clone();
+        let declared_type = self.parser.look_var_type(name_key).clone();
         let expr_idx = edges[1] as usize;
         let expr = self.build_expr(expr_idx, &declared_type);
 
@@ -82,7 +82,7 @@ impl<'ctx> Codegen<'ctx>{
 
         let name_str = &self.parser.lexer.input[str_start as usize..str_end as usize];
         let var_ptr = self.get_var_ptr(key);
-        let ty = self.parser.table.look_var_type(key).clone();
+        let ty = self.parser.look_var_type(key).clone();
 
         let ty_context : BasicTypeEnum = match ty{
             Type::i8 => self.context.i8_type().into(),

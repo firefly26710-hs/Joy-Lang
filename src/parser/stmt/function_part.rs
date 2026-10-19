@@ -1,14 +1,14 @@
-use crate::lex::tokenize::token::Token;
-use crate::par::tree::ast::NONE;
-use crate::par::tree::node::Key;
-use crate::par::tree::ast::NodeIdx;
+use crate::lexer::token::Token;
+use crate::parser::tree::ast::NONE;
+use crate::parser::tree::ast::NodeIdx;
+use crate::parser::tree::node::Key;
 
-use crate::par::build_tree::parser::Parser;
-use crate::par::build_tree::ty::Type;
+use crate::parser::center::par::Parser;
+use crate::parser::types::logic::Type;
 
 impl Parser{
     pub fn parse_function(&mut self) -> NodeIdx{
-        self.scope.build_func_scope();
+        self.build_scope();
 
 
         self.matches_token(&Token::Func, "Can't find function");
@@ -17,13 +17,13 @@ impl Parser{
             &Token::Ident, "Expected a function name"
         );
         self.stmt.func_recorder.push(func_name_node_idx);
-        self.scope.sign_func((self.current - 1) as Key);
+        self.sign_func((self.current - 1) as Key);
         self.matches_token(&Token::Lparen, "Expected a (");
 
 
 
         let has_declared_arg = self.peek() == &Token::Ident && self.peek_next() == &Token::Colon;
-        let param_start = if has_declared_arg{ self.table.params_start() }else{NONE};
+        let param_start = if has_declared_arg{ self.params_start() }else{NONE};
 
         if has_declared_arg{
             loop{
@@ -37,7 +37,7 @@ impl Parser{
 
                 self.stmt.func_recorder.push(arg_idx);
                 self.scope.var_scope_stack.push(arg_name_key);
-                self.table.insert_var_type(arg_name_key, arg_type);
+                self.insert_var_type(arg_name_key, arg_type);
 
                 match self.peek(){
                     Token::Rparen => break,
@@ -47,7 +47,7 @@ impl Parser{
             }
         }
 
-        let param_end = if has_declared_arg{self.table.params_end()}else{NONE};
+        let param_end = if has_declared_arg{self.params_end()}else{NONE};
 
         self.matches_token(&Token::Rparen, "Expected a )");
         self.matches_token(&Token::Equal, "Expected =");
@@ -57,7 +57,7 @@ impl Parser{
             self.type_mapping((self.current - 1) as Key)
         };
 
-        self.table.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
+        self.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
 
         self.matches_token(&Token::Lbrace, "Expected {");
@@ -67,7 +67,7 @@ impl Parser{
         let start = self.ast.edge_start();
         self.stmt.func_recorder.push(stmt_idx);
         self.ast.edges.extend(self.stmt.func_recorder.drain(..));
-        self.scope.destroy_func_scope();
+        self.destroy_scope();
 
         let end = self.ast.edge_end();
 
@@ -82,14 +82,14 @@ impl Parser{
     pub fn parse_ret(&mut self) -> NodeIdx{
         self.eat();
 
-        let expr_idx = if matches!(self.table.last_ret_type(), Type::void){
+        let expr_idx = if matches!(self.last_ret_type(), Type::void){
             NONE
-        }else if !matches!(self.table.last_ret_type(), Type::void) && self.is_expr(self.peek()){
+        }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
             let expr_idx = self.parse_expression();
-            self.is_matches_type(self.table.last_ret_type().clone());
+            self.is_matches_type(self.last_ret_type().clone());
             expr_idx
         }else {
-            panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.table.last_ret_type())
+            panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.last_ret_type())
         };
 
 
@@ -118,7 +118,7 @@ impl Parser{
             self.push_leaf(Token::Ident, func_name_key)
         };
 
-        match self.table.look_ret_type(func_name_key){
+        match self.look_ret_type(func_name_key){
             Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
             Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
             Type::bool => self.ast.bool_node_sum += 1,
@@ -129,7 +129,7 @@ impl Parser{
         self.stmt.func_call_recorder.push(func_name_idx);
         self.matches_token(&Token::Lparen, "Expected '('");
 
-        let param_type_intervals = self.table.look_param_interval(func_name_key);
+        let param_type_intervals = self.look_param_interval(func_name_key);
         let start = param_type_intervals.start ;
         let end = param_type_intervals.end ;
 
@@ -169,6 +169,34 @@ impl Parser{
         let end = self.ast.edge_end();
 
         self.push_node(Token::CallStmt, NONE, start, end)
+    }
+
+
+    pub fn parse_print(&mut self) -> NodeIdx{
+        self.eat();
+
+        self.matches_token(&Token::Lparen, "Expected (");
+        let type_idx = self.ret_matches_token_idx(&Token::Type, "Expected Type");
+
+        let ty = self.type_mapping((self.current - 1) as Key);
+        self.matches_token(&Token::Comma, "Expected ,");
+        let expr_idx = self.parse_expression();
+
+        if !self.is_matches_type(ty){
+            panic!("[Line {:?}] Expected", self.current_line());
+        }
+
+        self.matches_token(&Token::Rparen, "Expected )");
+        self.matches_token(&Token::Scolon, "Expected ;");
+
+        let edges_start = self.ast.edge_start();
+        self.ast.edges.push(type_idx);
+        self.ast.edges.push(expr_idx);
+        let edges_end = self.ast.edge_end();
+
+        self.push_node(Token::PrintStmt, NONE, edges_start, edges_end)
+
+
     }
 
     fn check_legal_ret_stmt_position(&self, ret_type : &Type, stmt_idx : NodeIdx){

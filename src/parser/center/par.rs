@@ -1,21 +1,20 @@
-use crate::lex::tokenize::iterval::{End, Interval, Start};
-use crate::par::tree::node::Node;
-use crate::par::tree::node::Key;
-use crate::lex::tokenize::lexer::Lexer;
-use crate::lex::tokenize::token::Token;
-use crate::par::tree::ast::{NodeIdx, AST, NONE};
-use crate::par::build_tree::ty::Type;
-use crate::par::scope::scope::Scope;
-use crate::par::stmt::stmt::Stmt;
-use crate::par::table::table::Table;
-
-
+use crate::lexer::interval::{End, Interval, Start};
+use crate::lexer::Lexer::Lexer;
+use crate::lexer::token::Token;
+use crate::parser::diagnostic::error::Error;
+use crate::parser::scope::data::Scope;
+use crate::parser::stmt::stmt_data::Stmt;
+use crate::parser::tree::ast::{AST, NONE, NodeIdx};
+use crate::parser::tree::node::Key;
+use crate::parser::tree::node::Node;
+use crate::parser::types::data::Table;
+use crate::parser::types::logic::Type;
 
 
 pub struct Parser{
 
     //data
-    pub lexer : Lexer,
+    pub lexer : Lexer ,
     pub ast : AST,
     pub table : Table,
     pub scope : Scope,
@@ -25,12 +24,14 @@ pub struct Parser{
     pub current : usize,
 
     
-
+    pub error  : Error
 
 }
 
 impl Parser{
-    pub fn init(lexer : Lexer) -> Self{
+    pub fn init(lexer : Lexer, file_name : String) -> Self{
+        let alloc_size = lexer.tokens.len();
+        
         Self{
             lexer,
             ast   : AST::init(),
@@ -40,7 +41,7 @@ impl Parser{
 
             current : 0,
 
-            
+            error : Error::init(file_name, alloc_size)
         }
     }
 

@@ -1,11 +1,11 @@
+use crate::lexer::interval::{End, Start};
+use crate::lexer::token::Token;
 use crate::llvm::codegen::Codegen;
-use inkwell::values::{BasicValueEnum};
-use inkwell::{IntPredicate, FloatPredicate};
+use crate::parser::tree::ast::NONE;
+use crate::parser::types::logic::Type;
 use inkwell::types::BasicTypeEnum;
-use crate::lex::tokenize::iterval::{End, Start};
-use crate::par::build_tree::ty::Type;
-use crate::lex::tokenize::token::Token;
-use crate::par::tree::ast::NONE;
+use inkwell::values::BasicValueEnum;
+use inkwell::{FloatPredicate, IntPredicate};
 impl<'ctx>Codegen<'ctx>{
     pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
         let tok = self.parser.ast.nodes[expr_idx].token.clone();
@@ -44,7 +44,7 @@ impl<'ctx>Codegen<'ctx>{
                     let str_e = str_interval.end as usize;
                     let name_str = &self.parser.lexer.input[str_s ..str_e];
                     let alloc = self.get_var_ptr(key);
-                    let var_type = self.parser.table.look_var_type(key);
+                    let var_type = self.parser.look_var_type(key);
 
                     let basic_ty: BasicTypeEnum<'ctx> = match var_type {
                         Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),
@@ -246,7 +246,7 @@ impl<'ctx>Codegen<'ctx>{
 
 
         if has_param{
-            let params_idxs = &self.parser.table.look_param_interval(name_key);
+            let params_idxs = &self.parser.look_param_interval(name_key);
             let param_start = params_idxs.start as usize;
             let param_end = params_idxs.end as usize;
 

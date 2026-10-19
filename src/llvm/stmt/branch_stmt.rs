@@ -1,6 +1,6 @@
-use crate::lex::tokenize::iterval::{End, Start};
-use crate::par::build_tree::ty::Type;
+use crate::lexer::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
+use crate::parser::types::logic::Type;
 
 impl<'ctx>Codegen<'ctx>{
     pub fn build_if_stmt(&mut self ,start: Start, end : End){

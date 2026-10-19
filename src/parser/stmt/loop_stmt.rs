@@ -1,17 +1,17 @@
-use crate::par::tree::node::Key;
-use crate::par::tree::ast::{NodeIdx, NONE};
-use crate::par::build_tree::parser::Parser;
-use crate::lex::tokenize::token::Token;
-use crate::par::build_tree::ty::Type;
+use crate::lexer::token::Token;
+use crate::parser::center::par::Parser;
+use crate::parser::tree::ast::{NONE, NodeIdx};
+use crate::parser::tree::node::Key;
+use crate::parser::types::logic::Type;
 
 impl Parser{
     pub fn parse_for(&mut self) -> NodeIdx{
-        self.scope.build_loop_scope();
+        self.build_scope();
         self.eat();
 
         let ident_key = self.current as Key;
         let loop_ident_idx = self.ret_matches_token_idx(&Token::Ident ,"Expected the identifier");
-        self.scope.sign_var(ident_key);
+        self.sign_var(ident_key);
 
 
         self.matches_token(&Token::In, "Expected in");
@@ -61,13 +61,12 @@ impl Parser{
         let end = self.ast.edge_end();
 
 
-        self.scope.destroy_loop_scope();
-
+        self.destroy_scope();
         self.push_node(Token::ForStmt, NONE, start, end)
     }
 
     pub fn parse_while(&mut self) -> NodeIdx{
-        self.scope.build_loop_scope();
+        self.build_scope();
 
         self.eat();
 
@@ -83,7 +82,7 @@ impl Parser{
         let stmts_idx = self.parse_stmts();
         self.matches_token(&Token::Rbrace, "Expected }");
 
-        self.scope.destroy_loop_scope();
+        self.destroy_scope();
 
         let start = self.ast.edge_start();
         self.ast.edges.push(expr_idx);

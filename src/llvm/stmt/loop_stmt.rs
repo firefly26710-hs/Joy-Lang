@@ -1,7 +1,7 @@
-use inkwell::values::BasicValueEnum;
-use crate::lex::tokenize::iterval::{End, Start};
+use crate::lexer::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::par::build_tree::ty::Type;
+use crate::parser::types::logic::Type;
+use inkwell::values::BasicValueEnum;
 
 impl<'ctx>Codegen<'ctx>{
     pub fn build_for_stmt(&mut self ,start : Start, end : End){

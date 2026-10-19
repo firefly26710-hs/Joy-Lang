@@ -1,5 +1,5 @@
-use crate::par::tree::node::Key;
-use crate::par::build_tree::parser::Parser;
+use crate::parser::tree::node::Key;
+use crate::parser::center::par::Parser;
 
 
 #[allow(warnings)]
@@ -19,7 +19,7 @@ pub enum Type{
 impl Parser{
     pub fn matches_and_insert_var_type(&mut self, key : Key, declared_ty : Type){
         let ty= self.matches_var_type(&declared_ty);
-        self.table.insert_var_type(key, ty);
+        self.insert_var_type(key, ty);
     }
 
     pub fn is_matches_type(&self, expected_type: Type) -> bool{
@@ -297,6 +297,8 @@ impl Parser{
             self.ast.max_value.push_str(&self.lexer.input[start..end]);
         }
     }
+
+    
 
     fn expected(&self, expected : &Type, found_ty : Type) -> Type{
         panic!("[Line {:?}] Expected {:?}, but found {:?}", self.current_line(), expected, found_ty)

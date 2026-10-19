@@ -1,22 +1,22 @@
-use crate::lex::tokenize::iterval::Interval;
-use crate::lex::tokenize::token::Token;
+use crate::lexer::interval::Interval;
+use crate::lexer::token::Token;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Lexer{
-    pub input    : String,
+pub struct Lexer {
+	pub input    : String,
     pub intervals: Vec<Interval>,
     pub tokens   : Vec<Token>,
     pub lines    : Vec<u32>,
-    start        : u32,
-    current      : u32,
-    line         : u32
+    pub start    : u32,
+    pub current  : u32,
+    pub line     : u32
 }
 
-impl Lexer{
+impl Lexer {
     pub fn init(input : String) -> Self{
-		let alloc_size = 1024;
+		let alloc_size = input.len();
 
-        Lexer{
+        Lexer {
             input,
             intervals: Vec::with_capacity(alloc_size),
             tokens   : Vec::with_capacity(alloc_size),

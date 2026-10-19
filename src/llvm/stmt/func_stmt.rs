@@ -1,9 +1,9 @@
-use inkwell::types::{BasicMetadataTypeEnum};
-use inkwell::values::{BasicValueEnum, FunctionValue};
-use crate::lex::tokenize::iterval::{End, Start};
+use crate::lexer::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::par::tree::ast::NONE;
-use crate::par::build_tree::ty::Type;
+use crate::parser::tree::ast::NONE;
+use crate::parser::types::logic::Type;
+use inkwell::types::BasicMetadataTypeEnum;
+use inkwell::values::{BasicValueEnum, FunctionValue};
 
 impl<'ctx>Codegen<'ctx>{
     pub fn build_function(&mut self, func_idx : u32){
@@ -20,7 +20,7 @@ impl<'ctx>Codegen<'ctx>{
         let name_str = &self.parser.lexer.input[str_start as usize..str_end as usize];
 
         //function param
-        let param_type_interval = self.parser.table.look_param_interval(name_key as u32);
+        let param_type_interval = self.parser.look_param_interval(name_key as u32);
         let param_start = param_type_interval.start;
         let param_end = param_type_interval.end;
 
@@ -51,7 +51,7 @@ impl<'ctx>Codegen<'ctx>{
 
 
         //ret type
-        let ret_type = self.parser.table.look_ret_type(name_key as u32);
+        let ret_type = self.parser.look_ret_type(name_key as u32);
 
         let fn_type = match ret_type {
             Type::i8 => self.context.i8_type().fn_type(&self.param_types, false),
@@ -107,7 +107,7 @@ impl<'ctx>Codegen<'ctx>{
         self.builder.position_at_end(entry);
 
         //build param
-        let param_types_intervals = self.parser.table.look_param_interval(name_key);
+        let param_types_intervals = self.parser.look_param_interval(name_key);
         let type_start = param_types_intervals.start;
         let type_end = param_types_intervals.end;
 
@@ -169,7 +169,7 @@ impl<'ctx>Codegen<'ctx>{
         }
 
         self.current_fn = Some(func);
-        self.ret_type = self.parser.table.look_ret_type(name_key).clone();
+        self.ret_type = self.parser.look_ret_type(name_key).clone();
         let block_idx = self.get_edge_slice(func_child_end, func_child_end)[0];
         self.build_stmts(block_idx);
 
@@ -199,7 +199,7 @@ impl<'ctx>Codegen<'ctx>{
         let len = self.get_edge_slice(start, end).len() - 1;
 
         if has_param{
-            let param_type_intervals = self.parser.table.look_param_interval(name_key);
+            let param_type_intervals = self.parser.look_param_interval(name_key);
             let param_start = param_type_intervals.start as usize;
             let param_end = param_type_intervals.end as usize;
 

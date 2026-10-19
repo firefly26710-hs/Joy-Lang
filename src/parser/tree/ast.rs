@@ -1,5 +1,5 @@
-use crate::lex::tokenize::iterval::{Start, End};
-use crate::par::tree::node::{Node};
+use crate::lexer::interval::{End, Start};
+use crate::parser::tree::node::Node;
 pub const NONE : u32 = u32::MAX;
 pub const MAX_SIZE : usize = 1024;
 

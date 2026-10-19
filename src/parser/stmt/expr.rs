@@ -1,9 +1,9 @@
-use crate::lex::tokenize::iterval::{End, Start};
-use crate::lex::tokenize::token::Token;
-use crate::par::build_tree::parser::Parser;
-use crate::par::tree::node::{Key};
-use crate::par::build_tree::ty::Type;
-use crate::par::tree::ast::NodeIdx;
+use crate::lexer::interval::{End, Start};
+use crate::lexer::token::Token;
+use crate::parser::center::par::Parser;
+use crate::parser::tree::ast::NodeIdx;
+use crate::parser::tree::node::Key;
+use crate::parser::types::logic::Type;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> NodeIdx{
@@ -59,14 +59,14 @@ impl Parser{
                 }else {
                     let key = self.find_same_ident_key(self.current as Key);
                     self.eat();
-                    match self.table.look_var_type(key) {
+                    match self.look_var_type(key) {
                         Type::i8 | Type::i16 | Type::i32 |
                         Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
                         Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
                         Type::bool => self.ast.bool_node_sum += 1,
                         Type::String => self.ast.is_string = true,
                         Type::void => panic!(
-                            "[Line {:?}] Unknown Type {:?}", self.current_line(), self.table.look_var_type(key)
+                            "[Line {:?}] Unknown Type {:?}", self.current_line(), self.look_var_type(key)
                         )
                     };
 

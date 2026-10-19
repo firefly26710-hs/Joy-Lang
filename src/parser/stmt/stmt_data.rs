@@ -1,4 +1,4 @@
-use crate::par::tree::ast::NodeIdx;
+use crate::parser::tree::ast::NodeIdx;
 const RECORDER_SIZE : usize = 256;
 
 pub struct Stmt{

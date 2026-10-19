@@ -13,16 +13,16 @@ pub struct Error{
 }
 
 impl Error{
-    fn init(file_name : String, input_len : usize) -> Self{
-	let alloc_size = input_len;
+    pub fn init(file_name : String, alloc : usize) -> Self{
 	
-	Self{
-	    file_name,
-	    spans : Vec::with_capacity(alloc_size),
-	    span_id : Vec::with_capacity(alloc_size),
-	    cols    : Vec::with_capacity(alloc_size)
+		Self{
+	    	file_name,
+	    	spans   : Vec::with_capacity(alloc),
+	    	span_id : Vec::with_capacity(alloc),
+	    	cols    : Vec::with_capacity(alloc)
+		} 
+	
 	}
-    }
 
 
     

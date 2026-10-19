@@ -1,15 +1,15 @@
-pub mod lex;
-pub mod par;
+pub mod lexer;
+pub mod parser;
 pub mod llvm;
 
+use crate::llvm::codegen::Codegen;
+use crate::parser::center::par::Parser;
+use inkwell::OptimizationLevel;
+use inkwell::context::Context;
 use std::env;
 use std::fs::File;
-use std::io::{ Read};
-use inkwell::context::Context;
-use inkwell::OptimizationLevel;
-use crate::lex::tokenize::lexer::Lexer;
-use crate::llvm::codegen::Codegen;
-use crate::par::build_tree::parser::Parser;
+use std::io::Read;
+use crate::lexer::Lexer::Lexer;
 
 fn main() {
     let args : Vec<String> = env::args().collect();
@@ -26,7 +26,7 @@ fn main() {
 
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
-    let mut parser = Parser::init(lexer);
+    let mut parser = Parser::init(lexer, "main.joy".to_string());
     parser.build_tree();
     
     let context = Context::create();
@@ -56,7 +56,7 @@ fn test(){
     lexer.tokenize();
     lexer.print_output();
 
-    let mut parser = Parser::init(lexer);
+    let mut parser = Parser::init(lexer, "test.joy".to_string());
     parser.build_tree();
     parser.print_node();
     dbg!(&parser.table.var_keys);

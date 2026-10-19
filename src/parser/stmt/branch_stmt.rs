@@ -1,10 +1,12 @@
-use crate::lex::tokenize::token::Token;
-use crate::par::build_tree::parser::Parser;
-use crate::par::build_tree::ty::Type;
-use crate::par::tree::ast::{NodeIdx, NONE};
+use crate::lexer::token::Token;
+use crate::parser::center::par::Parser;
+use crate::parser::tree::ast::{NONE, NodeIdx};
+use crate::parser::types::logic::Type;
 
-impl Parser{
+impl Parser {
     pub fn parse_if(&mut self) -> NodeIdx{
+       
+        
         let b_recorder_start = self.stmt.branch_recorder.len();
         self.record_branch_idx(b_recorder_start);
 
@@ -29,21 +31,21 @@ impl Parser{
                 if !self.is_matches_type(Type::bool) {
                     panic!("[Line {:?}] Expected bool type", self.current_line())
                 }
-                self.scope.build_branch_scope();
+                self.build_scope();
                 self.matches_token(&Token::Lbrace,"Expected {");
                 let stmts_idx = self.parse_stmts();
                 self.matches_token(&Token::Rbrace, "Expected }");
-                self.scope.destroy_branch_scope();
+                self.destroy_scope();
 
-                if !self.already_full_ret_in_if{
+                if !self.stmt.already_full_ret_in_if{
                     self.check_has_ret_in_end(stmts_idx, false);
                 }
 
-                self.branch_recorder.push(expr_idx);
-                self.branch_recorder.push(stmts_idx);
+                self.stmt.branch_recorder.push(expr_idx);
+                self.stmt.branch_recorder.push(stmts_idx);
             },
             Token::Elif => {
-                if self.branch_recorder[b_recorder_start..].len() < 2{
+                if self.stmt.branch_recorder[b_recorder_start..].len() < 2{
                     panic!("[Line {:?}] Expected 'elif' token, but found 'if'", self.current_line())
                 }
                 self.eat();
@@ -51,13 +53,13 @@ impl Parser{
                 if !self.is_matches_type(Type::bool){
                     panic!("[Line {:?}] Expected bool type", self.current_line())
                 }
-                self.scope.build_branch_scope();
+                self.build_scope();
                 self.matches_token(&Token::Lbrace,"Expected {");
                 let stmts_idx = self.parse_stmts();
                 self.matches_token(&Token::Rbrace, "Expected }");
-                self.scope.destroy_branch_scope();
+                self.destroy_scope();
 
-                if !self.already_full_ret_in_if{
+                if !self.stmt.already_full_ret_in_if{
                     self.check_has_ret_in_end(stmts_idx, false);
                 }
 
@@ -70,13 +72,13 @@ impl Parser{
                 }
 
                 self.eat();
-                self.scope.build_branch_scope();
+                self.build_scope();
                 self.matches_token(&Token::Lbrace,"Expected {");
                 let stmts_idx = self.parse_stmts();
                 self.matches_token(&Token::Rbrace, "Expected }");
-                self.scope.destroy_branch_scope();
+                self.destroy_scope();
 
-                if !self.already_full_ret_in_if{
+                if !self.stmt.already_full_ret_in_if{
                     self.check_has_ret_in_end(stmts_idx, true);
                 }
 
@@ -92,10 +94,38 @@ impl Parser{
         }
     }
 
+    pub fn parse_break(&mut self) -> NodeIdx{
+        if !self.is_in_loop(){
+            panic!("[Line {:?}] 'break' can't not in loop", self.current_line());
+        }
+
+        self.eat();
+
+        self.matches_token(&Token::Scolon, "Expected ;");
+
+        self.push_leaf(Token::BrkStmt, NONE)
+    }
+
+    pub fn parse_ctn(&mut self) -> NodeIdx{
+        if !self.is_in_loop(){
+            panic!("[Line {:?}] 'break' can't not in loop", self.current_line());
+        }
+
+        self.eat();
+
+        self.matches_token(&Token::Scolon, "Expected ;");
+
+        self.push_leaf(Token::CtnStmt, NONE)
+
+    }
+
+
+
+
 
 
     pub fn check_has_ret_in_end(&mut self, stmt_idx : NodeIdx, is_else : bool){
-        if is_else{self.is_have_else = true}
+        if is_else{self.stmt.is_have_else = true}
 
         let stmt_node_span = &self.ast.nodes[stmt_idx as usize].edge_span;
         let start = stmt_node_span.start as usize;
@@ -105,20 +135,20 @@ impl Parser{
         let stmt_token = &self.ast.nodes[stmt_node_idx].token;
 
         if matches!(stmt_token, Token::RetStmt){
-            self.ret_times_in_branch += 1;
+            self.stmt.ret_times_in_branch += 1;
         }
 
-        self.real_times_in_branch += 1;
+        self.stmt.real_times_in_branch += 1;
     }
 
 
     fn match_counter_number(&mut self){
-        if self.ret_times_in_branch == self.real_times_in_branch && self.is_have_else{
-            self.already_full_ret_in_if = true;
+        if self.stmt.ret_times_in_branch == self.stmt.real_times_in_branch && self.stmt.is_have_else{
+            self.stmt.already_full_ret_in_if = true;
             return;
         }else{
-            self.ret_times_in_branch = 0;
-            self.real_times_in_branch = 0;
+            self.stmt.ret_times_in_branch = 0;
+            self.stmt.real_times_in_branch = 0;
         }
     }
 

@@ -1,7 +1,7 @@
-use comp::lex::lexer::Lexer;
-use comp::par::build_tree::Parser;
-use comp::par::table::Table;
-use comp::par::scope::Scope;
+use comp::lexer::lexer::Lexer;
+use comp::parser::center::Parser;
+use comp::parser::types::Table;
+use comp::parser::scope::Scope;
 use criterion::{criterion_group, criterion_main, Criterion};
 use inkwell::context::Context;
 use comp::llvm::codegen::Codegen;
