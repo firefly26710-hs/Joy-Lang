@@ -1,5 +1,5 @@
 use comp::lex::lexer::Lexer;
-use comp::par::parser::Parser;
+use comp::par::build_tree::Parser;
 use comp::par::table::Table;
 use comp::par::scope::Scope;
 use criterion::{criterion_group, criterion_main, Criterion};

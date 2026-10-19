@@ -2,11 +2,10 @@ use crate::llvm::codegen::Codegen;
 use inkwell::values::{BasicValueEnum};
 use inkwell::{IntPredicate, FloatPredicate};
 use inkwell::types::BasicTypeEnum;
-use crate::lex::iterval::{End, Start};
-use crate::par::parser::ty::Type;
-use crate::par::parser::parser::NONE;
-use crate::lex::token::Token;
-
+use crate::lex::tokenize::iterval::{End, Start};
+use crate::par::build_tree::ty::Type;
+use crate::lex::tokenize::token::Token;
+use crate::par::tree::ast::NONE;
 impl<'ctx>Codegen<'ctx>{
     pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
         let tok = self.parser.ast.nodes[expr_idx].token.clone();

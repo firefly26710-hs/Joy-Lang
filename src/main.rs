@@ -5,14 +5,11 @@ pub mod llvm;
 use std::env;
 use std::fs::File;
 use std::io::{ Read};
-use std::path::Path;
-use std::process::Command;
 use inkwell::context::Context;
 use inkwell::OptimizationLevel;
-use inkwell::targets::{CodeModel, FileType, InitializationConfig, RelocMode, Target, TargetMachine};
-use crate::lex::lexer::Lexer;
+use crate::lex::tokenize::lexer::Lexer;
 use crate::llvm::codegen::Codegen;
-use crate::par::parser::parser::Parser;
+use crate::par::build_tree::parser::Parser;
 
 fn main() {
     let args : Vec<String> = env::args().collect();
@@ -27,16 +24,14 @@ fn main() {
     file.read_to_string(&mut input).expect("Failed Read to String");
     input.push_str("\0\0\0");
 
-
     let mut lexer = Lexer::init(input);
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
     parser.build_tree();
-
+    
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
-
 
     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
 
@@ -53,7 +48,7 @@ fn main() {
 fn test(){
     let input =
         "fn main() = void{
-            print(String,\"Hello World\n\");
+            print(String, \"Hello World\");
         }
     ".to_string();
     let input = input + "\0\0\0";

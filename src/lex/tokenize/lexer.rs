@@ -1,5 +1,5 @@
-use crate::lex::token::Token;
-use crate::lex::iterval::Interval;
+use crate::lex::tokenize::iterval::Interval;
+use crate::lex::tokenize::token::Token;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Lexer{

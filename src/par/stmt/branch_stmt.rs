@@ -1,19 +1,18 @@
-use crate::par::parser::parser::NONE;
-use crate::lex::token::Token;
-use crate::par::parser::parser::NodeIdx;
-use crate::par::parser::parser::Parser;
-use crate::par::parser::ty::Type;
+use crate::lex::tokenize::token::Token;
+use crate::par::build_tree::parser::Parser;
+use crate::par::build_tree::ty::Type;
+use crate::par::tree::ast::{NodeIdx, NONE};
 
 impl Parser{
     pub fn parse_if(&mut self) -> NodeIdx{
-        let b_recorder_start = self.branch_recorder.len();
+        let b_recorder_start = self.stmt.branch_recorder.len();
         self.record_branch_idx(b_recorder_start);
 
         let start = self.ast.edge_start();
-        self.ast.edges.extend(self.branch_recorder.drain(..));
+        self.ast.edges.extend(self.stmt.branch_recorder.drain(..));
         let end = self.ast.edge_end();
 
-        if !self.already_full_ret_in_if{
+        if !self.stmt.already_full_ret_in_if{
             self.match_counter_number();
         }
 
@@ -62,11 +61,11 @@ impl Parser{
                     self.check_has_ret_in_end(stmts_idx, false);
                 }
 
-                self.branch_recorder.push(expr_idx);
-                self.branch_recorder.push(stmts_idx);
+                self.stmt.branch_recorder.push(expr_idx);
+                self.stmt.branch_recorder.push(stmts_idx);
             },
             Token::Else =>{
-                if self.branch_recorder[b_recorder_start..].len() < 2{
+                if self.stmt.branch_recorder[b_recorder_start..].len() < 2{
                 panic!("[Line {:?}] Expected 'else' token", self.current_line())
                 }
 
@@ -81,8 +80,8 @@ impl Parser{
                     self.check_has_ret_in_end(stmts_idx, true);
                 }
 
-                self.branch_recorder.push(NONE);
-                self.branch_recorder.push(stmts_idx);
+                self.stmt.branch_recorder.push(NONE);
+                self.stmt.branch_recorder.push(stmts_idx);
             }
             _ => unreachable!()
         };

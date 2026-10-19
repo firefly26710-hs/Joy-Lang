@@ -1,7 +1,6 @@
-use crate::lex::iterval::{Start, End, Interval};
-use crate::par::ast::node::Key;
-use crate::par::parser::parser::{NodeIdx, NONE};
-use crate::par::parser::ty::Type;
+use crate::lex::tokenize::iterval::{Start, End, Interval};
+use crate::par::tree::node::Key;
+use crate::par::build_tree::ty::Type;
 const VAR_PART_ALLOC_SIZE: usize = 256;
 const FUNC_PART_ALLOC_SIZE : usize = 128;
 

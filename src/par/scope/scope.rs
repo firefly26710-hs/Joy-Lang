@@ -1,4 +1,4 @@
-use crate::par::ast::node::Key;
+use crate::par::tree::node::Key;
 
 const VAR_SCOPE_STACK_SIZE : usize = 2048;
 const ASSIGNER_SIZE : usize = 512;

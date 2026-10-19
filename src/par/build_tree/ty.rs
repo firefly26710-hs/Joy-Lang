@@ -1,5 +1,5 @@
-use crate::par::ast::node::Key;
-use crate::par::parser::parser::Parser;
+use crate::par::tree::node::Key;
+use crate::par::build_tree::parser::Parser;
 
 
 #[allow(warnings)]

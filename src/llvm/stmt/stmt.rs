@@ -1,11 +1,11 @@
 use inkwell::types::{BasicTypeEnum};
 use inkwell::values::{BasicValueEnum, PointerValue};
-use crate::lex::iterval::{End, Start};
-use crate::lex::token::Token;
+use crate::lex::tokenize::iterval::{End, Start};
+use crate::lex::tokenize::token::Token;
 use crate::llvm::codegen::Codegen;
-use crate::par::ast::node::Key;
-use crate::par::parser::parser::NodeIdx;
-use crate::par::parser::ty::Type;
+use crate::par::tree::node::Key;
+use crate::par::build_tree::ty::Type;
+use crate::par::tree::ast::NodeIdx;
 
 impl<'ctx> Codegen<'ctx>{
     pub fn build_stmts(&mut self, stmts_idx : NodeIdx){

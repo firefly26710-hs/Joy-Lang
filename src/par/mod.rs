@@ -1,6 +1,6 @@
-pub mod parser;
+pub mod build_tree;
 pub mod table;
-pub mod ast;
+pub mod tree;
 pub mod scope;
 
 pub mod stmt;

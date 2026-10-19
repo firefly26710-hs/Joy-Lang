@@ -4,10 +4,11 @@ use inkwell::context::Context;
 use inkwell::module::Module;
 use inkwell::types::BasicMetadataTypeEnum;
 use inkwell::values::{BasicMetadataValueEnum, FunctionValue, PointerValue};
-use crate::lex::iterval::{End, Start};
-use crate::par::ast::node::{Key, Node};
-use crate::par::parser::parser::{NodeIdx, Parser};
-use crate::par::parser::ty::Type;
+use crate::par::build_tree::parser::Parser;
+use crate::lex::tokenize::iterval::{End, Start};
+use crate::par::tree::node::{Key, Node};
+use crate::par::build_tree::ty::Type;
+use crate::par::tree::ast::NodeIdx;
 
 pub struct Codegen<'ctx> {
     pub context             : &'ctx Context,

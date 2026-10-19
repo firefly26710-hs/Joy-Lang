@@ -1,3 +1,2 @@
-pub mod lexer;
-pub mod token;
-pub mod iterval;
+pub mod tokenize;
+pub mod diagnostic;

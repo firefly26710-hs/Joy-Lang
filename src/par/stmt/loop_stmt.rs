@@ -1,8 +1,8 @@
-use crate::par::ast::node::Key;
-use crate::par::parser::parser::{NodeIdx, NONE};
-use crate::par::parser::parser::Parser;
-use crate::lex::token::Token;
-use crate::par::parser::ty::Type;
+use crate::par::tree::node::Key;
+use crate::par::tree::ast::{NodeIdx, NONE};
+use crate::par::build_tree::parser::Parser;
+use crate::lex::tokenize::token::Token;
+use crate::par::build_tree::ty::Type;
 
 impl Parser{
     pub fn parse_for(&mut self) -> NodeIdx{

@@ -1,10 +1,10 @@
-use crate::lex::iterval::Start;
-use crate::lex::iterval::End;
-use crate::par::ast::node::{Node};
+use crate::lex::tokenize::iterval::{Start, End};
+use crate::par::tree::node::{Node};
 pub const NONE : u32 = u32::MAX;
 pub const MAX_SIZE : usize = 1024;
 
-type NodeIdx = u32;
+
+pub type NodeIdx = u32;
 pub struct AST{
     pub nodes : Vec<Node>,
     pub edges: Vec<NodeIdx>,

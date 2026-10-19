@@ -1,9 +1,9 @@
 use inkwell::types::{BasicMetadataTypeEnum};
 use inkwell::values::{BasicValueEnum, FunctionValue};
-use crate::lex::iterval::{End, Start};
+use crate::lex::tokenize::iterval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::par::parser::parser::NONE;
-use crate::par::parser::ty::Type;
+use crate::par::tree::ast::NONE;
+use crate::par::build_tree::ty::Type;
 
 impl<'ctx>Codegen<'ctx>{
     pub fn build_function(&mut self, func_idx : u32){

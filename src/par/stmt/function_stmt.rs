@@ -1,9 +1,10 @@
-use crate::lex::token::Token;
-use crate::par::ast::ast::NONE;
-use crate::par::ast::node::Key;
-use crate::par::parser::parser::NodeIdx;
-use crate::par::parser::parser::Parser;
-use crate::par::parser::ty::Type;
+use crate::lex::tokenize::token::Token;
+use crate::par::tree::ast::NONE;
+use crate::par::tree::node::Key;
+use crate::par::tree::ast::NodeIdx;
+
+use crate::par::build_tree::parser::Parser;
+use crate::par::build_tree::ty::Type;
 
 impl Parser{
     pub fn parse_function(&mut self) -> NodeIdx{
@@ -15,7 +16,7 @@ impl Parser{
         let func_name_node_idx = self.ret_matches_token_idx(
             &Token::Ident, "Expected a function name"
         );
-        self.func_recorder.push(func_name_node_idx);
+        self.stmt.func_recorder.push(func_name_node_idx);
         self.scope.sign_func((self.current - 1) as Key);
         self.matches_token(&Token::Lparen, "Expected a (");
 
@@ -34,7 +35,7 @@ impl Parser{
                 self.eat();
 
 
-                self.func_recorder.push(arg_idx);
+                self.stmt.func_recorder.push(arg_idx);
                 self.scope.var_scope_stack.push(arg_name_key);
                 self.table.insert_var_type(arg_name_key, arg_type);
 
@@ -64,8 +65,8 @@ impl Parser{
         self.matches_token(&Token::Rbrace, "Expected }");
 
         let start = self.ast.edge_start();
-        self.func_recorder.push(stmt_idx);
-        self.ast.edges.extend(self.func_recorder.drain(..));
+        self.stmt.func_recorder.push(stmt_idx);
+        self.ast.edges.extend(self.stmt.func_recorder.drain(..));
         self.scope.destroy_func_scope();
 
         let end = self.ast.edge_end();
@@ -125,7 +126,7 @@ impl Parser{
             Type::void => panic!("[Line {:?}] Expression can't with void type", self.current_line())
         };
 
-        self.func_call_recorder.push(func_name_idx);
+        self.stmt.func_call_recorder.push(func_name_idx);
         self.matches_token(&Token::Lparen, "Expected '('");
 
         let param_type_intervals = self.table.look_param_interval(func_name_key);
@@ -148,7 +149,7 @@ impl Parser{
                     panic!("[Line {:?}] Mismatch Type, found {:?}", self.current_line(),[i])
                 }
                 counter += 1;
-                self.func_call_recorder.push(expr_idx);
+                self.stmt.func_call_recorder.push(expr_idx);
 
                 match self.peek() {
                     Token::Comma => self.eat(),
@@ -164,7 +165,7 @@ impl Parser{
         self.matches_token(&Token::Rparen, "Expected )");
 
         let start = self.ast.edge_start();
-        self.ast.edges.extend(self.func_call_recorder.drain(..));
+        self.ast.edges.extend(self.stmt.func_call_recorder.drain(..));
         let end = self.ast.edge_end();
 
         self.push_node(Token::CallStmt, NONE, start, end)
@@ -176,7 +177,7 @@ impl Parser{
         }
 
 
-        if self.already_full_ret_in_if {
+        if self.stmt.already_full_ret_in_if {
             return;
         }
 

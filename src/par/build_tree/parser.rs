@@ -1,40 +1,30 @@
-use crate::lex::iterval::{End, Interval, Start};
-use crate::par::ast::node::Node;
-use crate::lex::token::Token;
-use crate::par::ast::node::Key;
-use crate::lex::lexer::Lexer;
-use crate::par::ast::ast::AST;
-use crate::par::parser::ty::Type;
+use crate::lex::tokenize::iterval::{End, Interval, Start};
+use crate::par::tree::node::Node;
+use crate::par::tree::node::Key;
+use crate::lex::tokenize::lexer::Lexer;
+use crate::lex::tokenize::token::Token;
+use crate::par::tree::ast::{NodeIdx, AST, NONE};
+use crate::par::build_tree::ty::Type;
 use crate::par::scope::scope::Scope;
+use crate::par::stmt::stmt::Stmt;
 use crate::par::table::table::Table;
 
-pub const NONE : u32 = u32::MAX;
-const RECORDER_SIZE : usize = 256;
 
-pub type NodeIdx = u32;
+
 
 pub struct Parser{
-
 
     //data
     pub lexer : Lexer,
     pub ast : AST,
     pub table : Table,
     pub scope : Scope,
-
-    //logic helper
-    pub programs     : Vec<NodeIdx>,
-    pub func_recorder: Vec<NodeIdx>,
-    pub branch_recorder:Vec<NodeIdx>,
-    pub loop_recorder : Vec<NodeIdx>,
-    pub func_call_recorder : Vec<NodeIdx>,
+    pub stmt  : Stmt,
+    
 
     pub current : usize,
 
-    pub ret_times_in_branch: u8,
-    pub real_times_in_branch: u8,
-    pub is_have_else       : bool,
-    pub already_full_ret_in_if: bool
+    
 
 
 }
@@ -46,31 +36,22 @@ impl Parser{
             ast   : AST::init(),
             table : Table::init(),
             scope : Scope::init(),
-
-
-            programs : Vec::with_capacity(RECORDER_SIZE),
-            func_recorder: Vec::with_capacity(RECORDER_SIZE),
-            branch_recorder : Vec::with_capacity(RECORDER_SIZE),
-            loop_recorder   : Vec::with_capacity(RECORDER_SIZE),
-            func_call_recorder : Vec::with_capacity(RECORDER_SIZE),
+            stmt  : Stmt::init(),
 
             current : 0,
 
-            ret_times_in_branch: 0,
-            real_times_in_branch: 0,
-            is_have_else : false,
-            already_full_ret_in_if: false
+            
         }
     }
 
     pub fn build_tree(&mut self){
         while self.lexer.tokens[self.current] != Token::EOF{
             let func_idx = self.parse_function();
-            self.programs.push(func_idx)
+            self.stmt.programs.push(func_idx)
         }
 
         let start = self.ast.edge_start();
-        self.ast.edges.extend(self.programs.drain(..));
+        self.ast.edges.extend(self.stmt.programs.drain(..));
         let end = self.ast.edge_end();
 
         self.push_node(Token::Program, NONE, start, end);

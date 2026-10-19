@@ -1,8 +1,9 @@
-use crate::lex::iterval::{End, Start};
-use crate::lex::token::Token;
-use crate::par::ast::node::{Key};
-use crate::par::parser::parser::{NodeIdx, Parser};
-use crate::par::parser::ty::Type;
+use crate::lex::tokenize::iterval::{End, Start};
+use crate::lex::tokenize::token::Token;
+use crate::par::build_tree::parser::Parser;
+use crate::par::tree::node::{Key};
+use crate::par::build_tree::ty::Type;
+use crate::par::tree::ast::NodeIdx;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> NodeIdx{

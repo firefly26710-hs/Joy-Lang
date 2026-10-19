@@ -1,5 +1,5 @@
-use crate::lex::iterval::{End, Start};
-use crate::par::parser::ty::Type;
+use crate::lex::tokenize::iterval::{End, Start};
+use crate::par::build_tree::ty::Type;
 use crate::llvm::codegen::Codegen;
 
 impl<'ctx>Codegen<'ctx>{

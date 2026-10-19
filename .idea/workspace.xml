@@ -12,19 +12,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/lex/diagnostic/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/par/stmt/stmt_helper.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/par/tree/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/opt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/opt.ll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output.ll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/lexer.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lex/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/token.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benches/telemetry_bench.rs" beforeDir="false" afterPath="$PROJECT_DIR$/benches/telemetry_bench.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/iterval.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/lexer.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lex/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lex/token.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/codegen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/par/parser/ty.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/parser/ty.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/ast/ast.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/tree/ast.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/ast/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/ast/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/tree/node.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/build_tree/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/build_tree/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/build_tree/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/parser/ty.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/build_tree/ty.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/scope/scope.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/scope/scope.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/function_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/loop_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/stmt/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/par/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/stmt/stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/par/table/table.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/par/table/table.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,38 +80,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Cargo.Build `Run comp`.executor": "Run",
-    "Cargo.Run comp.executor": "Run",
-    "CidrDebugProfileConversion": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "joyc-expr",
-    "last_opened_file_path": "/home/fireflylover/pjs/comp",
-    "node.js.detected.package.jshint": "true",
-    "node.js.selected.package.jshint": "",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/codegen.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/expr.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/mod.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/stmt.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/par/node.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/llvm/stmt.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/codegen.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/expr.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/function.rs": "true",
-    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/stmt.rs": "true",
-    "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "language.rust"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Cargo.Build `Run comp`.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Run comp.executor&quot;: &quot;Run&quot;,
+    &quot;CidrDebugProfileConversion&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;joyc-expr&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/fireflylover/pjs/comp&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/codegen.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/expr.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/mod.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/stmt.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/par/node.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/llvm/stmt.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lex/lexer/mod.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/codegen.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/expr.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/function.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/stmt.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;language.rust&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/par/stmt" />
@@ -211,11 +230,11 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/llvm/expr.rs</url>
-          <line>10</line>
+          <line>9</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/par/ast/ast.rs</url>
+          <url>file://$PROJECT_DIR$/src/par/tree/ast.rs</url>
           <line>20</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
@@ -230,16 +249,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/llvm/expr.rs</url>
-          <line>8</line>
+          <line>7</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/par/parser/parser.rs</url>
+          <url>file://$PROJECT_DIR$/src/par/build_tree/parser.rs</url>
           <option name="timeStamp" value="13" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/par/parser/expr.rs</url>
-          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
