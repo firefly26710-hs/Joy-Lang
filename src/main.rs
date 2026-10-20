@@ -9,7 +9,7 @@ use inkwell::context::Context;
 use std::env;
 use std::fs::File;
 use std::io::Read;
-use crate::lexer::Lexer::Lexer;
+use crate::lexer::center::lex::Lexer;
 
 fn main() {
     let args : Vec<String> = env::args().collect();

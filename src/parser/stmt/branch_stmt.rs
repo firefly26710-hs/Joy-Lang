@@ -1,4 +1,4 @@
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::types::logic::Type;

@@ -12,16 +12,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/collect_logic.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/center/lex.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/center/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/center/error.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/center/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/collect.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/data_collect.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/helper.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/tokenize.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/source/data.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/lexer/tokenizer/source/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/Lexer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/Lexer.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/Lexer.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/collect_logic.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/error.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/interval.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/source/interval.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lexer/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/source/token.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/codegen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/center/par.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/center/par.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/error.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/function_part.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/function_part.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/loop_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/stmt_helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/stmt_helper.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/variable_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/variable_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/tree/ast.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/tree/ast.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/tree/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/tree/node.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/types/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/data.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/types/type_helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/type_helper.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,6 +115,7 @@
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lex/lexer/mod.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/center/lex.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/diagnostic/collect_logic.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/tokenize/collect.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/codegen.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/expr.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/function.rs": "true",
@@ -96,11 +126,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/lexer" />
-      <recent name="$PROJECT_DIR$/src/parser" />
-      <recent name="$PROJECT_DIR$/src/par/stmt" />
-      <recent name="$PROJECT_DIR$/src/par/types" />
-      <recent name="$PROJECT_DIR$/src/llvm/Stmts" />
+      <recent name="$PROJECT_DIR$/src/lexer/diagnostic/logic" />
+      <recent name="$PROJECT_DIR$/src/lexer/diagnostic/center" />
+      <recent name="$PROJECT_DIR$/src/lexer/tokenizer/logic" />
+      <recent name="$PROJECT_DIR$/src/lexer/tokenizer/source" />
+      <recent name="$PROJECT_DIR$/src/lexer/tokenizer" />
     </key>
   </component>
   <component name="RunManager" selected="Cargo.Run comp">
@@ -234,8 +264,8 @@
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/parser/center/par.rs</url>
-          <option name="timeStamp" value="13" />
+          <url>file://$PROJECT_DIR$/src/lexer/tokenizer/source/data.rs</url>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

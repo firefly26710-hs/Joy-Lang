@@ -1,4 +1,4 @@
-use crate::lexer::interval::Interval;
+use crate::lexer::tokenizer::source::interval::Interval;
 use crate::parser::types::logic::Type;
 const VAR_PART_ALLOC_SIZE: usize = 256;
 const FUNC_PART_ALLOC_SIZE : usize = 128;

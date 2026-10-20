@@ -1,4 +1,4 @@
-use crate::lexer::interval::{End, Start};
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::types::logic::Type;
 

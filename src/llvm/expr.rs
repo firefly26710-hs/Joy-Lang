@@ -1,11 +1,12 @@
-use crate::lexer::interval::{End, Start};
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::tree::ast::NONE;
 use crate::parser::types::logic::Type;
 use inkwell::types::BasicTypeEnum;
 use inkwell::values::BasicValueEnum;
 use inkwell::{FloatPredicate, IntPredicate};
+use crate::lexer::tokenizer::source::token::Token;
+
 impl<'ctx>Codegen<'ctx>{
     pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
         let tok = self.parser.ast.nodes[expr_idx].token.clone();
@@ -21,28 +22,28 @@ impl<'ctx>Codegen<'ctx>{
         match(start, end){
             (NONE, NONE) => match tok{
                 Token::Int => {
-                    let str_interval = &self.parser.lexer.intervals[key as usize];
+                    let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
                     let str_s = str_interval.start as usize;
                     let str_e = str_interval.end as usize;
                     let int_ty = self.int_type_mapping(&ty);
-                    let var_str = &self.parser.lexer.input[str_s..str_e];
+                    let var_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
                     let u_integer : u64 = var_str.parse().unwrap();
                     int_ty.const_int(u_integer, false).into()
                 },
                 Token::Float => {
-                    let str_interval = &self.parser.lexer.intervals[key as usize];
+                    let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
                     let str_s = str_interval.start as usize;
                     let str_e = str_interval.end as usize;
                     let flt_ty = self.flt_type_mapping(&ty);
-                    let var_str = &self.parser.lexer.input[str_s..str_e];
+                    let var_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
                     let float : f64 = var_str.parse().unwrap();
                     flt_ty.const_float(float).into()
                 },
                 Token::Ident => {
-                    let str_interval = &self.parser.lexer.intervals[key as usize];
+                    let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
                     let str_s = str_interval.start as usize;
                     let str_e = str_interval.end as usize;
-                    let name_str = &self.parser.lexer.input[str_s ..str_e];
+                    let name_str = &self.parser.lexer.tokenizer.input[str_s ..str_e];
                     let alloc = self.get_var_ptr(key);
                     let var_type = self.parser.look_var_type(key);
 
@@ -67,10 +68,10 @@ impl<'ctx>Codegen<'ctx>{
                         bool_ty.const_int(0, false).into()
                     }
                     Token::String =>{
-                        let str_interval = &self.parser.lexer.intervals[key as usize];
+                        let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
                         let str_s = str_interval.start as usize;
                         let str_e = str_interval.end as usize;
-                        let string_content = &self.parser.lexer.input[str_s..str_e];
+                        let string_content = &self.parser.lexer.tokenizer.input[str_s..str_e];
 
                         self.builder.build_global_string_ptr(string_content, "str_lit")
                             .unwrap()
@@ -264,10 +265,10 @@ impl<'ctx>Codegen<'ctx>{
         }
 
         let func = self.get_func_ptr(name_key);
-        let str_interval = &self.parser.lexer.intervals[name_key as usize];
+        let str_interval = &self.parser.lexer.tokenizer.intervals[name_key as usize];
         let str_s = str_interval.start as usize;
         let str_e = str_interval.end as usize;
-        let name_str = &self.parser.lexer.input[str_s..str_e];
+        let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
         let func_call_val = self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
         self.call_param_types.clear();
         func_call_val.try_as_basic_value().unwrap_basic()

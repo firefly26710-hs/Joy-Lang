@@ -1,5 +1,5 @@
-use crate::lexer::interval::{End, Start};
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::interval::{End, Start};
+use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::tree::node::Key;
@@ -46,7 +46,7 @@ impl Parser{
         );
         self.sign_var(var_name_key);
 
-        let declared_type = if self.peek() != &Token::Equal{
+        let declared_type = if self.peek() != &Token::Eq{
             self.matches_token(&Token::Colon, "Expected :");
             let ty = self.type_mapping(self.current as Key);
             self.eat();
@@ -55,7 +55,7 @@ impl Parser{
             Type::void
         };
 
-        self.matches_token(&Token::Equal, "Expected =");
+        self.matches_token(&Token::Eq, "Expected =");
 
         let expr_idx = self.parse_expression();
         self.matches_and_insert_var_type(var_name_key, declared_type);
@@ -75,7 +75,7 @@ impl Parser{
     fn ident_branch(&mut self) -> NodeIdx{
         match self.peek_next(){
             Token::Lparen => self.parse_func_call(),
-            Token::Equal |Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq
+            Token::Eq |Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq
             |Token::ModEq | Token::Scolon => self.parse_var_update(),
             _ => panic!("[Line {:?}] Expected ; ", self.current_line())
         }

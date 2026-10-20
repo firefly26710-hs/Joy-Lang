@@ -1,4 +1,4 @@
-use crate::lexer::interval::{End, Start};
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::{Key, Node};
@@ -81,7 +81,7 @@ impl<'ctx> Codegen<'ctx>{
     
     
     pub fn get_str_interval(&self, key : Key) -> (Start, End){
-        let interval = &self.parser.lexer.intervals[key as usize];
+        let interval = &self.parser.lexer.tokenizer.intervals[key as usize];
         (interval.start, interval.end)
     }
 

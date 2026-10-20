@@ -1,11 +1,11 @@
-use crate::lexer::interval::{End, Start};
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 use crate::parser::types::logic::Type;
 use inkwell::types::BasicTypeEnum;
 use inkwell::values::{BasicValueEnum, PointerValue};
+use crate::lexer::tokenizer::source::token::Token;
 
 impl<'ctx> Codegen<'ctx>{
     pub fn build_stmts(&mut self, stmts_idx : NodeIdx){
@@ -26,7 +26,7 @@ impl<'ctx> Codegen<'ctx>{
 
             match tok{
                 Token::LetStmt => self.build_var_stmt(start, end),
-                Token::Equal|Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq|
+                Token::Eq|Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq|
                 Token::ModEq => self.build_update_data(start, end, tok.clone()),
                 Token::IfStmt => self.build_if_stmt(start, end),
                 Token::RetStmt => self.build_ret_stmt(start, end),
@@ -53,10 +53,10 @@ impl<'ctx> Codegen<'ctx>{
 
 
         //get variable name
-        let str_interval = &self.parser.lexer.intervals[name_key as usize];
+        let str_interval = &self.parser.lexer.tokenizer.intervals[name_key as usize];
         let str_s = str_interval.start as usize;
         let str_e = str_interval.end as usize;
-        let name_str = &self.parser.lexer.input[str_s..str_e];
+        let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
 
 
         //get type
@@ -80,7 +80,7 @@ impl<'ctx> Codegen<'ctx>{
 
         let (str_start, str_end) = self.get_str_interval(key);
 
-        let name_str = &self.parser.lexer.input[str_start as usize..str_end as usize];
+        let name_str = &self.parser.lexer.tokenizer.input[str_start as usize..str_end as usize];
         let var_ptr = self.get_var_ptr(key);
         let ty = self.parser.look_var_type(key).clone();
 
@@ -99,7 +99,7 @@ impl<'ctx> Codegen<'ctx>{
 
         let rhs_val = self.build_expr(edges[1] as usize, &ty);
 
-        if matches!(op_tok, Token::Equal){
+        if matches!(op_tok, Token::Eq){
             self.builder.build_store(var_ptr, rhs_val).unwrap();
             return;
         }

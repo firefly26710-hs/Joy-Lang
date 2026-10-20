@@ -1,5 +1,5 @@
-use crate::lexer::interval::{End, Start};
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::interval::{End, Start};
+use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;

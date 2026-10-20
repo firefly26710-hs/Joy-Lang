@@ -1,4 +1,4 @@
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
@@ -50,7 +50,7 @@ impl Parser{
         let param_end = if has_declared_arg{self.params_end()}else{NONE};
 
         self.matches_token(&Token::Rparen, "Expected a )");
-        self.matches_token(&Token::Equal, "Expected =");
+        self.matches_token(&Token::Eq, "Expected =");
 
         let ret_type = {
             self.matches_token(&Token::Type, "Expected a type");

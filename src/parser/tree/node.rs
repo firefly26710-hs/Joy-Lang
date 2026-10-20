@@ -1,5 +1,5 @@
-use crate::lexer::interval::Interval;
-use crate::lexer::token::Token;
+use crate::lexer::tokenizer::source::interval::Interval;
+use crate::lexer::tokenizer::source::token::Token;
 
 pub type Key = u32;
 

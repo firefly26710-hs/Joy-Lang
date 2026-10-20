@@ -18,7 +18,7 @@ pub enum Token{
     DivEq,
     Mod,
     ModEq,
-    Equal,
+    Eq,
     EqEq,
     NotEq,
     Grt,

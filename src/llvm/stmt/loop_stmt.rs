@@ -1,4 +1,4 @@
-use crate::lexer::interval::{End, Start};
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::types::logic::Type;
 use inkwell::values::BasicValueEnum;
@@ -9,7 +9,7 @@ impl<'ctx>Codegen<'ctx>{
         let name_node =  &self.get_node(name_node_idx);
         let name_key = name_node.key;
 
-        let str_interval = &self.parser.lexer.intervals[name_key as usize];
+        let str_interval = &self.parser.lexer.tokenizer.intervals[name_key as usize];
         let str_s = str_interval.start as usize;
         let str_e = str_interval.end as usize;
 
@@ -28,7 +28,7 @@ impl<'ctx>Codegen<'ctx>{
 
 
         let i64_type = self.context.i64_type();
-        let name_str = &self.parser.lexer.input[str_s..str_e];
+        let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
         let ident_alloc = self.builder.build_alloca(i64_type, name_str).unwrap();
 
         self.builder.build_store(ident_alloc, s_number).unwrap();

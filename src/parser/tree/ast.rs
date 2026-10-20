@@ -1,4 +1,4 @@
-use crate::lexer::interval::{End, Start};
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::parser::tree::node::Node;
 pub const NONE : u32 = u32::MAX;
 pub const MAX_SIZE : usize = 1024;

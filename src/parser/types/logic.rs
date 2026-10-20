@@ -237,10 +237,10 @@ impl Parser{
     }
 
     pub fn update_int_max(&mut self, key: Key) {
-        let interval = &self.lexer.intervals[key as usize];
+        let interval = &self.lexer.tokenizer.intervals[key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
-        let new_val: i128 = match self.lexer.input[start..end].parse() {
+        let new_val: i128 = match self.lexer.tokenizer.input[start..end].parse() {
             Ok(val) => val,
             Err(val) => {
                 panic!("[Line {:?}] Expected Int but find : {:?}", self.current_line(), val)
@@ -256,7 +256,7 @@ impl Parser{
 
         if new_val > max_val {
             self.ast.max_value.clear();
-            self.ast.max_value.push_str(&self.lexer.input[start..end]);
+            self.ast.max_value.push_str(&self.lexer.tokenizer.input[start..end]);
         }
     }
 
@@ -274,11 +274,11 @@ impl Parser{
 
 
     pub fn update_flt_max(&mut self, key: Key) {
-        let interval = &self.lexer.intervals[key as usize];
+        let interval = &self.lexer.tokenizer.intervals[key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
 
-        let new_val: f64 = match self.lexer.input[start..end].parse() {
+        let new_val: f64 = match self.lexer.tokenizer.input[start..end].parse() {
             Ok(val) => val,
             Err(val) => {
                 panic!("[Line {:?}] Expected Float but find : {:?}", self.current_line(), val)
@@ -294,7 +294,7 @@ impl Parser{
 
         if new_val > max_val {
             self.ast.max_value.clear();
-            self.ast.max_value.push_str(&self.lexer.input[start..end]);
+            self.ast.max_value.push_str(&self.lexer.tokenizer.input[start..end]);
         }
     }
 

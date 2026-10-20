@@ -1,4 +1,4 @@
-use crate::lexer::interval::{End, Interval, Start};
+use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
 use crate::parser::types::logic::Type;

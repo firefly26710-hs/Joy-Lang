@@ -1,4 +1,4 @@
-use crate::lexer::interval::{End, Start};
+use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::tree::ast::NONE;
 use crate::parser::types::logic::Type;
@@ -17,7 +17,7 @@ impl<'ctx>Codegen<'ctx>{
         let name_node = self.get_node(name_idx);
         let name_key = name_node.key;
         let (str_start, str_end) = self.get_str_interval(name_key);
-        let name_str = &self.parser.lexer.input[str_start as usize..str_end as usize];
+        let name_str = &self.parser.lexer.tokenizer.input[str_start as usize..str_end as usize];
 
         //function param
         let param_type_interval = self.parser.look_param_interval(name_key as u32);
@@ -81,7 +81,7 @@ impl<'ctx>Codegen<'ctx>{
                 let param_idx = self.get_edge_slice(edge_start + 1, edge_end- 1)[i];
                 let param_key = self.get_node(param_idx).key;
                 let (start, end) = self.get_str_interval(param_key);
-                let param_name_str = &self.parser.lexer.input[start as usize..end as usize];
+                let param_name_str = &self.parser.lexer.tokenizer.input[start as usize..end as usize];
                 func.get_nth_param(i as u32).unwrap().set_name(param_name_str);
             }
 
@@ -121,7 +121,7 @@ impl<'ctx>Codegen<'ctx>{
                 let param_key = self.get_node(idx).key;
 
                 let (start, end) = self.get_str_interval(param_key);
-                let name_str = &self.parser.lexer.input[start as usize..end as usize];
+                let name_str = &self.parser.lexer.tokenizer.input[start as usize..end as usize];
 
                 let param_value = func.get_nth_param(i as u32);
                 let param_type = &self.parser.table.var_types[type_start as usize..=type_end as usize][i];
@@ -217,10 +217,10 @@ impl<'ctx>Codegen<'ctx>{
         }
 
         let func = self.get_func_ptr(name_key);
-        let str_interval = &self.parser.lexer.intervals[name_key as usize];
+        let str_interval = &self.parser.lexer.tokenizer.intervals[name_key as usize];
         let str_s = str_interval.start as usize;
         let str_e = str_interval.end as usize;
-        let name_str = &self.parser.lexer.input[str_s..str_e];
+        let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
         self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
         self.call_param_types.clear();
 

@@ -1,7 +1,6 @@
-use crate::lexer::Lexer::Lexer;
-use crate::lexer::diagnostic::error::Error;
-use crate::lexer::interval::{End, Interval, Start};
-use crate::lexer::token::Token;
+use crate::lexer::center::lex::Lexer;
+use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
+use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::scope::data::Scope;
 use crate::parser::stmt::stmt_data::Stmt;
 use crate::parser::tree::ast::{AST, NONE, NodeIdx};
@@ -14,8 +13,9 @@ use crate::parser::types::logic::Type;
 pub struct Parser{
 
     //data
-    pub lexer : Lexer ,
     pub ast : AST,
+    pub lexer : Lexer ,
+
     pub table : Table,
     pub scope : Scope,
     pub stmt  : Stmt,
@@ -29,7 +29,7 @@ pub struct Parser{
 
 impl Parser{
     pub fn init(lexer : Lexer) -> Self{
-        let alloc_size = lexer.tokens.len();
+        let alloc_size = lexer.tokenizer.tokens.len();
         
         Self{
             lexer,
@@ -44,7 +44,7 @@ impl Parser{
     }
 
     pub fn build_tree(&mut self){
-        while self.lexer.tokens[self.current] != Token::EOF{
+        while self.lexer.tokenizer.tokens[self.current] != Token::EOF{
             let func_idx = self.parse_function();
             self.stmt.programs.push(func_idx)
         }
@@ -121,24 +121,24 @@ impl Parser{
 
 
     pub fn current_line(&self) -> u32{
-        self.lexer.lines[self.current]
+        self.lexer.tokenizer.lines[self.current]
     }
 
 
 
     pub fn peek(&self) -> &Token {
-        &self.lexer.tokens[self.current]
+        &self.lexer.tokenizer.tokens[self.current]
 
     }
 
     pub fn peek_next(&self) -> &Token{
-        &self.lexer.tokens[self.current + 1]
+        &self.lexer.tokenizer.tokens[self.current + 1]
 
     }
 
     #[inline(always)]
     pub fn eat(&mut self) -> Token{
-        let tok = self.lexer.tokens[self.current].clone();
+        let tok = self.lexer.tokenizer.tokens[self.current].clone();
         self.current += 1;
         tok
     }
@@ -147,11 +147,11 @@ impl Parser{
     }
 
     pub fn look_string(&self, key : Key) -> &str{
-        let interval = &self.lexer.intervals[key as usize];
+        let interval = &self.lexer.tokenizer.intervals[key as usize];
         let slice_start = interval.start as usize;
         let slice_end = (interval.end - 1) as usize;
 
-        &self.lexer.input[slice_start..=slice_end]
+        &self.lexer.tokenizer.input[slice_start..=slice_end]
     }
 
 
@@ -159,10 +159,10 @@ impl Parser{
 
 
     pub fn type_mapping(&self, input_key: Key) -> Type{
-        let interval = &self.lexer.intervals[input_key as usize];
+        let interval = &self.lexer.tokenizer.intervals[input_key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
-        let type_str = &self.lexer.input[start..end];
+        let type_str = &self.lexer.tokenizer.input[start..end];
 
         match type_str {
             "i8"     => Type::i8,
@@ -195,10 +195,10 @@ impl Parser{
 
             let key = node.key;
             if key == NONE{continue}
-            let interval = &self.lexer.intervals[key as usize];
+            let interval = &self.lexer.tokenizer.intervals[key as usize];
             let start = interval.start as usize;
             let end   = interval.end   as usize;
-            println!("String : {:?}\n", &self.lexer.input[start..end]);
+            println!("String : {:?}\n", &self.lexer.tokenizer.input[start..end]);
         }
     }
 
