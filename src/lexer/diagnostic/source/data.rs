@@ -11,10 +11,9 @@ pub struct Error{
     pub spans   : Vec<(SpanStart, SpanLength)>,
 	pub lines   : Vec<u32>,
     pub span_ids: Vec<u32>,
-	pub rlt_start_cols: Vec<u32>,
 
-	pub span_id: u32,
 	pub spans_start : u32,
+	pub span_id     : u32,
 	pub line        : u32,
 }
 
@@ -26,10 +25,10 @@ impl Error{
 	    	spans   : Vec::with_capacity(alloc_size),
 	    	span_ids: Vec::with_capacity(alloc_size),
 			lines   : Vec::with_capacity(alloc_size),
-	    	rlt_start_cols: Vec::with_capacity(alloc_size),
-			span_id: 0,
-			spans_start : 0,
-			line        : 1
+
+			spans_start: 0,
+			span_id    : 0,
+			line       : 1
 		} 
 	
 	}

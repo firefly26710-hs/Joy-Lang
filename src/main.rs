@@ -67,7 +67,7 @@ fn test(){
     llvm.compile();
 
 
-    //llvm.module.print_to_stderr();
+    llvm.module.print_to_stderr();
 
 
 

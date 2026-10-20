@@ -121,7 +121,7 @@ impl Parser{
 
 
     pub fn current_line(&self) -> u32{
-        self.lexer.tokenizer.lines[self.current]
+        self.lexer.error.lines[self.current]
     }
 
 

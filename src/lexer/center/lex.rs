@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::center::error::Error;
+use crate::lexer::diagnostic::source::data::Error;
 use crate::lexer::tokenizer::source::data::Tokenizer;
 
 pub struct Lexer{

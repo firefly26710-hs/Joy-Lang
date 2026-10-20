@@ -299,7 +299,7 @@ impl Lexer{
         self.eat();
 
         self.collect_diagnostic_data();
-        self.collect_tokenizer_data(Token::Elif);
+        self.collect_tokenizer_data(Token::String);
 
     }
     
