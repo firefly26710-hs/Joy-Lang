@@ -23,7 +23,6 @@ impl Lexer{
 
     pub fn print_output(&mut self){
         println!("Tokens   : {:?}", &self.tokenizer.tokens);
-        println!("Lines    : {:?}", &self.error.lines);
         println!("Intervals : {:?}", &self.tokenizer.intervals);
         for (i, interval) in self.tokenizer.intervals.iter().enumerate(){
             let start = interval.start as usize;

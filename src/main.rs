@@ -26,13 +26,15 @@ fn main() {
 
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-    lexer.print_output();
+   // lexer.print_output();
     let mut parser = Parser::init(lexer);
     parser.build_tree();
     
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
+
+    llvm.module.print_to_stderr();
 
     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
 

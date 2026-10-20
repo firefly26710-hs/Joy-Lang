@@ -1,5 +1,7 @@
-pub type SpanStart = u32;
-pub type SpanLength = u32;
+use crate::lexer::diagnostic::source::msg_data::MsgData;
+
+pub type SpanStart = usize;
+pub type SpanLength = usize;
 pub type ColStart = u32;
 pub type ColEnd = u32;
 
@@ -7,28 +9,29 @@ pub type ColEnd = u32;
 #[derive(Debug, Clone, PartialEq)]
 
 pub struct Error{
-    file_name   : String,
-    pub spans   : Vec<(SpanStart, SpanLength)>,
-	pub lines   : Vec<u32>,
-    pub span_ids: Vec<u32>,
-
-	pub spans_start : u32,
+	pub msg_datas    : Vec<MsgData>,
+    pub file_name   : String,
+    pub spans       : Vec<(SpanStart, SpanLength)>,
+    pub span_ids    : Vec<u32>,
+	pub span_start: u32,
 	pub span_id     : u32,
 	pub line        : u32,
+	pub has_error   : bool
 }
 
 impl Error{
     pub fn init(file_name : String, alloc_size: usize) -> Self{
 	
 		Self{
+			msg_datas: Vec::with_capacity(alloc_size),
 	    	file_name,
 	    	spans   : Vec::with_capacity(alloc_size),
 	    	span_ids: Vec::with_capacity(alloc_size),
-			lines   : Vec::with_capacity(alloc_size),
 
-			spans_start: 0,
+			span_start: 0,
 			span_id    : 0,
-			line       : 1
+			line       : 1,
+			has_error  : false
 		} 
 	
 	}

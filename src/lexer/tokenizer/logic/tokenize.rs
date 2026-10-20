@@ -1,5 +1,7 @@
 use crate::lexer::tokenizer::source::token::Token;
 use crate::lexer::center::lex::Lexer;
+use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
+
 impl Lexer{
 
     pub fn tokenize(&mut self){
@@ -103,7 +105,8 @@ impl Lexer{
                         self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::NotEq);
                     } else{
-                        panic!("[Line {:?}] '!' must combine with '=' ", self.error.line)
+                        self.collection_illegal_issue();
+                        self.eat();
                     }
                 },
                 "(" => {
@@ -156,19 +159,29 @@ impl Lexer{
                 " " | "\r" | "\t" => {},
 
                 "\n" => {
-                    self.error.spans.push((self.error.spans_start, self.tokenizer.current));
-                    self.error.spans_start = self.tokenizer.current;
-
+                    self.error.spans.push(
+                        (self.error.span_start as SpanStart
+                         , self.tokenizer.current as SpanLength
+                        )
+                    );
+                    self.error.span_start = self.tokenizer.current;
                     self.error.span_id += 1;
                     self.error.line += 1;
                 },
 
-                e => panic!("{}",format!("Find Unknown Token : {e}"))
+                _ => {
+                    self.collection_illegal_issue();
+                    self.eat();
+                }
             }
         }
         self.tokenizer.tokens.push(Token::EOF);
         self.tokenizer.tokens.push(Token::EOF);
         self.tokenizer.tokens.push(Token::EOF);
+
+        if self.error.has_error{
+            self.output_error();
+        }
     }
 
 
