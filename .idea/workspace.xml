@@ -12,25 +12,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/issue.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/lexer_diag.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lexer/diagnostic/source/msg_data.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/diagnostic/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser/diagnostic/parser_diag.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/collect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/collect.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/collect.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/issue.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/lexer_diag.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/lexer_diag.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/source/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/source/data.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/source/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/source/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lexer/tokenizer/logic/collect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/collect.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/tokenizer/logic/helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/helper.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lexer/tokenizer/logic/tokenize.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/tokenize.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/center/par.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/center/par.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -1,6 +1,6 @@
+use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
 
 impl Lexer{
 
@@ -12,10 +12,8 @@ impl Lexer{
                 "+" => {
                     if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::PlusEq);
                     }else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Plus);
                     }
                 },
@@ -23,13 +21,10 @@ impl Lexer{
                 "-" => {
                     if matches!(self.peek(), ">"){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Arrow);
                     }else if matches!(self.peek(), "="){
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::MinusEq);
                     }else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Minus);
                     }
                 },
@@ -37,44 +32,39 @@ impl Lexer{
                 "*" => {
                     if matches!(self.peek(), ">"){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::MulEq);
                     }else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Mul);
                     }
                 },
                 "/" => {
                     if matches!(self.peek(), "/"){
                         while !matches!(self.peek(), "\n")&& !self.is_finish(){
+                            if matches!(self.peek(), "\n"){
+                                self.collect_span();
+                            }
                             self.eat();
                         }
                     }else if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::DivEq);
                     }else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Div);
                     }
                 },
                 "%" => {
                     if matches!(self.peek(), ">"){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::ModEq);
                     }else {
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Mod);
                     }
                 },
                 "=" => {
                     if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::EqEq);
                     } else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Eq);
                     }
 
@@ -82,27 +72,22 @@ impl Lexer{
                 ">" => {
                     if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::GrtEq);
                     } else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Grt);
                     }
                 },
                 "<" => {
                     if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::LesEq);
                     } else{
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::Les);
                     }
                 },
                 "!" => {
                     if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_diagnostic_data();
                         self.collect_tokenizer_data(Token::NotEq);
                     } else{
                         self.collection_illegal_issue();
@@ -110,43 +95,33 @@ impl Lexer{
                     }
                 },
                 "(" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Lparen);
                 },
                 ")" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Rparen);
                 },
                 "{" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Lbrace);
                 },
                 "}" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Rbrace);
                 },
                 ":" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Colon);
                 },
                 ";" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Scolon);
                 },
                 "," => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Comma);
                 },
                 "[" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Lbracket);
                 },
                 "]" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Rbracket);
                 },
                 "|" => {
-                    self.collect_diagnostic_data();
                     self.collect_tokenizer_data(Token::Vertical);
                 },
 
@@ -158,21 +133,9 @@ impl Lexer{
 
                 " " | "\r" | "\t" => {},
 
-                "\n" => {
-                    self.error.spans.push(
-                        (self.error.span_start as SpanStart
-                         , self.tokenizer.current as SpanLength
-                        )
-                    );
-                    self.error.span_start = self.tokenizer.current;
-                    self.error.span_id += 1;
-                    self.error.line += 1;
-                },
+                "\n" => self.collect_span(),
 
-                _ => {
-                    self.collection_illegal_issue();
-                    self.eat();
-                }
+                _ => self.collection_illegal_issue()
             }
         }
         self.tokenizer.tokens.push(Token::EOF);
@@ -192,12 +155,8 @@ impl Lexer{
         if matches!(self.peek(), ".") && is_number(self.peek_next()){
             self.eat();
             while is_number(self.peek()){self.eat();}
-
-
-            self.collect_diagnostic_data();
             self.collect_tokenizer_data(Token::Float);
         }else{
-            self.collect_diagnostic_data();
             self.collect_tokenizer_data(Token::Int);
         }
     }
@@ -208,110 +167,93 @@ impl Lexer{
         let slice = &self.tokenizer.input[self.tokenizer.start as usize..self.tokenizer.current as usize];
         match slice{
             "val"      => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Val);
             }
             "var"      => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Var);
             },
             "for"      => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::For);
             }
             "in"       => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::In);
             }
             "while"    => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::While);
             }
             "continue" =>{
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Ctn);
             }
             "break"    => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Brk);
             }
             "if"       => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::If);
             }
             "elif"     => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Elif);
             }
             "else"     => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Else);
             }
             "not"      => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::CmpNot);
             }
             "and"      => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::CmpAnd);
             }
             "or"       => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::CmpOr);
             }
             "fn"       => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Func);
             }
             "return"   => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Ret);
             }
             "true"     => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::True);
             }
             "false"     => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::False);
             },
             "print"    => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Print);
             },
             "void"|"i8" | "i16" | "i32" | "i64" |
             "f32" | "f64" | "bool" | "String" => {
-                self.collect_diagnostic_data();
                 self.collect_tokenizer_data(Token::Type);
             },
             _          => {
-                self.collect_diagnostic_data();
-                self.collect_tokenizer_data(Token::Ident);
-            }
+                self.collect_tokenizer_data(Token::Ident)
+            },
 
         }
     }
 
 
     fn string(&mut self){
+        let mut strlen = 0;
+
         while self.peek() != "\"" && !self.is_finish(){
-            if self.peek() != "\n"{
-                self.eat();
-            }else{
-                self.error.line += 1;
-                self.error.span_id += 1;
-                self.eat();
+            if matches!(self.peek(), "\n"){
+                self.error.spans.push(
+                    (self.error.span_start as SpanStart
+                     , self.tokenizer.current as SpanLength
+                    )
+                );
             }
+            strlen += 1;
+            self.eat();
         }
 
         if self.is_finish(){
-            panic!("[Line {}] Unterminated string.", self.error.line);
+            self.mismatch_string_issue(strlen);
         }
 
         //the closing
         self.eat();
 
-        self.collect_diagnostic_data();
         self.collect_tokenizer_data(Token::String);
 
     }

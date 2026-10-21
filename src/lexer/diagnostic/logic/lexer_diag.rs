@@ -1,6 +1,7 @@
 use std::process::exit;
 use crate::lexer::center::lex::Lexer;
 use colored::Colorize;
+use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
 use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::diagnostic::source::msg_data::MsgData;
 
@@ -30,9 +31,40 @@ impl Lexer{
                 self.error.span_id as usize
             )
         );
-
-
     }
+
+    pub fn collect_span(&mut self){
+        self.error.spans.push(
+            (self.error.span_start as SpanStart
+             , self.tokenizer.current as SpanLength
+            )
+        );
+        self.error.span_start = self.tokenizer.current;
+        self.error.span_id += 1;
+        self.error.line += 1;
+    }
+
+    pub fn mismatch_string_issue(&mut self, strlen : u32) {
+
+        self.error.has_error = true;
+        let rlt_col_start = self.tokenizer.current - self.error.span_start-strlen - 1;
+        let rlt_col_end =  self.tokenizer.current - self.error.span_start-strlen ;
+
+        let line = self.error.line;
+
+
+        self.error.msg_datas.push(
+            MsgData::new(
+                IssueType::MismatchString.into(),
+                line  as usize,
+                rlt_col_start as usize,
+                rlt_col_end as usize,
+                self.error.span_id  as usize
+            )
+        );
+    }
+
+
 
     pub fn build_message(&self, msg_data: MsgData){
 
@@ -41,7 +73,7 @@ impl Lexer{
         let span = self.error.spans[span_id];
         let span_start = span.0;
         let span_end = span.1;
-        let line = msg_data.line;
+        let line = msg_data.line.to_string().blue().bold();
         let rlt_col_start = msg_data.rlt_col_start;
         let rlt_col_end = msg_data.rlt_col_end;
 
@@ -66,7 +98,7 @@ impl Lexer{
 
         let file_name = &self.error.file_name;
         let error = "error".red();
-        let col = rlt_col_start + 1;
+        let col = (rlt_col_start + 1).to_string().blue().bold();
 
 
         let mut no_color_notices = String::new();
@@ -81,6 +113,9 @@ impl Lexer{
                 info.push_str(wrong_part);
                 info
             },
+            IssueType::MismatchString => {
+                "unterminated double quote string".to_string()
+            }
             _ => unreachable!()
         };
 
@@ -100,7 +135,7 @@ impl Lexer{
 #[test]
 fn test_error(){
     let input =
-        "fn main() @ = void{\n    print(String, \"Hello World\");\n}
+        "fn main() = void{\n \"Hello World\n}
     ".to_string();
     let input = input + "\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
