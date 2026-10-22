@@ -10,9 +10,18 @@ impl Parser{
     pub fn parse_stmts(&mut self) -> Result<NodeIdx, IssueType>{
         
         let start_idx = self.stmt.func_recorder.len();
-        while self.peek() != &Token::Rbrace{
-            let stmt_idx = self.matches_stmts();
-            self.stmt.func_recorder.push(stmt_idx?);
+        while self.peek() != &Token::Rbrace && self.peek() != &Token::EOF{
+            match self.matches_stmts(){
+                Ok(stmt_idx) => self.stmt.func_recorder.push(stmt_idx),
+                Err(_) => {
+                    if matches!(self.peek(), Token::EOF){
+                        break;
+                    }
+                    self.stmt.func_recorder.push(67);
+                    self.out_of_this_stmt();
+
+                }
+            };
         }
 
         let edge_start : Start = self.ast.edge_start();
@@ -24,7 +33,7 @@ impl Parser{
 
     fn matches_stmts(&mut self) -> Result<NodeIdx, IssueType>{
         match self.peek(){
-            Token::Val | Token::Var    => self.parse_var(),
+            Token::Val | Token::Var => self.parse_var(),
             Token::If     => self.parse_if(),
             Token::For    => self.parse_for(),
             Token::While  => self.parse_while(),
@@ -44,26 +53,26 @@ impl Parser{
 
         //var name
         let var_name_key = self.current as Key;
-        let var_name_idx = self.get_tok_node_idx(&Token::Ident, "Expected the variable name");
+        let var_name_idx = self.get_tok_node_idx(&Token::Ident);
         self.sign_var(var_name_key);
 
-        self.expect(&Token::Ident)?;
+        self.unexpected_token(&Token::Ident)?;
 
         //type
         let declared_ty = if !matches!(self.peek(), Token::Eq){
-            self.expect(&Token::Colon)?;
-            self.expect(&Token::Type)?;
+            self.unexpected_token(&Token::Colon)?;
+            self.unexpected_token(&Token::Type)?;
             self.type_mapping((self.current - 1) as Key)
         }else{
             Type::void
         };
 
-        self.expect(&Token::Eq)?;
+        self.unexpected_token(&Token::Eq)?;
 
         let expr_idx = self.parse_expression();
         self.matches_expr_type_and_insert(var_name_key, declared_ty);
 
-        self.expect(&Token::Scolon)?;
+        self.unexpected_token(&Token::Scolon)?;
 
         let edge_start = self.ast.edge_start();
         self.ast.edges.push(var_name_idx);

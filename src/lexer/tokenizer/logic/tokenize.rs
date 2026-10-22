@@ -115,6 +115,14 @@ impl Lexer{
                 "," => {
                     self.collect_tokenizer_data(Token::Comma);
                 },
+                "." => {
+                    if matches!(self.peek(), "."){
+                        self.eat();
+                        self.collect_tokenizer_data(Token::Range);
+                    }else{
+                        self.collect_tokenizer_data(Token::Dot);
+                    }
+                }
                 "[" => {
                     self.collect_tokenizer_data(Token::Lbracket);
                 },

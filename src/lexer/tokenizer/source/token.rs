@@ -40,6 +40,7 @@ pub enum Token{
     Colon,
     Comma,
     Dot,
+    Range,
     Scolon,
     
 

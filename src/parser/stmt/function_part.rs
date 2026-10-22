@@ -8,32 +8,33 @@ use crate::parser::center::par::Parser;
 use crate::parser::types::logic::Type;
 
 impl Parser{
-    pub fn parse_function(&mut self) -> NodeIdx{
+    pub fn parse_function(&mut self) -> Result<NodeIdx, IssueType>{
         self.build_scope();
 
 
         self.matches_token(&Token::Fn, "Can't find function");
         let func_name_key = self.current as Key;
-        let func_name_node_idx = self.get_tok_node_idx(
-            &Token::Ident, "Expected a function name"
-        );
+        let func_name_node_idx = self.get_tok_node_idx(&Token::Ident);
+        self.sign_func((self.current) as Key);
         self.stmt.func_recorder.push(func_name_node_idx);
-        self.sign_func((self.current - 1) as Key);
-        self.matches_token(&Token::Lparen, "Expected a (");
+        self.unexpected_token(&Token::Ident)?;
 
 
+        self.unexpected_token(&Token::Lparen)?;
 
-        let has_declared_arg = self.peek() == &Token::Ident && self.peek_next() == &Token::Colon;
+        let has_declared_arg = self.peek() == &Token::Ident;
         let param_start = if has_declared_arg{ self.params_start() }else{NONE};
 
         if has_declared_arg{
             loop{
                 let arg_name_key = self.current as Key;
-                let arg_idx =self.get_tok_node_idx(&Token::Ident, "");
-                self.matches_token(&Token::Colon, "Expected : ");
+                let arg_idx =self.get_tok_node_idx(&Token::Ident);
 
-                let arg_type = self.type_mapping(self.current as Key);
-                self.eat();
+                self.unexpected_token(&Token::Ident)?;
+                self.unexpected_token(&Token::Colon)?;
+                self.unexpected_token(&Token::Type)?;
+
+                let arg_type = self.type_mapping((self.current - 1) as Key);
 
 
                 self.stmt.func_recorder.push(arg_idx);
@@ -50,20 +51,20 @@ impl Parser{
 
         let param_end = if has_declared_arg{self.params_end()}else{NONE};
 
-        self.matches_token(&Token::Rparen, "Expected a )");
-        self.matches_token(&Token::Eq, "Expected =");
+        self.unexpected_token(&Token::Rparen)?;
+        self.unexpected_token(&Token::Eq)?;
 
         let ret_type = {
-            self.matches_token(&Token::Type, "Expected a type");
+            self.unexpected_token(&Token::Type)?;
             self.type_mapping((self.current - 1) as Key)
         };
 
         self.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
 
-        self.matches_token(&Token::Lbrace, "Expected {");
-        let stmt_idx = self.parse_stmts().unwrap();
-        self.matches_token(&Token::Rbrace, "Expected }");
+        self.unexpected_token(&Token::Lbrace)?;
+        let stmt_idx = self.parse_stmts()?;
+        self.unclosed_delimiter(&Token::Rbrace)?;
 
         let start = self.ast.edge_start();
         self.stmt.func_recorder.push(stmt_idx);
@@ -73,7 +74,7 @@ impl Parser{
         let end = self.ast.edge_end();
 
         self.check_legal_ret_stmt_position(&ret_type, stmt_idx);
-        self.push_node(Token::FuncStmt, NONE, start, end)
+       Ok( self.push_node(Token::FuncStmt, NONE, start, end))
 
 
     }
@@ -177,7 +178,7 @@ impl Parser{
         self.eat();
 
         self.matches_token(&Token::Lparen, "Expected (");
-        let type_idx = self.get_tok_node_idx(&Token::Type, "Expected Type");
+        let type_idx = self.get_tok_node_idx(&Token::Type);
 
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma, "Expected ,");

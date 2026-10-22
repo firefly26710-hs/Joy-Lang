@@ -18,7 +18,7 @@ impl Lexer{
         self.error.has_error = true;
 
         let rlt_col_start = self.tokenizer.current - self.error.span_start - 1;
-        let rlt_col_end =  self.tokenizer.current - self.error.span_start;
+        let rlt_col_end = self.tokenizer.current - self.error.span_start;
 
         let line = self.error.line;
 
@@ -122,6 +122,9 @@ impl Lexer{
                 info.push_str(", but find ");
                 info.push_str(&wrong_string);
                 info
+            },
+            IssueType::UnclosedDelimiter => {
+                "unclosed delimiter".to_string()
             }
             _ => unreachable!()
         };

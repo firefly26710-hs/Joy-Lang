@@ -4,7 +4,7 @@ use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 
 impl Parser {
-    pub fn get_tok_node_idx(&mut self, tok: &Token, error_msg: &str) -> NodeIdx{
+    pub fn get_tok_node_idx(&mut self, tok: &Token) -> NodeIdx{
         let idx = self.push_leaf(
             tok.clone(), self.current as Key
         );

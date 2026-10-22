@@ -80,7 +80,8 @@ impl Parser{
             let op_tok = match self.peek(){
                 Token::EOF | Token::Scolon |Token::Lbrace|
                 Token::Rparen | Token::Comma | Token::Arrow |
-                Token::Vertical| Token::Rbracket | Token::Rbrace => break,
+                Token::Vertical| Token::Rbracket | Token::Rbrace |
+                Token::Range=> break,
 
                 _true => self.peek()
             };

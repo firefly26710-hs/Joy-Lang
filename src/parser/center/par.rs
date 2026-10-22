@@ -1,4 +1,5 @@
 use crate::lexer::center::lex::Lexer;
+use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::scope::data::Scope;
@@ -29,8 +30,7 @@ pub struct Parser{
 
 impl Parser{
     pub fn init(lexer : Lexer) -> Self{
-        let alloc_size = lexer.tokenizer.tokens.len();
-        
+
         Self{
             lexer,
             ast   : AST::init(),
@@ -43,9 +43,10 @@ impl Parser{
         }
     }
 
-    pub fn build_tree(&mut self){
+    pub fn build_tree(&mut self) -> Result<NodeIdx, IssueType>{
         while self.lexer.tokenizer.tokens[self.current] != Token::EOF{
-            self.parse_function();
+            let function_idx = self.parse_function()?;
+            self.stmt.programs.push(function_idx);
         }
 
         let start = self.ast.edge_start();
@@ -53,6 +54,8 @@ impl Parser{
         let end = self.ast.edge_end();
 
         self.push_node(Token::Program, NONE, start, end);
+
+        Ok(0)
     }
 
     pub fn find_same_ident_key(&self, input_key : Key) -> Key{
@@ -120,7 +123,7 @@ impl Parser{
 
 
     pub fn current_line(&self) -> u32{
-        0
+        114514
     }
 
 
