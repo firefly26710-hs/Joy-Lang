@@ -86,7 +86,7 @@ impl<'ctx>Codegen<'ctx>{
                         (NONE, r_idx) => {
                             let rhs = self.build_expr(r_idx as usize, ty);
                             match tok{
-                                Token::Minus => match rhs{
+                                Token::Sub => match rhs{
                                     BasicValueEnum::IntValue(i_val) => {
                                         self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into()
                                     },
@@ -123,10 +123,10 @@ impl<'ctx>Codegen<'ctx>{
 
                             match(lhs, rhs){
                                 (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match tok{
-                                    Token::Plus => {
+                                    Token::Add => {
                                         self.builder.build_int_add(l, r, "Int_Add").unwrap().into()
                                     },
-                                    Token::Minus => {
+                                    Token::Sub => {
                                         self.builder.build_int_sub(l, r, "Int_Sub").unwrap().into()
                                     },
                                     Token::Mul => {
@@ -176,10 +176,10 @@ impl<'ctx>Codegen<'ctx>{
                                     _ => unreachable!()
                                 },
                                 (BasicValueEnum::FloatValue(l), BasicValueEnum::FloatValue(r)) => match tok{
-                                    Token::Plus   =>{
+                                    Token::Add =>{
                                         self.builder.build_float_add(l, r, "Flt_Add").unwrap().into()
                                     },
-                                    Token::Minus  =>{
+                                    Token::Sub =>{
                                         self.builder.build_float_sub(l, r, "Flt_Sub").unwrap().into()
                                     },
                                     Token::Mul    =>{

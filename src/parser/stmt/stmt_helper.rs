@@ -4,11 +4,10 @@ use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 
 impl Parser {
-    pub fn ret_matches_token_idx(&mut self, tok: &Token, error_msg: &str) -> NodeIdx{
+    pub fn get_tok_node_idx(&mut self, tok: &Token, error_msg: &str) -> NodeIdx{
         let idx = self.push_leaf(
             tok.clone(), self.current as Key
         );
-        self.matches_token(tok, error_msg);
         idx
     }
     pub fn matches_token(&mut self , tok : &Token, error_msg : &str){

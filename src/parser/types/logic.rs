@@ -17,7 +17,7 @@ pub enum Type{
     void,
 }
 impl Parser{
-    pub fn matches_and_insert_var_type(&mut self, key : Key, declared_ty : Type){
+    pub fn matches_expr_type_and_insert(&mut self, key : Key, declared_ty : Type){
         let ty= self.matches_var_type(&declared_ty);
         self.insert_var_type(key, ty);
     }

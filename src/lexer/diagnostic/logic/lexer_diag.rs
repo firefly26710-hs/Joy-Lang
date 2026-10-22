@@ -115,6 +115,13 @@ impl Lexer{
             },
             IssueType::MismatchString => {
                 "unterminated double quote string".to_string()
+            },
+            IssueType::UnExpectedToken{wrong_string, correct_string} => {
+                let mut info = "expected ".to_string();
+                info.push_str(&correct_string);
+                info.push_str(", but find ");
+                info.push_str(&wrong_string);
+                info
             }
             _ => unreachable!()
         };

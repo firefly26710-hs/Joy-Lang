@@ -123,7 +123,7 @@ impl Parser{
             || peek == &Token::Float
             || peek == &Token::Ident
             || peek == &Token::True
-            || peek == &Token::Minus
+            || peek == &Token::Sub
             || peek == &Token::Lparen
             || peek == &Token::CmpNot
     }
@@ -134,7 +134,7 @@ impl Parser{
             Token::EqEq   | Token::NotEq     => (0.3, 0.3),
             Token::Grt    | Token::Les       => (0.5, 0.6),
             Token::GrtEq  | Token::LesEq     => (0.7, 0.8),
-            Token::Plus   | Token::Minus     => (1.0, 2.0),
+            Token::Add | Token::Sub => (1.0, 2.0),
             Token::Div    | Token::Mod       => (3.0, 3.1),
             Token::Mul                       => (4.0, 4.0),
             _         => panic!("[Line {:?}]Unknown Operator : {:?}",self.current_line(), op)
@@ -149,7 +149,7 @@ impl Parser{
 
 pub fn is_regular_op(tok : &Token) -> bool{
     match tok{
-        Token::Plus | Token::Minus | Token::Mul |
+        Token::Add | Token::Sub | Token::Mul |
         Token::Div  | Token::Mod => {
             true
         }

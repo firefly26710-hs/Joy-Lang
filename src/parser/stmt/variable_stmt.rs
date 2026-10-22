@@ -1,3 +1,4 @@
+use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -21,9 +22,9 @@ impl Parser{
         self.push_node(Token::BlockStmt, NONE, edge_start, edge_end)
     }
 
-    fn matches_stmts(&mut self) -> NodeIdx{
+    fn matches_stmts(&mut self) -> Result<NodeIdx, IssueType>{
         match self.peek(){
-            Token::Var    => self.parse_var(),
+            Token::Val | Token::Var    => self.parse_var(),
             Token::If     => self.parse_if(),
             Token::For    => self.parse_for(),
             Token::While  => self.parse_while(),
@@ -37,45 +38,47 @@ impl Parser{
     }
 
 
-    fn parse_var(&mut self) -> NodeIdx{
+    pub fn parse_var(&mut self) -> Result<NodeIdx, IssueType>{
         self.eat();
 
+
+        //var name
         let var_name_key = self.current as Key;
-        let var_name_idx = self.ret_matches_token_idx(
-            &Token::Ident, "Expected the variable name"
-        );
+        let var_name_idx = self.get_tok_node_idx(&Token::Ident, "Expected the variable name");
         self.sign_var(var_name_key);
 
-        let declared_type = if self.peek() != &Token::Eq{
-            self.matches_token(&Token::Colon, "Expected :");
-            let ty = self.type_mapping(self.current as Key);
-            self.eat();
-            ty
+        self.expect(&Token::Ident)?;
+
+        //type
+        let declared_ty = if !matches!(self.peek(), Token::Eq){
+            self.expect(&Token::Colon)?;
+            self.expect(&Token::Type)?;
+            self.type_mapping((self.current - 1) as Key)
         }else{
             Type::void
         };
 
-        self.matches_token(&Token::Eq, "Expected =");
+        self.expect(&Token::Eq)?;
 
         let expr_idx = self.parse_expression();
-        self.matches_and_insert_var_type(var_name_key, declared_type);
+        self.matches_expr_type_and_insert(var_name_key, declared_ty);
 
-        self.matches_token(&Token::Scolon, "Expected ;");
-
+        self.expect(&Token::Scolon)?;
 
         let edge_start = self.ast.edge_start();
         self.ast.edges.push(var_name_idx);
         self.ast.edges.push(expr_idx);
         let edge_end = self.ast.edge_end();
 
-        self.push_node(Token::LetStmt, NONE, edge_start, edge_end)
+
+        Ok(self.push_node(Token::LetStmt, NONE, edge_start, edge_end))
     }
 
 
     fn ident_branch(&mut self) -> NodeIdx{
         match self.peek_next(){
             Token::Lparen => self.parse_func_call(),
-            Token::Eq |Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq
+            Token::Eq |Token::AddEq | Token::SubEq | Token::MulEq | Token::DivEq
             |Token::ModEq | Token::Scolon => self.parse_var_update(),
             _ => panic!("[Line {:?}] Expected ; ", self.current_line())
         }

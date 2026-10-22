@@ -26,7 +26,7 @@ impl<'ctx> Codegen<'ctx>{
 
             match tok{
                 Token::LetStmt => self.build_var_stmt(start, end),
-                Token::Eq|Token::PlusEq | Token::MinusEq | Token::MulEq | Token::DivEq|
+                Token::Eq|Token::AddEq | Token::SubEq | Token::MulEq | Token::DivEq|
                 Token::ModEq => self.build_update_data(start, end, tok.clone()),
                 Token::IfStmt => self.build_if_stmt(start, end),
                 Token::RetStmt => self.build_ret_stmt(start, end),
@@ -107,16 +107,16 @@ impl<'ctx> Codegen<'ctx>{
 
         let new_val : BasicValueEnum = match (prev_val, rhs_val){
             (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match op_tok{
-                Token::PlusEq => self.builder.build_int_add(l, r, "add_tmp").unwrap().into(),
-                Token::MinusEq => self.builder.build_int_sub(l, r, "sub_tmp").unwrap().into(),
+                Token::AddEq => self.builder.build_int_add(l, r, "add_tmp").unwrap().into(),
+                Token::SubEq => self.builder.build_int_sub(l, r, "sub_tmp").unwrap().into(),
                 Token::MulEq => self.builder.build_int_mul(l, r, "mul_tmp").unwrap().into(),
                 Token::DivEq => self.builder.build_int_signed_div(l, r, "div_tmp").unwrap().into(),
                 Token::ModEq => self.builder.build_int_signed_rem(l, r, "rem_tmp").unwrap().into(),
                 _ => panic!("Expected Op : {:?}", op_tok)
             },
             (BasicValueEnum::FloatValue(l), BasicValueEnum::FloatValue(r)) => match op_tok{
-                Token::PlusEq => self.builder.build_float_add(l, r, "add_tmp").unwrap().into(),
-                Token::MinusEq => self.builder.build_float_sub(l, r, "sub_tmp").unwrap().into(),
+                Token::AddEq => self.builder.build_float_add(l, r, "add_tmp").unwrap().into(),
+                Token::SubEq => self.builder.build_float_sub(l, r, "sub_tmp").unwrap().into(),
                 Token::MulEq => self.builder.build_float_mul(l, r, "mul_tmp").unwrap().into(),
                 Token::DivEq => self.builder.build_float_div(l, r, "div_tmp").unwrap().into(),
                 Token::ModEq => self.builder.build_float_rem(l, r, "rem_tmp").unwrap().into(),

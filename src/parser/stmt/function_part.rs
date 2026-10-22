@@ -11,9 +11,9 @@ impl Parser{
         self.build_scope();
 
 
-        self.matches_token(&Token::Func, "Can't find function");
+        self.matches_token(&Token::Fn, "Can't find function");
         let func_name_key = self.current as Key;
-        let func_name_node_idx = self.ret_matches_token_idx(
+        let func_name_node_idx = self.get_tok_node_idx(
             &Token::Ident, "Expected a function name"
         );
         self.stmt.func_recorder.push(func_name_node_idx);
@@ -28,7 +28,7 @@ impl Parser{
         if has_declared_arg{
             loop{
                 let arg_name_key = self.current as Key;
-                let arg_idx =self.ret_matches_token_idx(&Token::Ident, "");
+                let arg_idx =self.get_tok_node_idx(&Token::Ident, "");
                 self.matches_token(&Token::Colon, "Expected : ");
 
                 let arg_type = self.type_mapping(self.current as Key);
@@ -176,7 +176,7 @@ impl Parser{
         self.eat();
 
         self.matches_token(&Token::Lparen, "Expected (");
-        let type_idx = self.ret_matches_token_idx(&Token::Type, "Expected Type");
+        let type_idx = self.get_tok_node_idx(&Token::Type, "Expected Type");
 
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma, "Expected ,");

@@ -4,7 +4,7 @@
 pub enum IssueType {
     IllegalToken,
     MismatchString,
-    MismatchToken,
+    UnExpectedToken{wrong_string : String, correct_string : String},
     MismatchType,
     MismatchExprType
 }

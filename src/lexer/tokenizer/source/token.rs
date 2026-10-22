@@ -8,10 +8,10 @@ pub enum Token{
     Type,
 
     //operator
-    Plus,
-    PlusEq,
-    Minus,
-    MinusEq,
+    Add,
+    AddEq,
+    Sub,
+    SubEq,
     Mul,
     MulEq,
     Div,
@@ -46,7 +46,7 @@ pub enum Token{
     //keyword
     Val,
     Var,
-    Func,
+    Fn,
     For,
     In,
     While,

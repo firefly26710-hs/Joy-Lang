@@ -45,8 +45,7 @@ impl Parser{
 
     pub fn build_tree(&mut self){
         while self.lexer.tokenizer.tokens[self.current] != Token::EOF{
-            let func_idx = self.parse_function();
-            self.stmt.programs.push(func_idx)
+            self.parse_function();
         }
 
         let start = self.ast.edge_start();

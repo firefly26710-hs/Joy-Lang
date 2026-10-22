@@ -12,9 +12,9 @@ impl Lexer{
                 "+" => {
                     if matches!(self.peek(), "="){
                         self.eat();
-                        self.collect_tokenizer_data(Token::PlusEq);
+                        self.collect_tokenizer_data(Token::AddEq);
                     }else{
-                        self.collect_tokenizer_data(Token::Plus);
+                        self.collect_tokenizer_data(Token::Add);
                     }
                 },
 
@@ -23,9 +23,9 @@ impl Lexer{
                         self.eat();
                         self.collect_tokenizer_data(Token::Arrow);
                     }else if matches!(self.peek(), "="){
-                        self.collect_tokenizer_data(Token::MinusEq);
+                        self.collect_tokenizer_data(Token::SubEq);
                     }else{
-                        self.collect_tokenizer_data(Token::Minus);
+                        self.collect_tokenizer_data(Token::Sub);
                     }
                 },
 
@@ -206,7 +206,7 @@ impl Lexer{
                 self.collect_tokenizer_data(Token::CmpOr);
             }
             "fn"       => {
-                self.collect_tokenizer_data(Token::Func);
+                self.collect_tokenizer_data(Token::Fn);
             }
             "return"   => {
                 self.collect_tokenizer_data(Token::Ret);

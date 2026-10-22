@@ -10,7 +10,7 @@ impl Parser{
         self.eat();
 
         let ident_key = self.current as Key;
-        let loop_ident_idx = self.ret_matches_token_idx(&Token::Ident ,"Expected the identifier");
+        let loop_ident_idx = self.get_tok_node_idx(&Token::Ident, "Expected the identifier");
         self.sign_var(ident_key);
 
 
