@@ -12,23 +12,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/parser/diagnostic/error_handling.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/issue.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/lexer_diag.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/lexer_diag.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/tokenizer/logic/tokenize.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/logic/tokenize.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/tokenizer/source/token.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/tokenizer/source/token.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/center/par.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/center/par.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/parser_diag.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/parser_diag.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/branch_stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/stmt/function_part.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/function_part.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/loop_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/stmt_helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/stmt_helper.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/stmt/variable_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/variable_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/logic.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/logic.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

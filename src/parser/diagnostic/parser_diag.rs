@@ -47,7 +47,7 @@ impl Parser{
         );
 
         self.out_of_this_stmt();
-        
+
         issue
 
 
@@ -141,7 +141,7 @@ fn test_par_error(){
     lexer.tokenize();
 
     let mut parser = Parser::init(lexer);
-    parser.parse_var();
+    _ =parser.parse_var();
 
     if parser.lexer.error.has_error{
         parser.lexer.output_error();

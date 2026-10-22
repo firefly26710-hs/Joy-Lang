@@ -7,19 +7,19 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::logic::Type;
 
 impl Parser{
-    pub fn parse_stmts(&mut self) -> NodeIdx{
+    pub fn parse_stmts(&mut self) -> Result<NodeIdx, IssueType>{
         
         let start_idx = self.stmt.func_recorder.len();
         while self.peek() != &Token::Rbrace{
             let stmt_idx = self.matches_stmts();
-            self.stmt.func_recorder.push(stmt_idx);
+            self.stmt.func_recorder.push(stmt_idx?);
         }
 
         let edge_start : Start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.func_recorder.drain(start_idx..));
         let edge_end : End = self.ast.edge_end();
 
-        self.push_node(Token::BlockStmt, NONE, edge_start, edge_end)
+       Ok( self.push_node(Token::BlockStmt, NONE, edge_start, edge_end))
     }
 
     fn matches_stmts(&mut self) -> Result<NodeIdx, IssueType>{
@@ -75,7 +75,7 @@ impl Parser{
     }
 
 
-    fn ident_branch(&mut self) -> NodeIdx{
+    fn ident_branch(&mut self) -> Result<NodeIdx, IssueType>{
         match self.peek_next(){
             Token::Lparen => self.parse_func_call(),
             Token::Eq |Token::AddEq | Token::SubEq | Token::MulEq | Token::DivEq
@@ -84,7 +84,7 @@ impl Parser{
         }
     }
 
-    fn parse_var_update(&mut self) -> NodeIdx{
+    fn parse_var_update(&mut self) -> Result<NodeIdx, IssueType>{
         let key = self.find_same_ident_key(self.current as Key);
 
         let ident_name_idx = {
@@ -108,7 +108,7 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         let end = self.ast.edge_end();
 
-        self.push_node(op_tok, op_tok_key, start, end)
+       Ok( self.push_node(op_tok, op_tok_key, start, end))
     }
 
 

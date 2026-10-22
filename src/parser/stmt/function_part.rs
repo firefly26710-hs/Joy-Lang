@@ -1,3 +1,4 @@
+use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::ast::NodeIdx;
@@ -61,7 +62,7 @@ impl Parser{
 
 
         self.matches_token(&Token::Lbrace, "Expected {");
-        let stmt_idx = self.parse_stmts();
+        let stmt_idx = self.parse_stmts().unwrap();
         self.matches_token(&Token::Rbrace, "Expected }");
 
         let start = self.ast.edge_start();
@@ -79,7 +80,7 @@ impl Parser{
 
 
 
-    pub fn parse_ret(&mut self) -> NodeIdx{
+    pub fn parse_ret(&mut self) -> Result<NodeIdx, IssueType>{
         self.eat();
 
         let expr_idx = if matches!(self.last_ret_type(), Type::void){
@@ -100,15 +101,15 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         let end = self.ast.edge_end();
 
-        self.push_node(Token::RetStmt, NONE, start, end)
+       Ok( self.push_node(Token::RetStmt, NONE, start, end))
     }
 
-    pub fn parse_func_call(&mut self) -> NodeIdx{
+    pub fn parse_func_call(&mut self) -> Result<NodeIdx, IssueType>{
         let expr_func_idx = self.expr_func_call();
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
-        expr_func_idx
+        Ok(expr_func_idx)
     }
 
     pub fn expr_func_call(&mut self) -> NodeIdx {
@@ -172,7 +173,7 @@ impl Parser{
     }
 
 
-    pub fn parse_print(&mut self) -> NodeIdx{
+    pub fn parse_print(&mut self) -> Result<NodeIdx, IssueType>{
         self.eat();
 
         self.matches_token(&Token::Lparen, "Expected (");
@@ -194,7 +195,7 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         let edges_end = self.ast.edge_end();
 
-        self.push_node(Token::PrintStmt, NONE, edges_start, edges_end)
+        Ok(self.push_node(Token::PrintStmt, NONE, edges_start, edges_end))
 
 
     }

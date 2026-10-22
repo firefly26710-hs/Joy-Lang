@@ -1,3 +1,4 @@
+use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
@@ -5,7 +6,7 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::logic::Type;
 
 impl Parser{
-    pub fn parse_for(&mut self) -> NodeIdx{
+    pub fn parse_for(&mut self) -> Result<NodeIdx, IssueType>{
         self.build_scope();
         self.eat();
 
@@ -49,7 +50,7 @@ impl Parser{
 
 
         self.matches_token(&Token::Lbrace, "Expected {");
-        let block_idx = self.parse_stmts();
+        let block_idx = self.parse_stmts()?;
         self.matches_token(&Token::Rbrace, "Expected }");
 
         let start = self.ast.edge_start();
@@ -62,10 +63,10 @@ impl Parser{
 
 
         self.destroy_scope();
-        self.push_node(Token::ForStmt, NONE, start, end)
+        Ok(self.push_node(Token::ForStmt, NONE, start, end))
     }
 
-    pub fn parse_while(&mut self) -> NodeIdx{
+    pub fn parse_while(&mut self) -> Result<NodeIdx, IssueType>{
         self.build_scope();
 
         self.eat();
@@ -79,7 +80,7 @@ impl Parser{
         };
 
         self.matches_token(&Token::Lbrace, "Expected {");
-        let stmts_idx = self.parse_stmts();
+        let stmts_idx = self.parse_stmts()?;
         self.matches_token(&Token::Rbrace, "Expected }");
 
         self.destroy_scope();
@@ -89,7 +90,7 @@ impl Parser{
         self.ast.edges.push(stmts_idx);
         let end = self.ast.edge_end();
 
-        self.push_node(Token::WhileStmt, NONE, start, end)
+        Ok(self.push_node(Token::WhileStmt, NONE, start, end))
     }
 
 

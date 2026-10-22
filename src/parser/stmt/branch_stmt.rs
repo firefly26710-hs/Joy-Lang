@@ -1,10 +1,11 @@
+use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::types::logic::Type;
 
 impl Parser {
-    pub fn parse_if(&mut self) -> NodeIdx{
+    pub fn parse_if(&mut self) -> Result<NodeIdx, IssueType>{
        
         
         let b_recorder_start = self.stmt.branch_recorder.len();
@@ -18,7 +19,7 @@ impl Parser {
             self.match_counter_number();
         }
 
-        self.push_node(Token::IfStmt, NONE, start, end)
+       Ok( self.push_node(Token::IfStmt, NONE, start, end))
     }
 
     fn record_branch_idx(&mut self, b_recorder_start : usize){
@@ -33,7 +34,7 @@ impl Parser {
                 }
                 self.build_scope();
                 self.matches_token(&Token::Lbrace,"Expected {");
-                let stmts_idx = self.parse_stmts();
+                let stmts_idx = self.parse_stmts().unwrap();
                 self.matches_token(&Token::Rbrace, "Expected }");
                 self.destroy_scope();
 
@@ -55,7 +56,7 @@ impl Parser {
                 }
                 self.build_scope();
                 self.matches_token(&Token::Lbrace,"Expected {");
-                let stmts_idx = self.parse_stmts();
+                let stmts_idx = self.parse_stmts().unwrap();
                 self.matches_token(&Token::Rbrace, "Expected }");
                 self.destroy_scope();
 
@@ -74,7 +75,7 @@ impl Parser {
                 self.eat();
                 self.build_scope();
                 self.matches_token(&Token::Lbrace,"Expected {");
-                let stmts_idx = self.parse_stmts();
+                let stmts_idx = self.parse_stmts().unwrap();
                 self.matches_token(&Token::Rbrace, "Expected }");
                 self.destroy_scope();
 
@@ -94,7 +95,7 @@ impl Parser {
         }
     }
 
-    pub fn parse_break(&mut self) -> NodeIdx{
+    pub fn parse_break(&mut self) -> Result<NodeIdx, IssueType>{
         if !self.is_in_loop(){
             panic!("[Line {:?}] 'break' can't not in loop", self.current_line());
         }
@@ -103,10 +104,10 @@ impl Parser {
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
-        self.push_leaf(Token::BrkStmt, NONE)
+       Ok( self.push_leaf(Token::BrkStmt, NONE))
     }
 
-    pub fn parse_ctn(&mut self) -> NodeIdx{
+    pub fn parse_ctn(&mut self) -> Result<NodeIdx, IssueType>{
         if !self.is_in_loop(){
             panic!("[Line {:?}] 'break' can't not in loop", self.current_line());
         }
@@ -115,7 +116,7 @@ impl Parser {
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
-        self.push_leaf(Token::CtnStmt, NONE)
+        Ok(self.push_leaf(Token::CtnStmt, NONE))
 
     }
 
