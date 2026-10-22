@@ -58,43 +58,7 @@ impl Parser{
         Ok(0)
     }
 
-    pub fn find_same_ident_key(&self, input_key : Key) -> Key{
-        let mut target_key : Option<Key> = None;
-        for key in self.scope.var_scope_stack.iter().rev(){
-            if self.is_matches_string(input_key, *key){
-                target_key = Some(*key);
-            }
-        }
 
-        match target_key{
-            Some(key) => key,
-            None => {
-                panic!(
-                    "[Line {:?}] Can't find the value in this scope",
-                    self.current_line(),
-                )
-            }
-        }
-    }
-
-    pub fn find_same_func_key(&self, input_key : Key) -> Key{
-        let mut target_key : Option<Key> = None;
-        for key in self.scope.func_assigner.iter(){
-            if self.is_matches_string(input_key, *key){
-                target_key = Some(*key);
-            }
-        }
-
-        match target_key{
-            Some(key) => key,
-            None => {
-                panic!(
-                    "[Line {:?}] Can't find the function",
-                    self.current_line()
-                )
-            }
-        }
-    }
 
 
     pub fn push_node(
@@ -115,8 +79,8 @@ impl Parser{
         &mut self,
         tok : Token,
         key : Key
-    ) ->NodeIdx{
-        self.push_node(tok, key, NONE, NONE)
+    ) ->Result<NodeIdx, IssueType>{
+        Ok(self.push_node(tok, key, NONE, NONE))
     }
 
 

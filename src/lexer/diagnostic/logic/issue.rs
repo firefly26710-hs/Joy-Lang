@@ -6,6 +6,9 @@ pub enum IssueType {
     MismatchString,
     UnExpectedToken{wrong_string : String, correct_string : String},
     UnclosedDelimiter,
-    MismatchType,
-    MismatchExprType
+    IllegalExprMatch{first : String, second : String },
+
+    MismatchType{type_string : String},
+    VariableNotInScope{unknown_var : String},
+    NotDeclaredFunction,
 }

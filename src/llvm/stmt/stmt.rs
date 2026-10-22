@@ -47,7 +47,7 @@ impl<'ctx> Codegen<'ctx>{
         let name_key = name_node.key;
 
         //build expression
-        let declared_type = self.parser.look_var_type(name_key).clone();
+        let declared_type = self.parser.look_var_type(&name_key).clone();
         let expr_idx = edges[1] as usize;
         let expr = self.build_expr(expr_idx, &declared_type);
 
@@ -82,7 +82,7 @@ impl<'ctx> Codegen<'ctx>{
 
         let name_str = &self.parser.lexer.tokenizer.input[str_start as usize..str_end as usize];
         let var_ptr = self.get_var_ptr(key);
-        let ty = self.parser.look_var_type(key).clone();
+        let ty = self.parser.look_var_type(&key).clone();
 
         let ty_context : BasicTypeEnum = match ty{
             Type::i8 => self.context.i8_type().into(),

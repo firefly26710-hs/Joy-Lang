@@ -22,13 +22,13 @@ impl Parser {
        Ok( self.push_node(Token::IfStmt, NONE, start, end))
     }
 
-    fn record_branch_idx(&mut self, b_recorder_start : usize){
+    fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), IssueType>{
         match self.peek(){
             Token::If => {
 
 
                 self.eat();
-                let expr_idx = self.parse_expression();
+                let expr_idx = self.parse_expression()?;
                 if !self.is_matches_type(Type::bool) {
                     panic!("[Line {:?}] Expected bool type", self.current_line())
                 }
@@ -50,7 +50,7 @@ impl Parser {
                     panic!("[Line {:?}] Expected 'elif' token, but found 'if'", self.current_line())
                 }
                 self.eat();
-                let expr_idx = self.parse_expression();
+                let expr_idx = self.parse_expression()?;
                 if !self.is_matches_type(Type::bool){
                     panic!("[Line {:?}] Expected bool type", self.current_line())
                 }
@@ -91,7 +91,7 @@ impl Parser {
 
         match self.peek(){
             Token::Elif | Token::Else => self.record_branch_idx(b_recorder_start),
-            _ => return
+            _ => return Ok(())
         }
     }
 
@@ -104,7 +104,7 @@ impl Parser {
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
-       Ok( self.push_leaf(Token::BrkStmt, NONE))
+        self.push_leaf(Token::BrkStmt, NONE)
     }
 
     pub fn parse_ctn(&mut self) -> Result<NodeIdx, IssueType>{
@@ -116,7 +116,7 @@ impl Parser {
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
-        Ok(self.push_leaf(Token::CtnStmt, NONE))
+        self.push_leaf(Token::CtnStmt, NONE)
 
     }
 

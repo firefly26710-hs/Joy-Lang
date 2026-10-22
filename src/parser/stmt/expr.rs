@@ -1,3 +1,4 @@
+use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -6,7 +7,7 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::logic::Type;
 
 impl Parser{
-    pub fn parse_expression(&mut self) -> NodeIdx{
+    pub fn parse_expression(&mut self) -> Result<NodeIdx, IssueType>{
         self.ast.max_value.clear();
         self.ast.max_value.push_str("0");
 
@@ -19,7 +20,7 @@ impl Parser{
 
         self.expr(0.0)
     }
-    fn expr(&mut self, min_bp : f32) -> NodeIdx{
+    fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
                 self.ast.int_node_sum += 1;
@@ -57,20 +58,20 @@ impl Parser{
                 if self.is_func_call(self.peek_next()){
                     self.expr_func_call()
                 }else {
-                    let key = self.find_same_ident_key(self.current as Key);
+                    let ident_key = self.find_same_ident_key(self.current as Key);
+                    self.var_not_in_scope(ident_key)?;
+                    let var_check_key = ident_key;
                     self.eat();
-                    match self.look_var_type(key) {
+                    match self.look_var_type(&var_check_key) {
                         Type::i8 | Type::i16 | Type::i32 |
                         Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
                         Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
                         Type::bool => self.ast.bool_node_sum += 1,
                         Type::String => self.ast.is_string = true,
-                        Type::void => panic!(
-                            "[Line {:?}] Unknown Type {:?}", self.current_line(), self.look_var_type(key)
-                        )
+                        Type::void => panic!("[Line {:?}] Unknown Type ", self.current_line())
                     };
 
-                    self.push_leaf(Token::Ident, key)
+                    self.push_leaf(Token::Ident, ident_key)
                 }
             }
             _ => panic!("[Line {:?}] Unknown Expression : {:?} ", self.current_line(), self.peek())
@@ -102,12 +103,12 @@ impl Parser{
             let rhs_idx = self.expr(r_bp);
 
             let start : Start = self.ast.edges.len() as Start;
-            self.ast.expr_recorder.push(lhs_idx);
-            self.ast.expr_recorder.push(rhs_idx);
+            self.ast.expr_recorder.push(lhs_idx?);
+            self.ast.expr_recorder.push(rhs_idx?);
             self.ast.edges.extend(self.ast.expr_recorder.drain(..));
             let end : End = (self.ast.edges.len() - 1) as End;
 
-            lhs_idx =self.push_node(op_tok, op_key , start, end)
+            lhs_idx =Ok(self.push_node(op_tok, op_key , start, end))
 
         }
         lhs_idx

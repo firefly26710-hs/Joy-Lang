@@ -7,13 +7,7 @@ use crate::lexer::diagnostic::source::msg_data::MsgData;
 
 impl Lexer{
 
-    pub fn output_error(&self){
-        for msg_data in &self.error.msg_datas{
-            let data = msg_data;
-            self.build_message(data.clone());
-        }
-        exit(1);
-    }
+
     pub fn collection_illegal_issue(&mut self){
         self.error.has_error = true;
 
@@ -125,6 +119,12 @@ impl Lexer{
             },
             IssueType::UnclosedDelimiter => {
                 "unclosed delimiter".to_string()
+            },
+            IssueType::VariableNotInScope{unknown_var}=>{
+                let mut info = "cannot find value ".to_string();
+                info.push_str(&unknown_var);
+                info.push_str(" in this scope");
+                info
             }
             _ => unreachable!()
         };

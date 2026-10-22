@@ -3,6 +3,7 @@ use crate::lexer::diagnostic::logic::issue::IssueType;
 use crate::lexer::diagnostic::source::msg_data::MsgData;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
+use crate::parser::tree::node::Key;
 
 impl Parser{
     pub fn collect_unexpected_token_issue(
@@ -11,6 +12,7 @@ impl Parser{
     ) -> IssueType{
         self.lexer.error.has_error = true;
 
+        let wrong_tok_key = self.current;
 
         let(line,
             rlt_col_start,
@@ -18,7 +20,7 @@ impl Parser{
             alt_col_start,
             alt_col_end,
             span_id)
-        = self.get_data();
+        = self.get_data(wrong_tok_key);
 
         let wrong_string = self.lexer.tokenizer.input[alt_col_start..alt_col_end].to_string();
         let correct_string = from_tok_to_string(correct_token).to_string();
@@ -35,13 +37,13 @@ impl Parser{
             )
         );
 
-
-
         issue
     }
 
     pub fn collect_unclosed_delimiter_token_issue(&mut self) -> IssueType{
         self.lexer.error.has_error = true;
+
+        let wrong_tok_key = self.current;
 
         let(line,
             rlt_col_start,
@@ -49,7 +51,7 @@ impl Parser{
             _alt_col_start,
             _alt_col_end,
             span_id)
-            = self.get_data();
+            = self.get_data(wrong_tok_key);
 
 
         let issue = IssueType::UnclosedDelimiter;
@@ -67,9 +69,43 @@ impl Parser{
         issue
     }
 
+    pub fn collect_variable_not_in_scope_issue(&mut self, key: Key ) -> IssueType{
+        self.lexer.error.has_error = true;
 
-    pub fn get_data(&self) -> (usize, usize, usize, usize, usize, usize){
-        let wrong_tok_key = self.current;
+        let(line,
+            rlt_col_start,
+            rlt_col_end,
+            _alt_col_start,
+            _alt_col_end,
+            span_id)
+            = self.get_data(key as usize);
+
+        let interval = &self.lexer.tokenizer.intervals[key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+
+        let unknown_var = self.lexer.tokenizer.input[start..end].to_string();
+
+        let issue = IssueType::VariableNotInScope{unknown_var};
+
+        self.lexer.error.msg_datas.push(
+            MsgData::new(
+                issue.clone(),
+                line,
+                rlt_col_start,
+                rlt_col_end,
+                span_id
+            )
+        );
+
+        issue
+
+
+
+    }
+
+
+    pub fn get_data(&self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
 
         let already_look_last_tok = self.current >= self.lexer.error.span_ids.len();
         //get range of sentence which has it
@@ -128,6 +164,7 @@ fn is_stmt(tok : &Token) -> bool{
         Token::Brk |
         Token::Ret |
         Token::Print|
+        Token::Rbrace|
         Token::EOF
     )
 
@@ -188,7 +225,7 @@ fn from_tok_to_string(tok : &Token) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void{\n  var = 56778|".to_string();
+        "fn main() = void{\n var x = x;".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();

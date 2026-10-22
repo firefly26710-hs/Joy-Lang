@@ -45,7 +45,7 @@ impl<'ctx>Codegen<'ctx>{
                     let str_e = str_interval.end as usize;
                     let name_str = &self.parser.lexer.tokenizer.input[str_s ..str_e];
                     let alloc = self.get_var_ptr(key);
-                    let var_type = self.parser.look_var_type(key);
+                    let var_type = self.parser.look_var_type(&key);
 
                     let basic_ty: BasicTypeEnum<'ctx> = match var_type {
                         Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),

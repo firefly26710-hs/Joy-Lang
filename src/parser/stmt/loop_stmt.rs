@@ -52,9 +52,9 @@ impl Parser{
 
         let start = self.ast.edge_start();
         self.ast.edges.push(loop_ident_idx);
-        self.ast.edges.push(start_number_idx);
-        self.ast.edges.push(end_number_idx);
-        self.ast.edges.push(step_number_idx);
+        self.ast.edges.push(start_number_idx?);
+        self.ast.edges.push(end_number_idx?);
+        self.ast.edges.push(step_number_idx?);
         self.ast.edges.push(block_idx);
         let end = self.ast.edge_end();
 
@@ -69,7 +69,7 @@ impl Parser{
         self.eat();
 
         let expr_idx = {
-            let expr_idx = self.parse_expression();
+            let expr_idx = self.parse_expression()?;
             if !self.is_matches_type(Type::bool){
                 panic!("[Line {:?}] Expected the bool type", self.current_line())
             }

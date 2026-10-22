@@ -87,7 +87,7 @@ impl Parser{
         let expr_idx = if matches!(self.last_ret_type(), Type::void){
             NONE
         }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
-            let expr_idx = self.parse_expression();
+            let expr_idx = self.parse_expression()?;
             self.is_matches_type(self.last_ret_type().clone());
             expr_idx
         }else {
@@ -110,11 +110,11 @@ impl Parser{
 
         self.matches_token(&Token::Scolon, "Expected ;");
 
-        Ok(expr_func_idx)
+        expr_func_idx
     }
 
-    pub fn expr_func_call(&mut self) -> NodeIdx {
-        let func_name_key = self.find_same_func_key(self.current as Key);
+    pub fn expr_func_call(&mut self) -> Result<NodeIdx, IssueType> {
+        let func_name_key = self.find_same_func_key(self.current as Key)?;
         let func_name_idx = {
             self.eat();
             self.push_leaf(Token::Ident, func_name_key)
@@ -128,7 +128,7 @@ impl Parser{
             Type::void => panic!("[Line {:?}] Expression can't with void type", self.current_line())
         };
 
-        self.stmt.func_call_recorder.push(func_name_idx);
+        self.stmt.func_call_recorder.push(func_name_idx?);
         self.matches_token(&Token::Lparen, "Expected '('");
 
         let param_type_intervals = self.look_param_interval(func_name_key);
@@ -151,7 +151,7 @@ impl Parser{
                     panic!("[Line {:?}] Mismatch Type, found {:?}", self.current_line(),[i])
                 }
                 counter += 1;
-                self.stmt.func_call_recorder.push(expr_idx);
+                self.stmt.func_call_recorder.push(expr_idx?);
 
                 match self.peek() {
                     Token::Comma => self.eat(),
@@ -170,7 +170,7 @@ impl Parser{
         self.ast.edges.extend(self.stmt.func_call_recorder.drain(..));
         let end = self.ast.edge_end();
 
-        self.push_node(Token::CallStmt, NONE, start, end)
+        Ok(self.push_node(Token::CallStmt, NONE, start, end))
     }
 
 
@@ -193,7 +193,7 @@ impl Parser{
 
         let edges_start = self.ast.edge_start();
         self.ast.edges.push(type_idx);
-        self.ast.edges.push(expr_idx);
+        self.ast.edges.push(expr_idx?);
         let edges_end = self.ast.edge_end();
 
         Ok(self.push_node(Token::PrintStmt, NONE, edges_start, edges_end))

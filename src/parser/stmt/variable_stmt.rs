@@ -54,7 +54,7 @@ impl Parser{
         //var name
         let var_name_key = self.current as Key;
         let var_name_idx = self.get_tok_node_idx(&Token::Ident);
-        self.sign_var(var_name_key);
+
 
         self.unexpected_token(&Token::Ident)?;
 
@@ -69,7 +69,7 @@ impl Parser{
 
         self.unexpected_token(&Token::Eq)?;
 
-        let expr_idx = self.parse_expression();
+        let expr_idx = self.parse_expression()?;
         self.matches_expr_type_and_insert(var_name_key, declared_ty);
 
         self.unexpected_token(&Token::Scolon)?;
@@ -79,7 +79,7 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         let edge_end = self.ast.edge_end();
 
-
+        self.sign_var(var_name_key);
         Ok(self.push_node(Token::LetStmt, NONE, edge_start, edge_end))
     }
 
@@ -104,8 +104,8 @@ impl Parser{
         let op_tok_key = self.current as Key;
         let op_tok = self.eat();
 
-        let expr_idx = self.parse_expression();
-        let ident_type = self.look_var_type(key);
+        let expr_idx = self.parse_expression()?;
+        let ident_type = self.look_var_type(&key);
         if !self.is_matches_type(ident_type.clone()){
             panic!("[Line {:?}] {:?} Mismatch Type ", self.current_line(), self.look_string(key))
         }
@@ -113,7 +113,7 @@ impl Parser{
         self.matches_token(&Token::Scolon, "Expected ;");
 
         let start = self.ast.edge_start();
-        self.ast.edges.push(ident_name_idx);
+        self.ast.edges.push(ident_name_idx?);
         self.ast.edges.push(expr_idx);
         let end = self.ast.edge_end();
 

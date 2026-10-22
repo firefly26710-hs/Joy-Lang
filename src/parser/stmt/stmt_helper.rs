@@ -8,7 +8,7 @@ impl Parser {
         let idx = self.push_leaf(
             tok.clone(), self.current as Key
         );
-        idx
+        idx.unwrap()
     }
     pub fn matches_token(&mut self , tok : &Token, error_msg : &str){
         if self.peek() == tok{
