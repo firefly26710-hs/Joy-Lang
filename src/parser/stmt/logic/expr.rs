@@ -25,7 +25,7 @@ impl Parser{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
                 if self.stmt.flt_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int))
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int, self.current))
                 }
 
                 self.stmt.int_node_sum += 1;
@@ -36,7 +36,7 @@ impl Parser{
             }
             Token::Float =>{
                 if self.stmt.int_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float))
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float, self.current))
                 }
                 self.stmt.flt_node_sum += 1;
                 let key = self.current as Key;
@@ -46,9 +46,9 @@ impl Parser{
             }
             Token::String => {
                 if self.stmt.int_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String))
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String, self.current))
                 }else if self.stmt.flt_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String))
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String, self.current))
                 }
 
                 self.stmt.is_string = true;
@@ -82,14 +82,14 @@ impl Parser{
                         Type::i8 | Type::i16 | Type::i32 |
                         Type::i64 | Type::i128 => {
                             if self.stmt.flt_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int))
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int, self.current))
                             }
 
                             self.stmt.int_node_sum += 1
                         },
                         Type::f32 | Type::f64 => {
                             if self.stmt.int_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float))
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float, self.current))
                             }
 
                             self.stmt.flt_node_sum += 1
@@ -97,9 +97,9 @@ impl Parser{
                         Type::bool => self.stmt.bool_node_sum += 1,
                         Type::String => {
                             if self.stmt.int_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String))
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String, self.current))
                             }else if self.stmt.flt_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String))
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String, self.current))
                             }
                             self.stmt.is_string = true
 
@@ -184,9 +184,11 @@ impl Parser{
 
 }
 
+pub fn is_op(tok : &Token) -> bool{
+    is_regular_op(tok) || is_bool_op(tok) || is_compare_op(tok)
+}
 
-
-pub fn is_regular_op(tok : &Token) -> bool{
+fn is_regular_op(tok : &Token) -> bool{
     match tok{
         Token::Add | Token::Sub | Token::Mul |
         Token::Div  | Token::Mod => {
@@ -196,7 +198,7 @@ pub fn is_regular_op(tok : &Token) -> bool{
     }
 }
 
-pub fn is_bool_op(tok : &Token) -> bool{
+fn is_bool_op(tok : &Token) -> bool{
     match tok{
         Token::Les | Token::LesEq |
         Token::Grt | Token::GrtEq |
@@ -206,7 +208,7 @@ pub fn is_bool_op(tok : &Token) -> bool{
 }
 
 
-pub fn is_compare_op(tok : &Token) -> bool{
+fn is_compare_op(tok : &Token) -> bool{
     match tok{
         Token::CmpAnd | Token::CmpOr => true,
         _ => false

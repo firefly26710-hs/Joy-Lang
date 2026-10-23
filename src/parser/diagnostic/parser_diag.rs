@@ -1,3 +1,4 @@
+use crate::parser::stmt::logic::expr::is_op;
 use crate::lexer::center::lex::Lexer;
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::diagnostic::source::msg_data::MsgData;
@@ -202,9 +203,15 @@ impl Parser{
     pub fn collect_mismatch_node_type_issue(
         &mut self, prev_node_ty : &Token,
         curr_node_ty : &Token,
+        start_key : usize
     ) -> IssueType{
+
+
+
+
         self.lexer.error.has_error = true;
-        let curr_node_key = self.current;
+        let curr_node_key = start_key;
+
 
         let(line,
             rlt_col_start,
@@ -241,13 +248,62 @@ impl Parser{
             )
         );
 
+        let mut peek_idx = start_key + 1;
+        let tokens = &self.lexer.tokenizer.tokens;
+        while matches!(tokens[peek_idx], Token::Int | Token::Float | Token::String) || is_op(&tokens[peek_idx]){
+            let peek = &tokens[peek_idx];
+
+            if !is_op(&peek) && peek != prev_node_ty{
+                let(line,
+                    rlt_col_start,
+                    rlt_col_end,
+                    _alt_col_start,
+                    _alt_col_end,
+                    span_id)
+                    = self.get_data(peek_idx).clone();
+
+
+                let prev_node_type = match prev_node_ty{
+                    Token::Int => "integer",
+                    Token::Float => "float",
+                    Token::String => "String",
+                    _ => panic!("unknown node ty")
+                }.to_string();
+
+                let curr_node_type = match peek{
+                    Token::Int => "integer",
+                    Token::Float => "float",
+                    Token::String => "String",
+                    _ => panic!("unknown node ty")
+                }.to_string();
+
+                let issue = IssueType::MismatchesNodeType {
+                    prev_node_type, curr_node_type
+                };
+
+                self.lexer.error.msg_datas.push(
+                    MsgData::new(
+                        issue.clone(),
+                        line,
+                        rlt_col_start,
+                        rlt_col_end,
+                        span_id
+                    )
+                );
+            }
+
+            peek_idx += 1;
+        }
+
+
+
         issue
 
     }
 
 
 
-    pub fn get_data(&mut self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
+    pub fn get_data(&self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
 
         let already_look_last_tok = self.current >= self.lexer.error.span_ids.len();
         //get range of sentence which has it
@@ -404,7 +460,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void{ \n var x = 5 + 3.5 + 2.5; ".to_string();
+        "fn main() = void{ \n var x = 3.5 + 2.5 + 5 + 5;} ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();

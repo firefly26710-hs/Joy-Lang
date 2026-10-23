@@ -2,6 +2,7 @@ use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_str
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
+use crate::parser::stmt::logic::expr::is_op;
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
@@ -49,13 +50,25 @@ impl Parser{
         }
     }
 
-    pub fn mismatch_prev_node_type(
-        &mut self,
-        prev_node_type : &Token,
-        curr_node_type : &Token
-    ) -> Result<(), IssueType>{
-        Err(self.collect_mismatch_node_type_issue(prev_node_type, curr_node_type))
-    }
+    // pub fn mismatch_prev_node_type(
+    //     &mut self,
+    //     prev_node_type : &Token,
+    //     curr_node_type : &Token
+    // ) -> Result<(), IssueType>{
+    //
+    //
+    //     let new_peek = self.current;
+    //     let tokens = &self.lexer.tokenizer.tokens;
+    //
+    //
+    //
+    //     self.collect_mismatch_node_type_issue(prev_node_type, curr_node_type)?
+    //
+    //
+    //
+    //
+    //     Err(self.collect_mismatch_node_type_issue(prev_node_type, curr_node_type))
+    // }
 
     pub fn matches_type_in_multi_var(&mut self, expected_type : &Type) -> Result<(), IssueType>{
         let actual_type = &self.stmt.called_var_types;
