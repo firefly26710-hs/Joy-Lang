@@ -18,6 +18,7 @@ impl Parser{
         self.stmt.compare_op_sum = 0;
         self.stmt.is_string = false;
 
+        self.stmt.called_var_types = Type::void;
         self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{

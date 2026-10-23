@@ -214,11 +214,6 @@ impl Parser{
             span_id)
             = self.get_data(curr_node_key);
 
-        let op_key = self.current - 1;
-        let interval = &self.lexer.tokenizer.intervals[op_key];
-        let start = interval.start as usize;
-        let end = interval.end as usize;
-        let op_str = self.lexer.tokenizer.input[start..end].to_string();
 
         let prev_node_type = match prev_node_ty{
             Token::Int => "integer",
@@ -252,17 +247,22 @@ impl Parser{
 
 
 
-    pub fn get_data(&self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
+    pub fn get_data(&mut self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
 
         let already_look_last_tok = self.current >= self.lexer.error.span_ids.len();
         //get range of sentence which has it
+
         let span_id = if already_look_last_tok{
             self.lexer.error.span_ids[wrong_tok_key - 1] as usize
-
         }else{
             self.lexer.error.span_ids[wrong_tok_key] as usize
         };
-        let span_range = self.lexer.error.spans[span_id];
+
+        let span_range = if already_look_last_tok{
+            self.lexer.error.spans[span_id]
+        }else{
+            self.lexer.error.spans[span_id]
+        };
         let line = span_id + 1;
 
         //alt means absolute
@@ -276,6 +276,7 @@ impl Parser{
         };
 
         let alt_col_start = interval.start as usize;
+
         let alt_col_end = interval.end as usize;
 
 
@@ -303,6 +304,8 @@ impl Parser{
 
 
     }
+
+
 
 }
 
@@ -401,7 +404,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void{ \n for i in 0.5..3{\n var x = 5; } }".to_string();
+        "fn main() = void{ \n var x = 5 + 3.5 + 2.5; ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
