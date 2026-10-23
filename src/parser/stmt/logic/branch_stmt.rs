@@ -1,8 +1,8 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 impl Parser {
     pub fn parse_if(&mut self) -> Result<NodeIdx, IssueType>{

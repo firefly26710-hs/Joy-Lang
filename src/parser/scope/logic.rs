@@ -1,8 +1,7 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
-use crate::parser::tree::node::Key;
 use crate::parser::center::par::Parser;
+use crate::parser::tree::node::Key;
 
-impl Parser{
+impl Parser {
     pub fn find_same_ident_key(&mut self, input_key : Key) -> Key{
         for key in self.scope.var_scope_stack.iter().rev(){
             if self.is_matches_string(input_key, *key){
@@ -13,23 +12,14 @@ impl Parser{
         input_key
     }
 
-    pub fn find_same_func_key(&self, input_key : Key) -> Result<Key, IssueType>{
-        let mut target_key : Option<Key> = None;
+    pub fn find_same_func_key(&self, input_key : Key) -> Key{
         for key in self.scope.func_assigner.iter(){
             if self.is_matches_string(input_key, *key){
-                target_key = Some(*key);
+                return *key;
             }
         }
 
-        match target_key{
-            Some(key) => Ok(key),
-            None => {
-                panic!(
-                    "[Line {:?}] Can't find the function",
-                    self.current_line()
-                )
-            }
-        }
+        input_key
     }
 
 

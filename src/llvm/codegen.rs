@@ -2,7 +2,7 @@ use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::{Key, Node};
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 use inkwell::basic_block::BasicBlock;
 use inkwell::builder::Builder;
 use inkwell::context::Context;

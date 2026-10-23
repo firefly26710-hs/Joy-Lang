@@ -1,11 +1,12 @@
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 impl Parser{
 
     pub fn look_var_type(&self, input_key : &Key) -> &Type{
+
         for i in 0..self.table.var_keys.len(){
             if self.table.var_keys[i] == *input_key{
                 return &self.table.var_types[i];

@@ -1,9 +1,9 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::tree::node::Key;
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_for(&mut self) -> Result<NodeIdx, IssueType>{
@@ -19,9 +19,7 @@ impl Parser{
 
         let start_number_idx = {
             let expr_idx = self.parse_expression();
-            if !self.is_matches_type(Type::i32){
-                panic!("[Line {:?}] Expected Integer", self.current_line());
-            }
+            self.matches_type(&Type::i32)?;
             expr_idx
         };
 
@@ -29,9 +27,7 @@ impl Parser{
 
         let end_number_idx = {
             let expr_idx = self.parse_expression();
-            if !self.is_matches_type(Type::i32){
-                panic!("[Line {:?}] Expected Integer", self.current_line());
-            }
+            self.matches_type(&Type::i32)?;
             expr_idx
         };
 
@@ -39,9 +35,7 @@ impl Parser{
 
         let step_number_idx = {
             let expr_idx = self.parse_expression();
-            if !self.is_matches_type(Type::i32){
-                panic!("[Line {:?}] Expected Integer", self.current_line());
-            }
+            self.matches_type(&Type::i32)?;
             expr_idx
         };
 
@@ -70,9 +64,7 @@ impl Parser{
 
         let expr_idx = {
             let expr_idx = self.parse_expression()?;
-            if !self.is_matches_type(Type::bool){
-                panic!("[Line {:?}] Expected the bool type", self.current_line())
-            }
+            self.matches_type(&Type::bool)?;
             expr_idx
         };
 

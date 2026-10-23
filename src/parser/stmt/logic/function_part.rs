@@ -1,11 +1,11 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 
 use crate::parser::center::par::Parser;
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_function(&mut self) -> Result<NodeIdx, IssueType>{
@@ -106,25 +106,27 @@ impl Parser{
     }
 
     pub fn parse_func_call(&mut self) -> Result<NodeIdx, IssueType>{
-        let expr_func_idx = self.expr_func_call();
+        let expr_func_idx = self.expr_func_call()?;
 
-        self.matches_token(&Token::Scolon, "Expected ;");
+       self.unexpected_token(&Token::Scolon)?;
 
-        expr_func_idx
+        Ok(expr_func_idx)
     }
 
     pub fn expr_func_call(&mut self) -> Result<NodeIdx, IssueType> {
-        let func_name_key = self.find_same_func_key(self.current as Key)?;
+        let func_name_key = self.find_same_func_key(self.current as Key);
+        self.fn_not_exist(func_name_key)?;
+
         let func_name_idx = {
             self.eat();
             self.push_leaf(Token::Ident, func_name_key)
         };
 
         match self.look_ret_type(func_name_key){
-            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
-            Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
-            Type::bool => self.ast.bool_node_sum += 1,
-            Type::String => self.ast.is_string = true,
+            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128 => self.stmt.int_node_sum += 1,
+            Type::f32 | Type::f64 => self.stmt.flt_node_sum += 1,
+            Type::bool => self.stmt.bool_node_sum += 1,
+            Type::String => self.stmt.is_string = true,
             Type::void => panic!("[Line {:?}] Expression can't with void type", self.current_line())
         };
 

@@ -1,55 +1,68 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> Result<NodeIdx, IssueType>{
-        self.ast.max_value.clear();
-        self.ast.max_value.push_str("0");
+        self.stmt.max_value.clear();
+        self.stmt.max_value.push_str("0");
 
-        self.ast.int_node_sum = 0;
-        self.ast.flt_node_sum = 0;
-        self.ast.bool_node_sum = 0;
-        self.ast.regular_op_sum = 0;
-        self.ast.compare_op_sum = 0;
-        self.ast.is_string = false;
+        self.stmt.int_node_sum = 0;
+        self.stmt.flt_node_sum = 0;
+        self.stmt.bool_node_sum = 0;
+        self.stmt.regular_op_sum = 0;
+        self.stmt.compare_op_sum = 0;
+        self.stmt.is_string = false;
 
         self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
-                self.ast.int_node_sum += 1;
+                if self.stmt.flt_node_sum > 0{
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int))
+                }
+
+                self.stmt.int_node_sum += 1;
                 let key = self.current as Key;
                 self.update_int_max(key);
                 self.eat();
                 self.push_leaf(Token::Int, key)
             }
             Token::Float =>{
-                self.ast.flt_node_sum += 1;
+                if self.stmt.int_node_sum > 0{
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float))
+                }
+                self.stmt.flt_node_sum += 1;
                 let key = self.current as Key;
                 self.update_flt_max(key);
                 self.eat();
                 self.push_leaf(Token::Float, key)
             }
             Token::String => {
-                self.ast.is_string = true;
+                if self.stmt.int_node_sum > 0{
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String))
+                }else if self.stmt.flt_node_sum > 0{
+                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String))
+                }
+
+                self.stmt.is_string = true;
                 let key = self.current as Key;
                 self.eat();
                 self.push_leaf(Token::String, key)
             }
             Token::True =>{
-                self.ast.bool_node_sum += 1;
+                self.stmt.bool_node_sum += 1;
                 let key = self.current as Key;
                 self.eat();
                 self.push_leaf(Token::True, key)
             }
             Token::False=> {
-                self.ast.bool_node_sum += 1;
+                self.stmt.bool_node_sum += 1;
                 let key = self.current as Key;
                 self.eat();
                 self.push_leaf(Token::False, key)
@@ -59,15 +72,37 @@ impl Parser{
                     self.expr_func_call()
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
+
                     self.var_not_in_scope(ident_key)?;
-                    let var_check_key = ident_key;
                     self.eat();
-                    match self.look_var_type(&var_check_key) {
+                    let ident_type = self.look_var_type(&ident_key);
+                    self.matches_type_in_multi_var(&ident_type.clone())?;
+                    match self.look_var_type(&ident_key) {
                         Type::i8 | Type::i16 | Type::i32 |
-                        Type::i64 | Type::i128 => self.ast.int_node_sum += 1,
-                        Type::f32 | Type::f64 => self.ast.flt_node_sum += 1,
-                        Type::bool => self.ast.bool_node_sum += 1,
-                        Type::String => self.ast.is_string = true,
+                        Type::i64 | Type::i128 => {
+                            if self.stmt.flt_node_sum > 0{
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int))
+                            }
+
+                            self.stmt.int_node_sum += 1
+                        },
+                        Type::f32 | Type::f64 => {
+                            if self.stmt.int_node_sum > 0{
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float))
+                            }
+
+                            self.stmt.flt_node_sum += 1
+                        },
+                        Type::bool => self.stmt.bool_node_sum += 1,
+                        Type::String => {
+                            if self.stmt.int_node_sum > 0{
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String))
+                            }else if self.stmt.flt_node_sum > 0{
+                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String))
+                            }
+                            self.stmt.is_string = true
+
+                        }
                         Type::void => panic!("[Line {:?}] Unknown Type ", self.current_line())
                     };
 
@@ -76,6 +111,7 @@ impl Parser{
             }
             _ => panic!("[Line {:?}] Unknown Expression : {:?} ", self.current_line(), self.peek())
         };
+
 
         loop{
             let op_tok = match self.peek(){
@@ -93,9 +129,9 @@ impl Parser{
                 break;
             }
 
-            if is_regular_op(op_tok){self.ast.regular_op_sum += 1}
-            else if is_bool_op(op_tok){self.ast.bool_node_sum += 1}
-            else if is_compare_op(op_tok){self.ast.compare_op_sum += 1}
+            if is_regular_op(op_tok){self.stmt.regular_op_sum += 1}
+            else if is_bool_op(op_tok){self.stmt.bool_node_sum += 1}
+            else if is_compare_op(op_tok){self.stmt.compare_op_sum += 1}
 
             let op_key = self.current as Key;
             let op_tok = self.eat();

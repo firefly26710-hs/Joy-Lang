@@ -1,14 +1,14 @@
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::scope::data::Scope;
-use crate::parser::stmt::stmt_data::Stmt;
+use crate::parser::stmt::data::stmt_data::Stmt;
 use crate::parser::tree::ast::{AST, NONE, NodeIdx};
 use crate::parser::tree::node::Key;
 use crate::parser::tree::node::Node;
 use crate::parser::types::data::Table;
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 
 pub struct Parser{

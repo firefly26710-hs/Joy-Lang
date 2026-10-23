@@ -1,10 +1,10 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::tree::node::Key;
-use crate::parser::types::logic::Type;
+use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_stmts(&mut self) -> Result<NodeIdx, IssueType>{
@@ -70,7 +70,10 @@ impl Parser{
         self.unexpected_token(&Token::Eq)?;
 
         let expr_idx = self.parse_expression()?;
-        self.matches_expr_type_and_insert(var_name_key, declared_ty);
+        let actually_ty = self.matches_type(&declared_ty)?;
+
+
+        self.insert_var_type(var_name_key, actually_ty);
 
         self.unexpected_token(&Token::Scolon)?;
 
@@ -106,16 +109,16 @@ impl Parser{
 
         let expr_idx = self.parse_expression()?;
         let ident_type = self.look_var_type(&key);
-        if !self.is_matches_type(ident_type.clone()){
-            panic!("[Line {:?}] {:?} Mismatch Type ", self.current_line(), self.look_string(key))
-        }
+        self.matches_type(&ident_type.clone())?;
 
-        self.matches_token(&Token::Scolon, "Expected ;");
+
+       self.unexpected_token(&Token::Scolon)?;
 
         let start = self.ast.edge_start();
         self.ast.edges.push(ident_name_idx?);
         self.ast.edges.push(expr_idx);
         let end = self.ast.edge_end();
+
 
        Ok( self.push_node(op_tok, op_tok_key, start, end))
     }

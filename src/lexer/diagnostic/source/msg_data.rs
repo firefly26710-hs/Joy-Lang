@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::logic::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::IssueType;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct MsgData {
