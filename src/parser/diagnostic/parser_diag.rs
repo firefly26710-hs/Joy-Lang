@@ -460,7 +460,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void{ \n var x = 3.5 + 2.5 + 5 + 5;} ".to_string();
+        "fn main() = void{ \n var x = 3.5 + 2.5 + 5 + 5; ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
