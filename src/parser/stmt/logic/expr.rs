@@ -8,8 +8,6 @@ use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> Result<NodeIdx, IssueType>{
-        self.stmt.max_value.clear();
-        self.stmt.max_value.push_str("0");
 
         self.stmt.int_node_sum = 0;
         self.stmt.flt_node_sum = 0;
@@ -19,38 +17,33 @@ impl Parser{
         self.stmt.is_string = false;
 
         self.stmt.prev_node_type = Type::void;
+        self.stmt.is_prev_node_is_ident = false;
+        self.stmt.prev_node_key = 0;
+        self.stmt.expr_start_key = self.current as Key;
+
         self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
-                if self.stmt.flt_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int, self.current))
-                }
-
-
                 self.stmt.int_node_sum += 1;
                 let key = self.current as Key;
-                self.update_int_max(key);
+                self.stmt.prev_node_key = key;
+                self.update_node_type(key)?;
                 self.eat();
+                self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Int, key)
             }
             Token::Float =>{
-                if self.stmt.int_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float, self.current))
-                }
                 self.stmt.flt_node_sum += 1;
                 let key = self.current as Key;
-                self.update_flt_max(key);
+                self.stmt.prev_node_key = key;
+                self.update_node_type(key)?;
                 self.eat();
+                self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Float, key)
             }
             Token::String => {
-                if self.stmt.int_node_sum > 0 || self.stmt.flt_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String, self.current))
-                }else if self.stmt.flt_node_sum > 0{
-                    return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String, self.current))
-                }
 
                 self.stmt.is_string = true;
                 let key = self.current as Key;
@@ -74,40 +67,10 @@ impl Parser{
                     self.expr_func_call()
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
-
                     self.var_not_in_scope(ident_key)?;
+                    self.update_node_type(ident_key)?;
                     self.eat();
-                    let ident_type = self.look_var_type(&ident_key);
-                    self.matches_type_in_multi_var(&ident_type.clone())?;
-                    match self.look_var_type(&ident_key) {
-                        Type::i8 | Type::i16 | Type::i32 |
-                        Type::i64 | Type::i128 => {
-                            if self.stmt.flt_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int, self.current))
-                            }
-
-                            self.stmt.int_node_sum += 1
-                        },
-                        Type::f32 | Type::f64 => {
-                            if self.stmt.int_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::Float, self.current))
-                            }
-
-                            self.stmt.flt_node_sum += 1
-                        },
-                        Type::bool => self.stmt.bool_node_sum += 1,
-                        Type::String => {
-                            if self.stmt.int_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String, self.current))
-                            }else if self.stmt.flt_node_sum > 0{
-                                return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String, self.current))
-                            }
-                            self.stmt.is_string = true
-
-                        }
-                        Type::void => panic!("[Line {:?}] Unknown Type ", self.current_line())
-                    };
-
+                    self.stmt.is_prev_node_is_ident = true;
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }

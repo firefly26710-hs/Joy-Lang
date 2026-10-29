@@ -74,7 +74,7 @@ impl Parser{
         self.unexpected_token(&Token::Eq)?;
 
         let expr_idx = self.parse_expression()?;
-        let actually_ty = self.matches_type(&declared_ty)?;
+        let actually_ty = self.matches_ty(&declared_ty)?;
 
 
         self.insert_var_type(var_name_key, actually_ty);

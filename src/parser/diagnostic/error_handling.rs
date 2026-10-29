@@ -1,4 +1,4 @@
-use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_string_type};
+use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_string_type, is_two_types_in_same_set, max_type};
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -49,45 +49,29 @@ impl Parser{
         }
     }
 
-    // pub fn mismatch_prev_node_type(
-    //     &mut self,
-    //     prev_node_type : &Token,
-    //     curr_node_type : &Token
-    // ) -> Result<(), IssueType>{
-    //
-    //
-    //     let new_peek = self.current;
-    //     let tokens = &self.lexer.tokenizer.tokens;
-    //
-    //
-    //
-    //     self.collect_mismatch_node_type_issue(prev_node_type, curr_node_type)?
-    //
-    //
-    //
-    //
-    //     Err(self.collect_mismatch_node_type_issue(prev_node_type, curr_node_type))
-    // }
+    pub fn matches_ty(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
+        let expr_type = &self.get_expr_type();
 
-    pub fn matches_type_in_multi_var(&mut self, expected_type : &Type) -> Result<(), IssueType>{
-        let actual_type = &self.stmt.prev_node_type;
-
-        if actual_type == &Type::void{
-            self.stmt.prev_node_type = expected_type.clone();
-            Ok(())
-        }else if expected_type != actual_type{
-            Err(self.collect_mismatch_type_issue(expected_type, &actual_type.clone()))
-        }else{
-            return Ok(())
+        if !is_two_types_in_same_set(expr_type, expected_type){
+           return Err( self.collect_mismatch_type_issue(expected_type, expr_type));
+        }
+        
+        if expected_type == &Type::void{
+            if expr_type
         }
 
+        if max_type(expected_type, expr_type) == *expr_type && expected_type != &Type::void{
+            Err(self.collect_type_out_of_range(self.stmt.expr_start_key, expected_type))
+        }else{
+            Ok(expr_type.clone())
+        }
     }
-
 
 
     pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
 
         let expr_type = self.get_expr_type();
+        dbg!(&expr_type);
 
 
        let issue = match (expected_type, expr_type){
@@ -100,21 +84,21 @@ impl Parser{
 
            (Type::i8, Type::i8) => Ok(Type::i8),
            (Type::i8, Type::i16 | Type::i32 | Type::i64 | Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.max_value_key, &expected_type)),
+           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
 
            (Type::i16, Type::i8 | Type::i16) => Ok(Type::i16),
            (Type::i16, Type::i32 | Type::i64 | Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.max_value_key, &expected_type)),
+           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
 
 
            (Type::i32, Type::i8 | Type::i16 | Type::i32) => Ok(Type::i32),
            (Type::i32, Type::i64 | Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.max_value_key, &expected_type)),
+           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
 
 
            (Type::i64, Type::i8 | Type::i16 | Type::i32 | Type::i64) => Ok(Type::i64),
            (Type::i64, Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.max_value_key, &expected_type)),
+           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
 
 
            (Type::i128, Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128)
@@ -122,7 +106,7 @@ impl Parser{
 
            (Type::f32, Type::f32) => Ok(Type::f32),
            (Type::f32, Type::f64)
-           => Err(self.collect_type_out_of_range(self.stmt.max_value_key, &expected_type)),
+           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
 
 
            (Type::f64, Type::f32 | Type::f64) => Ok(Type::f64),

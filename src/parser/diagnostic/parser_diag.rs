@@ -75,7 +75,7 @@ impl Parser{
     pub fn collect_mismatch_type_issue(&mut self, expected_type : &Type, actual_type : &Type) -> IssueType{
         self.lexer.error.has_error = true;
 
-        let actual_type_idx = self.current - 1; // 記得要改
+        let actual_type_idx = self.current; // 記得要改
 
         let(line,
             rlt_col_start,
@@ -201,13 +201,11 @@ impl Parser{
     }
 
     pub fn collect_mismatch_node_type_issue(
-        &mut self, prev_node_ty : &Token,
-        curr_node_ty : &Token,
+        &mut self,
+        curr_node_ty : &Type,
+        prev_ty   : &Type,
         start_key : usize
     ) -> IssueType{
-
-
-
 
         self.lexer.error.has_error = true;
         let curr_node_key = start_key;
@@ -222,15 +220,17 @@ impl Parser{
             = self.get_data(curr_node_key);
 
 
-        let prev_node_type = match prev_node_ty{
-            Token::Int => "integer",
-            Token::Float => "float",
+        let prev_node_type = match prev_ty{
+            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
+            => "integer",
+            Type::f32 | Type::f64 => "float",
             _ => panic!("unknown node ty")
         }.to_string();
 
         let curr_node_type = match curr_node_ty{
-            Token::Int => "integer",
-            Token::Float => "float",
+            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
+            => "integer",
+            Type::f32 | Type::f64 => "float",
             _ => panic!("unknown node ty")
         }.to_string();
 
@@ -248,12 +248,19 @@ impl Parser{
             )
         );
 
+        let prev_node_ty = match prev_ty {
+            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
+            => Token::Int,
+            Type::f32 | Type::f64 => Token::Float,
+            _ => panic!("unknown node ty")
+        };
+
         let mut peek_idx = start_key + 1;
         let tokens = &self.lexer.tokenizer.tokens;
         while matches!(tokens[peek_idx], Token::Int | Token::Float | Token::String) || is_op(&tokens[peek_idx]){
             let peek = &tokens[peek_idx];
 
-            if !is_op(&peek) && peek != prev_node_ty{
+            if !is_op(&peek) && peek != &prev_node_ty{
                 let(line,
                     rlt_col_start,
                     rlt_col_end,
@@ -462,7 +469,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void{ \n var x = x;} \n fn add() = void{ \n var y = x;\n} ".to_string();
+        "fn main() = void {var x = 1; var y = x + 1;}  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();

@@ -17,8 +17,10 @@ pub struct Stmt{
     pub compare_op_sum : u8,
     pub is_string      : bool,
 
-    pub max_value_key  : u32,
-    pub max_value      : String,
+    pub is_prev_node_is_ident : bool,
+    pub has_ident_in_expr     : bool,
+    pub expr_start_key : u32,
+    pub prev_node_key  : u32,
     pub prev_node_type : Type,
 
 
@@ -43,11 +45,11 @@ impl Stmt{
             regular_op_sum : 0,
             compare_op_sum : 0,
             is_string : false,
+            expr_start_key : 0,
+            prev_node_key : 0,
             prev_node_type: Type::void,
 
-            max_value_key : 0,
-            max_value : String::with_capacity(1024),
-
+            is_prev_node_is_ident : false,
 
 
             ret_times_in_branch: 0,
