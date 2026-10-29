@@ -42,6 +42,10 @@ impl Parser{
             Token::Brk   => self.parse_break(),
             Token::Ctn   => self.parse_ctn(),
             Token::Print => self.parse_print(),
+            Token::Rbrace=> {
+                self.eat();
+                Ok(NONE)
+            }
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }
     }

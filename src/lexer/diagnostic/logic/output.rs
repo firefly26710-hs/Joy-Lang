@@ -57,7 +57,7 @@ impl Lexer{
         let info = match issue{
             IssueType::IllegalToken => {
                 let mut info = "illegal token: ".to_string();
-                info.push_str(wrong_part);
+                info.push_str(&wrong_part);
                 info
             },
             IssueType::MismatchString => {
@@ -66,7 +66,7 @@ impl Lexer{
             IssueType::UnExpectedToken{wrong_string, correct_string} => {
                 let mut info = "expected ".to_string();
                 info.push_str(&correct_string);
-                info.push_str(", but find ");
+                info.push_str(" , find ");
                 info.push_str(&wrong_string);
                 info
             },
@@ -89,7 +89,7 @@ impl Lexer{
             },
             IssueType::FunctionNotFound {unknown_fn} => {
                 let mut info = "cannot find function ".to_string();
-                info.push_str(unknown_fn.as_str());
+                info.push_str(&unknown_fn);
                 info
             },
             IssueType::MismatchesNodeType {prev_node_type,curr_node_type} => {

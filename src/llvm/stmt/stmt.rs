@@ -133,7 +133,7 @@ impl<'ctx> Codegen<'ctx>{
             Some(func) => func,
             None => {
                 let i32_type = self.context.i32_type();
-                let i8_ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+                let i8_ptr_type = self.context.ptr_type(inkwell::AddressSpace::default());
                 let print_type = i32_type.fn_type(&[i8_ptr_type.into()], true);
                 self.module.add_function("printf", print_type, None)
             }

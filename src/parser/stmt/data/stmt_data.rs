@@ -19,7 +19,7 @@ pub struct Stmt{
 
     pub max_value_key  : u32,
     pub max_value      : String,
-    pub called_var_types :Type,
+    pub prev_node_type : Type,
 
 
     pub ret_times_in_branch: u8,
@@ -43,7 +43,7 @@ impl Stmt{
             regular_op_sum : 0,
             compare_op_sum : 0,
             is_string : false,
-            called_var_types : Type::void,
+            prev_node_type: Type::void,
 
             max_value_key : 0,
             max_value : String::with_capacity(1024),

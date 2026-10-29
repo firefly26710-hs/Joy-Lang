@@ -2,7 +2,6 @@ use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_str
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
-use crate::parser::stmt::logic::expr::is_op;
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
@@ -71,10 +70,10 @@ impl Parser{
     // }
 
     pub fn matches_type_in_multi_var(&mut self, expected_type : &Type) -> Result<(), IssueType>{
-        let actual_type = &self.stmt.called_var_types;
+        let actual_type = &self.stmt.prev_node_type;
 
         if actual_type == &Type::void{
-            self.stmt.called_var_types = expected_type.clone();
+            self.stmt.prev_node_type = expected_type.clone();
             Ok(())
         }else if expected_type != actual_type{
             Err(self.collect_mismatch_type_issue(expected_type, &actual_type.clone()))

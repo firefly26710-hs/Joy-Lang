@@ -18,7 +18,7 @@ impl Parser{
         self.stmt.compare_op_sum = 0;
         self.stmt.is_string = false;
 
-        self.stmt.called_var_types = Type::void;
+        self.stmt.prev_node_type = Type::void;
         self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
@@ -27,6 +27,7 @@ impl Parser{
                 if self.stmt.flt_node_sum > 0{
                     return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::Int, self.current))
                 }
+
 
                 self.stmt.int_node_sum += 1;
                 let key = self.current as Key;
@@ -45,7 +46,7 @@ impl Parser{
                 self.push_leaf(Token::Float, key)
             }
             Token::String => {
-                if self.stmt.int_node_sum > 0{
+                if self.stmt.int_node_sum > 0 || self.stmt.flt_node_sum > 0{
                     return Err(self.collect_mismatch_node_type_issue(&Token::Int, &Token::String, self.current))
                 }else if self.stmt.flt_node_sum > 0{
                     return Err(self.collect_mismatch_node_type_issue(&Token::Float, &Token::String, self.current))

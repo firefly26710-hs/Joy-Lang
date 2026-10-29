@@ -1,4 +1,3 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::parser::tree::node::Key;
 use crate::parser::center::par::Parser;
 use crate::parser::types::typ::Type;
@@ -130,7 +129,7 @@ impl Parser{
 
 
     pub fn seek_type(&self, max_val_type : Type) -> Type{
-        let actual_ty = &self.stmt.called_var_types;
+        let actual_ty = &self.stmt.prev_node_type;
         
         if actual_ty != &Type::void && actual_ty == &max_val_type{
             actual_ty.clone()

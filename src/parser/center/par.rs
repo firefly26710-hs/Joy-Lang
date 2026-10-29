@@ -87,7 +87,7 @@ impl Parser{
 
 
     pub fn current_line(&self) -> u32{
-        114514
+        self.lexer.error.span_ids[self.current]
     }
 
 

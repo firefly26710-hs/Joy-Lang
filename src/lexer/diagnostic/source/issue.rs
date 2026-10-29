@@ -1,5 +1,3 @@
-use crate::lexer::tokenizer::source::token::Token;
-use crate::parser::types::typ::Type;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum IssueType {

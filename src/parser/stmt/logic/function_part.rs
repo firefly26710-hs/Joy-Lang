@@ -179,12 +179,13 @@ impl Parser{
     pub fn parse_print(&mut self) -> Result<NodeIdx, IssueType>{
         self.eat();
 
-        self.matches_token(&Token::Lparen, "Expected (");
+       self.unexpected_token(&Token::Lparen)?;
         let type_idx = self.get_tok_node_idx(&Token::Type);
+        self.unexpected_token(&Token::Type)?;
 
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma, "Expected ,");
-        let expr_idx = self.parse_expression();
+        let expr_idx = self.parse_expression()?;
 
         if !self.is_matches_type(ty){
             panic!("[Line {:?}] Expected", self.current_line());
@@ -195,7 +196,7 @@ impl Parser{
 
         let edges_start = self.ast.edge_start();
         self.ast.edges.push(type_idx);
-        self.ast.edges.push(expr_idx?);
+        self.ast.edges.push(expr_idx);
         let edges_end = self.ast.edge_end();
 
         Ok(self.push_node(Token::PrintStmt, NONE, edges_start, edges_end))

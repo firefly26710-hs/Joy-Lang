@@ -141,7 +141,7 @@ impl Lexer{
 
                 " " | "\r" | "\t" => {},
 
-                "\n" => self.collect_span(),
+                "\0" | "\n" => self.collect_span(),
 
                 _ => self.collection_illegal_issue()
             }

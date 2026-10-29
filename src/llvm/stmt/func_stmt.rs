@@ -40,7 +40,7 @@ impl<'ctx>Codegen<'ctx>{
                     Type::bool => self.context.bool_type().into(),
                     Type::f64 => self.context.f64_type().into(),
                     Type::f32 => self.context.f32_type().into(),
-                    Type::String => self.context.i8_type().ptr_type(inkwell::AddressSpace::default()).into(),
+                    Type::String => self.context.ptr_type(inkwell::AddressSpace::default()).into(),
 
                     _ => unreachable!()
                 };
@@ -64,7 +64,7 @@ impl<'ctx>Codegen<'ctx>{
             Type::bool => self.context.bool_type().fn_type(&self.param_types, false),
             Type::void => self.context.void_type().fn_type(&self.param_types, false),
             Type::String => {
-                let i8_ptr_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+                let i8_ptr_type = self.context.ptr_type(inkwell::AddressSpace::default());
                 i8_ptr_type.fn_type(&self.param_types, false)
             },
 
@@ -155,7 +155,7 @@ impl<'ctx>Codegen<'ctx>{
                         self.variables.push(alloc);
                     },
                     BasicValueEnum::PointerValue(str_val) => {
-                        let pointer_type = self.context.i8_type().ptr_type(inkwell::AddressSpace::default());
+                        let pointer_type = self.context.ptr_type(inkwell::AddressSpace::default());
 
                         let alloc = self.builder.build_alloca(pointer_type, name_str).unwrap();
                         self.builder.build_store(alloc, str_val).unwrap();

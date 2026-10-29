@@ -308,6 +308,8 @@ impl Parser{
         let already_look_last_tok = self.current >= self.lexer.error.span_ids.len();
         //get range of sentence which has it
 
+
+
         let span_id = if already_look_last_tok{
             self.lexer.error.span_ids[wrong_tok_key - 1] as usize
         }else{
@@ -315,12 +317,12 @@ impl Parser{
         };
 
         let span_range = if already_look_last_tok{
-            self.lexer.error.spans[span_id]
+            self.lexer.error.spans[span_id - 1]
         }else{
             self.lexer.error.spans[span_id]
         };
-        let line = span_id + 1;
 
+        let line = span_id + 1;
         //alt means absolute
         let alt_span_start = span_range.0 as usize;
 
@@ -460,15 +462,16 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void{ \n var x = 3.5 + 2.5 + 5 + 5; ".to_string();
+        "fn main() = void{ \n var x = x;} \n fn add() = void{ \n var y = x;\n} ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     lexer.print_output();
 
     let mut parser = Parser::init(lexer);
-    _ =parser.parse_function();
-
+    _ =parser.build_tree();
+    dbg!(parser.scope.var_scope_stack);
+    dbg!(parser.table.var_keys);
     if parser.lexer.error.has_error{
         parser.lexer.output_error();
     }
