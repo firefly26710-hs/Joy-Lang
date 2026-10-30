@@ -1,3 +1,4 @@
+use inkwell::llvm_sys::lto::thinlto_codegen_set_final_cache_size_relative_to_available_space;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::types::typ::Type;
 
@@ -44,6 +45,7 @@ impl Stmt{
             bool_node_sum : 0,
             regular_op_sum : 0,
             compare_op_sum : 0,
+            has_ident_in_expr : false,
             is_string : false,
             expr_start_key : 0,
             prev_node_key : 0,

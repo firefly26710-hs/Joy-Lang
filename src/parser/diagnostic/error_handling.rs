@@ -1,4 +1,4 @@
-use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_string_type, is_two_types_in_same_set, max_type};
+use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_string_type, is_two_types_in_same_set, left_bigger_than_right};
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -49,85 +49,103 @@ impl Parser{
         }
     }
 
-    pub fn matches_ty(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
+    pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
         let expr_type = &self.get_expr_type();
-
         if !is_two_types_in_same_set(expr_type, expected_type){
-           return Err( self.collect_mismatch_type_issue(expected_type, expr_type));
+           return Err( self.collect_mismatch_type_issue(self.stmt.expr_start_key,expected_type, expr_type));
         }
         
-        if expected_type == &Type::void{
-            if expr_type
-        }
-
-        if max_type(expected_type, expr_type) == *expr_type && expected_type != &Type::void{
-            Err(self.collect_type_out_of_range(self.stmt.expr_start_key, expected_type))
+        if matches!(expected_type, Type::void){
+            if self.stmt.has_ident_in_expr{
+                Ok(expr_type.clone())
+            }else{
+                match expr_type{
+                    Type::i8 | Type::i16 | Type::i32 => Ok(Type::i32),
+                    Type::i64 => Ok(Type::i64),
+                    Type::i128 => Ok(Type::i128),
+                    Type::f32 | Type::f64 => Ok(Type::f64),
+                    _ => panic!("[Line {:?}]Todo this type : {:?}", self.current_line(), expr_type)
+                }
+            }
         }else{
-            Ok(expr_type.clone())
+            if self.stmt.has_ident_in_expr{
+                if left_bigger_than_right(&expected_type, &expr_type){
+                    Err(self.collect_mismatch_type_issue(self.stmt.expr_start_key,&expected_type, &expr_type))
+                }else{
+                    Ok(expr_type.clone())
+                }
+            }else{
+                if left_bigger_than_right(&expected_type, expr_type) || expected_type == expr_type{
+                    Ok(expected_type.clone())
+                }else{
+                    Err(self.collect_type_out_of_range(self.stmt.expr_start_key,&expr_type))
+                }
+            }
         }
+
     }
 
 
-    pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
-
-        let expr_type = self.get_expr_type();
-        dbg!(&expr_type);
-
-
-       let issue = match (expected_type, expr_type){
-           (Type::void, Type::i8 | Type::i16 | Type::i32 )   => Ok(Type::i32),
-           (Type::void, Type::i64 ) => Ok(Type::i64),
-           (Type::void, Type::i128) => Ok(Type::i128),
-           (Type::void, Type::f32 | Type::f64) => Ok(Type::f64),
-           (Type::void, Type::bool) => Ok(Type::bool),
-           (Type::void, Type::String) => Ok(Type::String),
-
-           (Type::i8, Type::i8) => Ok(Type::i8),
-           (Type::i8, Type::i16 | Type::i32 | Type::i64 | Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
-
-           (Type::i16, Type::i8 | Type::i16) => Ok(Type::i16),
-           (Type::i16, Type::i32 | Type::i64 | Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
-
-
-           (Type::i32, Type::i8 | Type::i16 | Type::i32) => Ok(Type::i32),
-           (Type::i32, Type::i64 | Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
-
-
-           (Type::i64, Type::i8 | Type::i16 | Type::i32 | Type::i64) => Ok(Type::i64),
-           (Type::i64, Type::i128)
-           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
-
-
-           (Type::i128, Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128)
-           => Ok(Type::i128),
-
-           (Type::f32, Type::f32) => Ok(Type::f32),
-           (Type::f32, Type::f64)
-           => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
-
-
-           (Type::f64, Type::f32 | Type::f64) => Ok(Type::f64),
-
-           (Type::bool, Type::bool) => Ok(Type::bool),
-           (Type::String, Type::String) => Ok(Type::bool),
-
-           (expect, expr)
-           if is_int_type(expect) && !is_int_type(&expr) ||
-               is_flt_type(expect) && !is_flt_type(&expr) ||
-               is_bool_type(expect) && !is_bool_type(&expr) ||
-               is_string_type(expect) && !is_string_type(&expr)
-           => Err(self.collect_mismatch_type_issue(expect, &expr)),
-
-
-
-           (_, _) => todo!(),
-       };
-
-        issue
-    }
+    // pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
+    // 
+    //     let expr_type = self.get_expr_type();
+    //     dbg!(&expr_type);
+    // 
+    // 
+    //    let issue = match (expected_type, expr_type){
+    //        (Type::void, Type::i8 | Type::i16 | Type::i32 )   => Ok(Type::i32),
+    //        (Type::void, Type::i64 ) => Ok(Type::i64),
+    //        (Type::void, Type::i128) => Ok(Type::i128),
+    //        (Type::void, Type::f32 | Type::f64) => Ok(Type::f64),
+    //        (Type::void, Type::bool) => Ok(Type::bool),
+    //        (Type::void, Type::String) => Ok(Type::String),
+    // 
+    //        (Type::i8, Type::i8) => Ok(Type::i8),
+    //        (Type::i8, Type::i16 | Type::i32 | Type::i64 | Type::i128)
+    //        => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
+    // 
+    //        (Type::i16, Type::i8 | Type::i16) => Ok(Type::i16),
+    //        (Type::i16, Type::i32 | Type::i64 | Type::i128)
+    //        => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
+    // 
+    // 
+    //        (Type::i32, Type::i8 | Type::i16 | Type::i32) => Ok(Type::i32),
+    //        (Type::i32, Type::i64 | Type::i128)
+    //        => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
+    // 
+    // 
+    //        (Type::i64, Type::i8 | Type::i16 | Type::i32 | Type::i64) => Ok(Type::i64),
+    //        (Type::i64, Type::i128)
+    //        => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
+    // 
+    // 
+    //        (Type::i128, Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128)
+    //        => Ok(Type::i128),
+    // 
+    //        (Type::f32, Type::f32) => Ok(Type::f32),
+    //        (Type::f32, Type::f64)
+    //        => Err(self.collect_type_out_of_range(self.stmt.expr_start_key, &expected_type)),
+    // 
+    // 
+    //        (Type::f64, Type::f32 | Type::f64) => Ok(Type::f64),
+    // 
+    //        (Type::bool, Type::bool) => Ok(Type::bool),
+    //        (Type::String, Type::String) => Ok(Type::bool),
+    // 
+    //        (expect, expr)
+    //        if is_int_type(expect) && !is_int_type(&expr) ||
+    //            is_flt_type(expect) && !is_flt_type(&expr) ||
+    //            is_bool_type(expect) && !is_bool_type(&expr) ||
+    //            is_string_type(expect) && !is_string_type(&expr)
+    //        => Err(self.collect_mismatch_type_issue(expect, &expr)),
+    // 
+    // 
+    // 
+    //        (_, _) => todo!(),
+    //    };
+    // 
+    //     issue
+    // }
 
 
 

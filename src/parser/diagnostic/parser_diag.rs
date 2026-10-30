@@ -72,10 +72,15 @@ impl Parser{
         issue
     }
 
-    pub fn collect_mismatch_type_issue(&mut self, expected_type : &Type, actual_type : &Type) -> IssueType{
+    pub fn collect_mismatch_type_issue(
+        &mut self,
+        expr_start_key : Key,
+        expected_type : &Type,
+        actual_type : &Type
+    ) -> IssueType{
         self.lexer.error.has_error = true;
 
-        let actual_type_idx = self.current; // 記得要改
+        let actual_type_idx = expr_start_key as usize; // 記得要改
 
         let(line,
             rlt_col_start,
@@ -469,16 +474,17 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {var x = 1; var y = x + 1;}  ".to_string();
+        "fn main() = void {var x : i8 = 1; var y : i32 = 1 + x;}  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-    lexer.print_output();
+   // lexer.print_output();
 
     let mut parser = Parser::init(lexer);
     _ =parser.build_tree();
     dbg!(parser.scope.var_scope_stack);
     dbg!(parser.table.var_keys);
+    dbg!(parser.table.var_types);
     if parser.lexer.error.has_error{
         parser.lexer.output_error();
     }

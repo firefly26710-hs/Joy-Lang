@@ -177,12 +177,12 @@ impl Parser{
             return Err(self.collect_mismatch_node_type_issue(&curr_type, &prev_type, self.stmt.prev_node_key as usize))
         }
 
-        if self.stmt.is_prev_node_is_ident && max_type(&curr_type, &prev_type) == curr_type{
+        if self.stmt.is_prev_node_is_ident && left_bigger_than_right(&curr_type, &prev_type){
             return Err(self.collect_type_out_of_range(self.current as Key, &prev_type))
         }else{
-            if max_type(&curr_type, &prev_type) == curr_type{
+            if left_bigger_than_right(&curr_type, &prev_type){
                 self.stmt.prev_node_type = curr_type
-            }else if max_type(&curr_type, &prev_type) == prev_type{
+            }else if !left_bigger_than_right(&curr_type, &prev_type){
                 self.stmt.prev_node_type = prev_type;
             }
         }
@@ -234,8 +234,8 @@ impl Parser{
 }
 
 pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
-    let a_num = number(type_a);
-    let b_num = number(type_b);
+    let a_num = weight(type_a);
+    let b_num = weight(type_b);
 
     if a_num == i32::MIN || b_num == i32::MIN{
         return true;
@@ -252,18 +252,18 @@ pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
 
 }
 
-pub fn max_type(type_a : &Type, type_b : &Type) -> Type{
-    let a_num = number(type_a);
-    let b_num = number(type_b);
+pub fn left_bigger_than_right(type_a : &Type, type_b : &Type) -> bool{
+    let weight_a = weight(type_a);
+    let weight_b = weight(type_b);
 
-    if a_num > b_num{
-        type_a.clone()
+    if weight_a > weight_b {
+        true
     }else{
-        type_b.clone()
+        false
     }
 }
 
-fn number(ty : &Type) -> i32{
+fn weight(ty : &Type) -> i32{
     match ty {
         Type::i8 => 1,
         Type::i16 => 2,

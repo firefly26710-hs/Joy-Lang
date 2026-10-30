@@ -18,6 +18,7 @@ impl Parser{
 
         self.stmt.prev_node_type = Type::void;
         self.stmt.is_prev_node_is_ident = false;
+        self.stmt.has_ident_in_expr = false;
         self.stmt.prev_node_key = 0;
         self.stmt.expr_start_key = self.current as Key;
 
@@ -71,6 +72,7 @@ impl Parser{
                     self.update_node_type(ident_key)?;
                     self.eat();
                     self.stmt.is_prev_node_is_ident = true;
+                    self.stmt.has_ident_in_expr = true;
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }
