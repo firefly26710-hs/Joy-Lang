@@ -174,11 +174,11 @@ impl Parser{
         };
 
         if !is_two_types_in_same_set(&curr_type, &prev_type){
-            return Err(self.collect_mismatch_node_type_issue(&curr_type, &prev_type, self.stmt.prev_node_key as usize))
+            return Err(self.mismatch_node_type_issue(&curr_type, &prev_type, self.stmt.prev_node_key as usize))
         }
 
         if self.stmt.is_prev_node_is_ident && left_bigger_than_right(&curr_type, &prev_type){
-            return Err(self.collect_type_out_of_range(self.current as Key, &prev_type))
+            return Err(self.type_out_of_range(self.current as Key, &prev_type))
         }else{
             if left_bigger_than_right(&curr_type, &prev_type){
                 self.stmt.prev_node_type = curr_type

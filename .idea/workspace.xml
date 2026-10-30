@@ -12,12 +12,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/logic/output.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/logic/output.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/source/issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/source/issue.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/error_handling.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/error_handling.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/parser_diag.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/parser_diag.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/branch_stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/loop_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/variable_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/variable_stmt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/parser/types/logic.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/logic.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
@@ -90,6 +91,7 @@
     &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/expr.rs&quot;: &quot;true&quot;,
     &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/function.rs&quot;: &quot;true&quot;,
     &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/stmt.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/parser/diagnostic/parser_diag.rs&quot;: &quot;true&quot;,
     &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;language.rust&quot;
   }

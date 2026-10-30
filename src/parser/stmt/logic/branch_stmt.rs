@@ -96,9 +96,7 @@ impl Parser {
     }
 
     pub fn parse_break(&mut self) -> Result<NodeIdx, IssueType>{
-        if !self.is_in_loop(){
-            panic!("[Line {:?}] 'break' can't not in loop", self.current_line());
-        }
+        self.has_out_of_loop()?;
 
         self.eat();
 
@@ -108,9 +106,7 @@ impl Parser {
     }
 
     pub fn parse_ctn(&mut self) -> Result<NodeIdx, IssueType>{
-        if !self.is_in_loop(){
-            panic!("[Line {:?}] 'break' can't not in loop", self.current_line());
-        }
+        self.has_out_of_loop()?;
 
         self.eat();
 

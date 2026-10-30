@@ -13,7 +13,7 @@ impl Parser{
             self.eat();
             Ok(())
         }else{
-            Err(self.collect_unexpected_token_issue(&expected_tok))
+            Err(self.unexpected_token_issue(&expected_tok))
         }
     }
 
@@ -25,7 +25,7 @@ impl Parser{
             self.eat();
             Ok(())
         }else{
-            Err(self.collect_unclosed_delimiter_token_issue())
+            Err(self.unclosed_delimiter_token_issue())
         }
     }
 
@@ -35,8 +35,17 @@ impl Parser{
         if prev_key != current_key {
             Ok(())
         }else{
-            Err(self.collect_variable_not_in_scope_issue(current_key))
+            Err(self.variable_not_in_scope_issue(current_key))
         }
+    }
+    
+    
+    pub fn has_out_of_loop(&mut self) -> Result<(), IssueType>{
+        if !self.is_in_loop(){
+            return Err(self.outside_of_a_loop_issue());
+        }
+        
+        Ok(())
     }
     
     pub fn fn_not_exist(&mut self, current_key : Key) -> Result<(), IssueType>{
@@ -45,14 +54,14 @@ impl Parser{
         if prev_key != current_key{
             Ok(())
         }else{
-            Err(self.collect_cannot_found_function_issue(current_key))
+            Err(self.cannot_found_function_issue(current_key))
         }
     }
 
     pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
         let expr_type = &self.get_expr_type();
         if !is_two_types_in_same_set(expr_type, expected_type){
-           return Err( self.collect_mismatch_type_issue(self.stmt.expr_start_key,expected_type, expr_type));
+           return Err( self.mismatch_type_issue(self.stmt.expr_start_key, expected_type, expr_type));
         }
         
         if matches!(expected_type, Type::void){
@@ -70,7 +79,7 @@ impl Parser{
         }else{
             if self.stmt.has_ident_in_expr{
                 if left_bigger_than_right(&expected_type, &expr_type){
-                    Err(self.collect_mismatch_type_issue(self.stmt.expr_start_key,&expected_type, &expr_type))
+                    Err(self.mismatch_type_issue(self.stmt.expr_start_key, &expected_type, &expr_type))
                 }else{
                     Ok(expr_type.clone())
                 }
@@ -78,7 +87,7 @@ impl Parser{
                 if left_bigger_than_right(&expected_type, expr_type) || expected_type == expr_type{
                     Ok(expected_type.clone())
                 }else{
-                    Err(self.collect_type_out_of_range(self.stmt.expr_start_key,&expr_type))
+                    Err(self.type_out_of_range(self.stmt.expr_start_key, &expr_type))
                 }
             }
         }

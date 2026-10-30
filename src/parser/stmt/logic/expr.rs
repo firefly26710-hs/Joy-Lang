@@ -45,7 +45,6 @@ impl Parser{
                 self.push_leaf(Token::Float, key)
             }
             Token::String => {
-
                 self.stmt.is_string = true;
                 let key = self.current as Key;
                 self.eat();
@@ -76,7 +75,7 @@ impl Parser{
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }
-            _ => panic!("[Line {:?}] Unknown Expression : {:?} ", self.current_line(), self.peek())
+            _ => Err(self.unexpected_expression_issue())
         };
 
 

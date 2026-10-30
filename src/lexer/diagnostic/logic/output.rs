@@ -106,6 +106,12 @@ impl Lexer{
                 info.push_str(&actual_type);
                 info
             }
+            IssueType::OutOfLoop {kw} =>{
+                let mut info = "'".to_string();
+                info.push_str(kw.as_str());
+                info.push_str("' outside of a loop");
+                info
+            }
             _ => unreachable!()
         };
 

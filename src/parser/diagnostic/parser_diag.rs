@@ -9,7 +9,7 @@ use crate::parser::types::typ::Type;
 
 
 impl Parser{
-    pub fn collect_unexpected_token_issue(
+    pub fn unexpected_token_issue(
         &mut self,
         correct_token : &Token,
     ) -> IssueType{
@@ -43,7 +43,7 @@ impl Parser{
         issue
     }
 
-    pub fn collect_unclosed_delimiter_token_issue(&mut self) -> IssueType{
+    pub fn unclosed_delimiter_token_issue(&mut self) -> IssueType{
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
@@ -72,7 +72,38 @@ impl Parser{
         issue
     }
 
-    pub fn collect_mismatch_type_issue(
+    pub fn unexpected_expression_issue(&mut self) -> IssueType{
+        self.lexer.error.has_error = true;
+
+        let wrong_tok_key = self.current;
+
+        let(line,
+            rlt_col_start,
+            rlt_col_end,
+            alt_col_start,
+            alt_col_end,
+            span_id)
+            = self.get_data(wrong_tok_key);
+
+        let wrong_string = self.lexer.tokenizer.input[alt_col_start..alt_col_end].to_string();
+        let correct_string = "expression".to_string();
+
+        let issue = IssueType::UnExpectedToken{wrong_string, correct_string};
+
+        self.lexer.error.msg_datas.push(
+            MsgData::new(
+                issue.clone(),
+                line,
+                rlt_col_start,
+                rlt_col_end,
+                span_id
+            )
+        );
+
+        issue
+    }
+
+    pub fn mismatch_type_issue(
         &mut self,
         expr_start_key : Key,
         expected_type : &Type,
@@ -108,7 +139,7 @@ impl Parser{
         issue
     }
 
-    pub fn collect_variable_not_in_scope_issue(&mut self, key: Key ) -> IssueType{
+    pub fn variable_not_in_scope_issue(&mut self, key: Key ) -> IssueType{
         self.lexer.error.has_error = true;
 
         let(line,
@@ -141,7 +172,7 @@ impl Parser{
 
     }
 
-    pub fn collect_cannot_found_function_issue(&mut self, key: Key) -> IssueType{
+    pub fn cannot_found_function_issue(&mut self, key: Key) -> IssueType{
         self.lexer.error.has_error = true;
 
         let(line,
@@ -174,7 +205,7 @@ impl Parser{
 
     }
 
-    pub fn collect_type_out_of_range(
+    pub fn type_out_of_range(
         &mut self,
         key : Key,
         expected_type : &Type,
@@ -205,7 +236,7 @@ impl Parser{
         issue
     }
 
-    pub fn collect_mismatch_node_type_issue(
+    pub fn mismatch_node_type_issue(
         &mut self,
         curr_node_ty : &Type,
         prev_ty   : &Type,
@@ -313,6 +344,39 @@ impl Parser{
 
     }
 
+    pub fn outside_of_a_loop_issue(&mut self) -> IssueType{
+        self.lexer.error.has_error = true;
+
+        let kw_idx = self.current;
+
+        let(line,
+            rlt_col_start,
+            rlt_col_end,
+            _alt_col_start,
+            _alt_col_end,
+            span_id)
+            = self.get_data(kw_idx);
+
+        let interval = &self.lexer.tokenizer.intervals[kw_idx];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+
+        let kw = self.lexer.tokenizer.input[start..end].to_string();
+
+        let issue = IssueType::OutOfLoop {kw};
+        self.lexer.error.msg_datas.push(
+            MsgData::new(
+                issue.clone(),
+                line,
+                rlt_col_start,
+                rlt_col_end,
+                span_id
+            )
+        );
+
+        issue
+    }
+
 
 
     pub fn get_data(&self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
@@ -363,8 +427,9 @@ impl Parser{
 
 
     pub fn out_of_this_stmt(&mut self){
+        self.eat();
         while !is_stmt(self.peek()){
-            if matches!(self.peek(), Token::Rbrace) |matches!(self.peek(), Token::Scolon){
+            if matches!(self.peek(), Token::Rbrace) | matches!(self.peek(), Token::Scolon){
                 self.eat();
                 break;
             }
@@ -474,7 +539,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {var x : i8 = 1; var y : i32 = 1 + x;}  ".to_string();
+        "fn main() = void {continue; var y : i32 = 1;}  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
