@@ -88,7 +88,7 @@ impl Parser{
             NONE
         }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
             let expr_idx = self.parse_expression()?;
-            self.is_matches_type(self.last_ret_type().clone());
+            self.matches_type(&self.last_ret_type().clone())?;
             expr_idx
         }else {
             panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.last_ret_type())
@@ -149,9 +149,7 @@ impl Parser{
 
                 let param_type = &self.table.var_types[start as usize..=end as usize][i];
                 let ty = &param_type.clone();
-                if !self.is_matches_type(ty.clone()) {
-                    panic!("[Line {:?}] Mismatch Type, found {:?}", self.current_line(),[i])
-                }
+                self.matches_type(ty)?;
                 counter += 1;
                 self.stmt.func_call_recorder.push(expr_idx?);
 
@@ -186,11 +184,7 @@ impl Parser{
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma, "Expected ,");
         let expr_idx = self.parse_expression()?;
-
-        if !self.is_matches_type(ty){
-            panic!("[Line {:?}] Expected", self.current_line());
-        }
-
+        self.matches_type(&ty)?;
         self.matches_token(&Token::Rparen, "Expected )");
         self.matches_token(&Token::Scolon, "Expected ;");
 

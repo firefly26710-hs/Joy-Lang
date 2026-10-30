@@ -6,116 +6,9 @@ use crate::parser::types::typ::Type;
 
 impl Parser{
 
-    pub fn is_matches_type(&self, expected_type: Type) -> bool{
-        match (expected_type, self.get_expr_type()){
-            (Type::i8, Type::i8) => true,
-            (Type::i8, Type::i16) => {
-                self.out_of_type_range(&Type::i8);
-                false
-            },
-            (Type::i8, Type::i32) => {
-                self.out_of_type_range(&Type::i8);
-                false
-            },
-            (Type::i8, Type::i64) => {
-                self.out_of_type_range(&Type::i8);
-                false
-            },
-            (Type::i8, Type::i128) => {
-                self.out_of_type_range(&Type::i8);
-                false
-            },
-            (Type::i16, Type::i8) => true,
-            (Type::i16, Type::i16) => true,
-            (Type::i16, Type::i32) => {
-                self.out_of_type_range(&Type::i16);
-                false
-            },
-            (Type::i16, Type::i64) => {
-                self.out_of_type_range(&Type::i16);
-                false
-            },
-            (Type::i16, Type::i128) => {
-                self.out_of_type_range(&Type::i16);
-                false
-            },
-
-            (Type::i32, Type::i8) => true,
-            (Type::i32, Type::i16) => true,
-            (Type::i32, Type::i32) => true,
-            (Type::i32, Type::i64) => {
-                self.out_of_type_range(&Type::i32);
-                false
-            },
-            (Type::i32, Type::i128) => {
-                self.out_of_type_range(&Type::i32);
-                false
-            },
-
-            (Type::i64, Type::i8) => true,
-            (Type::i64, Type::i16) => true,
-            (Type::i64, Type::i32) => true,
-            (Type::i64, Type::i64) => true,
-            (Type::i64, Type::i128) => {
-                self.out_of_type_range(&Type::i32);
-                false
-            },
-
-            (Type::i128, Type::i8) => true,
-            (Type::i128, Type::i16) => true,
-            (Type::i128, Type::i32) => true,
-            (Type::i128, Type::i64) => true,
-            (Type::i128, Type::i128) => true,
-
-            (Type::f32, Type::f32) => true,
-            (Type::f32, Type::f64) => {
-                self.out_of_type_range(&Type::i32);
-                false
-            },
-
-            (Type::f64, Type::f32) => true,
-            (Type::f64, Type::f64) => true,
-
-            (Type::bool, Type::bool) => true,
-            (Type::String, Type::String) => true,
-
-            (ty1,ty2) if is_int_type(&ty1) &&
-                is_flt_type(&ty2) || is_bool_type(&ty2) || is_string_type(&ty2) => {
-                self.expected(&ty1, ty2);
-                false
-            },
-
-            (ty1,ty2) if is_flt_type(&ty1) &&
-                is_int_type(&ty2) || is_bool_type(&ty2) || is_string_type(&ty2) => {
-                self.expected(&ty1, ty2);
-                false
-            },
-
-            (ty1,ty2) if is_bool_type(&ty1) &&
-                (is_int_type(&ty2) || is_flt_type(&ty2) || is_string_type(&ty2)) => {
-                self.expected(&ty1, ty2);
-                false
-            },
-
-            (ty1,ty2) if is_string_type(&ty1) &&
-                (is_flt_type(&ty2) || is_flt_type(&ty2) || is_bool_type(&ty2)) => {
-                self.expected(&ty1, ty2);
-                false
-            },
-
-            _ => panic!("[Line {:?}] Unknown Type", self.current_line())
-
-        }
-    }
-
     pub fn get_expr_type(&self) -> Type{
         self.stmt.prev_node_type.clone()
     }
-
-
-
-
-
 
     fn parse_int_type(&self, key : Key) -> Type{
         let interval = &self.lexer.tokenizer.intervals[key as usize];
@@ -191,30 +84,6 @@ impl Parser{
     }
 
 
-    fn expected(&self, expected : &Type, found_ty : Type) -> Type{
-        panic!("[Line {:?}] Expected {:?}, but found {:?}", self.current_line(), expected, found_ty)
-    }
-
-     fn out_of_type_range(&self, declared_type: &Type) -> Type{
-         panic!("[Line {:?}] Out of Type Range {:?}", self.current_line(), declared_type)
-     }
-
-    pub fn matches_to_int(&self) -> bool{
-        self.stmt.int_node_sum == self.stmt.regular_op_sum + 1
-            && self.stmt.int_node_sum & self.stmt.flt_node_sum == 0
-            && self.stmt.bool_node_sum == 0
-            && self.stmt.compare_op_sum == 0
-            && !self.stmt.is_string
-    }
-    
-    pub fn matches_to_flt(&self) -> bool{
-        self.stmt.flt_node_sum == self.stmt.regular_op_sum + 1
-            && self.stmt.int_node_sum & self.stmt.flt_node_sum == 0
-            && self.stmt.bool_node_sum == 0
-            && self.stmt.compare_op_sum == 0
-            && !self.stmt.is_string
-    }
-
     pub fn matches_to_bool(&self) -> bool{
         self.stmt.bool_node_sum == self.stmt.compare_op_sum + 1
             && self.stmt.int_node_sum & self.stmt.flt_node_sum == 0
@@ -244,6 +113,8 @@ pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
     //integer type set
     if a_num > 0 && a_num < 10 && b_num > 0 && b_num < 10 {
         true
+
+    //float type set
     }else if a_num > 10 && a_num < 20 && b_num > 10 && b_num < 20{
          true
      }else{

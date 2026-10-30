@@ -1,19 +1,19 @@
 use crate::lexer::center::lex::Lexer;
 use crate::lexer::diagnostic::source::issue::IssueType;
-use crate::lexer::diagnostic::source::msg_data::MsgData;
+use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 use colored::Colorize;
 use std::process::exit;
 
 impl Lexer{
     pub fn output_error(&self){
-        for msg_data in &self.error.msg_datas{
+        for msg_data in &self.error.lex_msg_data {
             let data = msg_data;
             self.build_message(data.clone());
         }
         exit(1);
     }
 
-    pub fn build_message(&self, msg_data: MsgData){
+    pub fn build_message(&self, msg_data: LexerMsgData){
 
         let issue = msg_data.issue;
         let span_id = msg_data.span_id;

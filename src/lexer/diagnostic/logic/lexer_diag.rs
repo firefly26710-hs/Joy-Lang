@@ -1,7 +1,7 @@
 use crate::lexer::center::lex::Lexer;
 use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
 use crate::lexer::diagnostic::source::issue::IssueType;
-use crate::lexer::diagnostic::source::msg_data::MsgData;
+use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 
 impl Lexer {
     pub fn collection_illegal_issue(&mut self){
@@ -12,8 +12,8 @@ impl Lexer {
 
         let line = self.error.line;
 
-        self.error.msg_datas.push(
-            MsgData::new(
+        self.error.lex_msg_data.push(
+            LexerMsgData::new(
                 IssueType::IllegalToken,
                 line as usize,
                 rlt_col_start as usize,
@@ -43,8 +43,8 @@ impl Lexer {
         let line = self.error.line;
 
 
-        self.error.msg_datas.push(
-            MsgData::new(
+        self.error.lex_msg_data.push(
+            LexerMsgData::new(
                 IssueType::MismatchString.into(),
                 line  as usize,
                 rlt_col_start as usize,
