@@ -1,8 +1,8 @@
-use crate::parser::types::logic::{is_bool_type, is_flt_type, is_int_type, is_string_type, is_two_types_in_same_set, left_bigger_than_right};
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
+use crate::parser::types::logic::{is_two_types_in_same_set, left_bigger_than_right};
 use crate::parser::types::typ::Type;
 
 impl Parser{
@@ -93,11 +93,6 @@ impl Parser{
         }
 
     }
-
-
-
-
-
 
 
 

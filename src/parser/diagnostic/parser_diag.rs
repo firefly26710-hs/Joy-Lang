@@ -531,15 +531,10 @@ fn from_type_to_string(ty : &Type) -> &str{
 }
 
 
-
-
-
-
-
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {}  ".to_string();
+        "fn main() = void {\n continue; \n var x = y;}  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
