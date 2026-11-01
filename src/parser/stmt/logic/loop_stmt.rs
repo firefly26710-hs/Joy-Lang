@@ -13,9 +13,9 @@ impl Parser{
         let ident_key = self.current as Key;
         let loop_ident_idx = self.get_tok_node_idx(&Token::Ident);
         self.sign_var(ident_key);
-        self.unexpected_token(&Token::Ident)?;
+        self.matches_token(&Token::Ident)?;
 
-        self.unexpected_token(&Token::In)?;
+        self.matches_token(&Token::In)?;
 
         let start_number_idx = {
             let expr_idx = self.parse_expression();
@@ -23,7 +23,7 @@ impl Parser{
             expr_idx
         };
 
-        self.unexpected_token(&Token::Range)?;
+        self.matches_token(&Token::Range)?;
 
         let end_number_idx = {
             let expr_idx = self.parse_expression();
@@ -31,7 +31,7 @@ impl Parser{
             expr_idx
         };
 
-       self.unexpected_token(&Token::Vertical)?;
+       self.matches_token(&Token::Vertical)?;
 
         let step_number_idx = {
             let expr_idx = self.parse_expression();
@@ -40,7 +40,7 @@ impl Parser{
         };
 
 
-        self.unexpected_token(&Token::Lbrace)?;
+        self.matches_token(&Token::Lbrace)?;
         let block_idx = self.parse_stmts()?;
         self.unclosed_delimiter(&Token::Rbrace)?;
 
@@ -68,7 +68,7 @@ impl Parser{
             expr_idx
         };
 
-        self.unexpected_token(&Token::Lbrace)?;
+        self.matches_token(&Token::Lbrace)?;
         let stmts_idx = self.parse_stmts()?;
         self.unclosed_delimiter(&Token::Rbrace)?;
 

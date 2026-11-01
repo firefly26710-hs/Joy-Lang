@@ -1,6 +1,6 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::parser::tree::ast::NodeIdx;
+use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 use inkwell::types::BasicTypeEnum;
@@ -17,6 +17,7 @@ impl<'ctx> Codegen<'ctx>{
 
         for i in 0..len{
             let stmt_node_idx = self.get_edge_slice(edges_start, edges_end)[i];
+            if stmt_node_idx == NONE{break};
             let stmt_node = self.get_node(stmt_node_idx);
 
             let tok = &stmt_node.token;

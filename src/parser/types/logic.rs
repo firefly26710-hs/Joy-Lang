@@ -66,7 +66,7 @@ impl Parser{
             panic!("[Line {:?}] To do this node type case in error msg!!! : {:?}", self.current_line(), node_type)
         };
 
-        if !is_two_types_in_same_set(&curr_type, &prev_type){
+        if !is_in_same_set(&curr_type, &prev_type){
             return Err(self.mismatch_node_type_issue(&curr_type, &prev_type, self.stmt.prev_node_key as usize))
         }
 
@@ -84,25 +84,9 @@ impl Parser{
     }
 
 
-    pub fn matches_to_bool(&self) -> bool{
-        self.stmt.bool_node_sum == self.stmt.compare_op_sum + 1
-            && self.stmt.int_node_sum & self.stmt.flt_node_sum == 0
-            && !self.stmt.is_string
-    }
-
-
-    pub fn matches_to_string(&self) -> bool{
-        self.stmt.compare_op_sum == 0
-            && self.stmt.bool_node_sum == 0
-            && self.stmt.int_node_sum == 0
-            && self.stmt.flt_node_sum == 0
-            && self.stmt.regular_op_sum == 0
-            && self.stmt.is_string
-    }
-
 }
 
-pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
+pub fn is_in_same_set(type_a : &Type, type_b : &Type) -> bool{
     let a_num = weight(type_a);
     let b_num = weight(type_b);
 
@@ -113,7 +97,6 @@ pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
     //integer type set
     if a_num > 0 && a_num < 10 && b_num > 0 && b_num < 10 {
         true
-
     //float type set
     }else if a_num > 10 && a_num < 20 && b_num > 10 && b_num < 20{
          true
@@ -140,29 +123,14 @@ fn weight(ty : &Type) -> i32{
         Type::i16 => 2,
         Type::i32 => 3,
         Type::i64 => 4,
-        Type::i128 => 11,
-        Type::f32 => 12,
+        Type::i128 => 5,
+        Type::f32 => 11,
+        Type::f64 => 12,
         Type::void => i32::MIN,
         _ => unreachable!()
     }
 }
 
-
-pub fn is_int_type(ty : &Type) -> bool{
-    matches!(ty, Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128)
-}
-
-pub fn is_flt_type(ty : &Type) -> bool{
-    matches!(ty, Type::f32 | Type::f64)
-}
-
-pub fn is_bool_type(ty : &Type) -> bool{
-    matches!(ty, Type::bool)
-}
-
-pub fn is_string_type(ty : &Type) -> bool{
-    matches!(ty, Type::String)
-}
 
 
 

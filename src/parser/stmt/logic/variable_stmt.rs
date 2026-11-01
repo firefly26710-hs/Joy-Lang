@@ -10,9 +10,14 @@ impl Parser{
     pub fn parse_stmts(&mut self) -> Result<NodeIdx, IssueType>{
         
         let start_idx = self.stmt.func_recorder.len();
-        while self.peek() != &Token::Rbrace && self.peek() != &Token::EOF{
+        while self.peek() != &Token::EOF{
             match self.matches_stmts(){
-                Ok(stmt_idx) => self.stmt.func_recorder.push(stmt_idx),
+                Ok(stmt_idx) => {
+                    self.stmt.func_recorder.push(stmt_idx);
+                    if matches!(self.peek(), Token::Rbrace){
+                        break
+                    }
+                }
                 Err(_) => {
                     if matches!(self.peek(), Token::EOF){
                         break;
@@ -42,10 +47,7 @@ impl Parser{
             Token::Brk   => self.parse_break(),
             Token::Ctn   => self.parse_ctn(),
             Token::Print => self.parse_print(),
-            Token::Rbrace=> {
-                self.eat();
-                Ok(NONE)
-            }
+            Token::Rbrace=> Ok(NONE),
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }
     }
@@ -60,18 +62,18 @@ impl Parser{
         let var_name_idx = self.get_tok_node_idx(&Token::Ident);
 
 
-        self.unexpected_token(&Token::Ident)?;
+        self.matches_token(&Token::Ident)?;
 
         //type
         let declared_ty = if !matches!(self.peek(), Token::Eq){
-            self.unexpected_token(&Token::Colon)?;
-            self.unexpected_token(&Token::Type)?;
+            self.matches_token(&Token::Colon)?;
+            self.matches_token(&Token::Type)?;
             self.type_mapping((self.current - 1) as Key)
         }else{
             Type::void
         };
 
-        self.unexpected_token(&Token::Eq)?;
+        self.matches_token(&Token::Eq)?;
 
         let expr_idx = self.parse_expression()?;
         let actually_ty = self.matches_type(&declared_ty)?;
@@ -79,7 +81,7 @@ impl Parser{
 
         self.insert_var_type(var_name_key, actually_ty);
 
-        self.unexpected_token(&Token::Scolon)?;
+        self.matches_token(&Token::Scolon)?;
 
         let edge_start = self.ast.edge_start();
         self.ast.edges.push(var_name_idx);
@@ -103,10 +105,8 @@ impl Parser{
     fn parse_var_update(&mut self) -> Result<NodeIdx, IssueType>{
         let key = self.find_same_ident_key(self.current as Key);
 
-        let ident_name_idx = {
-            self.eat();
-            self.push_leaf(Token::Ident, key)
-        };
+        let ident_name_idx = self.push_leaf(Token::Ident, key)?;
+        self.matches_token(&Token::Ident)?;
 
         let op_tok_key = self.current as Key;
         let op_tok = self.eat();
@@ -116,10 +116,10 @@ impl Parser{
         self.matches_type(&ident_type.clone())?;
 
 
-       self.unexpected_token(&Token::Scolon)?;
+       self.matches_token(&Token::Scolon)?;
 
         let start = self.ast.edge_start();
-        self.ast.edges.push(ident_name_idx?);
+        self.ast.edges.push(ident_name_idx);
         self.ast.edges.push(expr_idx);
         let end = self.ast.edge_end();
 

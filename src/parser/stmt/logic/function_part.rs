@@ -12,15 +12,15 @@ impl Parser{
         self.build_scope();
 
 
-        self.matches_token(&Token::Fn, "Can't find function");
+        self.matches_token(&Token::Fn)?;
         let func_name_key = self.current as Key;
         let func_name_node_idx = self.get_tok_node_idx(&Token::Ident);
         self.sign_func((self.current) as Key);
         self.stmt.func_recorder.push(func_name_node_idx);
-        self.unexpected_token(&Token::Ident)?;
+        self.matches_token(&Token::Ident)?;
 
 
-        self.unexpected_token(&Token::Lparen)?;
+        self.matches_token(&Token::Lparen)?;
 
         let has_declared_arg = self.peek() == &Token::Ident;
         let param_start = if has_declared_arg{ self.params_start() }else{NONE};
@@ -30,9 +30,9 @@ impl Parser{
                 let arg_name_key = self.current as Key;
                 let arg_idx =self.get_tok_node_idx(&Token::Ident);
 
-                self.unexpected_token(&Token::Ident)?;
-                self.unexpected_token(&Token::Colon)?;
-                self.unexpected_token(&Token::Type)?;
+                self.matches_token(&Token::Ident)?;
+                self.matches_token(&Token::Colon)?;
+                self.matches_token(&Token::Type)?;
 
                 let arg_type = self.type_mapping((self.current - 1) as Key);
 
@@ -51,18 +51,18 @@ impl Parser{
 
         let param_end = if has_declared_arg{self.params_end()}else{NONE};
 
-        self.unexpected_token(&Token::Rparen)?;
-        self.unexpected_token(&Token::Eq)?;
+        self.matches_token(&Token::Rparen)?;
+        self.matches_token(&Token::Eq)?;
 
         let ret_type = {
-            self.unexpected_token(&Token::Type)?;
+            self.matches_token(&Token::Type)?;
             self.type_mapping((self.current - 1) as Key)
         };
 
         self.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
 
-        self.unexpected_token(&Token::Lbrace)?;
+        self.matches_token(&Token::Lbrace)?;
         let stmt_idx = self.parse_stmts()?;
         self.unclosed_delimiter(&Token::Rbrace)?;
 
@@ -95,7 +95,7 @@ impl Parser{
         };
 
 
-        self.matches_token(&Token::Scolon, "Expected ;");
+        self.matches_token(&Token::Scolon)?;
 
         let start = self.ast.edge_start();
         self.ast.edges.push(NONE);
@@ -108,7 +108,7 @@ impl Parser{
     pub fn parse_func_call(&mut self) -> Result<NodeIdx, IssueType>{
         let expr_func_idx = self.expr_func_call()?;
 
-       self.unexpected_token(&Token::Scolon)?;
+       self.matches_token(&Token::Scolon)?;
 
         Ok(expr_func_idx)
     }
@@ -131,7 +131,7 @@ impl Parser{
         };
 
         self.stmt.func_call_recorder.push(func_name_idx?);
-        self.matches_token(&Token::Lparen, "Expected '('");
+        self.matches_token(&Token::Lparen)?;
 
         let param_type_intervals = self.look_param_interval(func_name_key);
         let start = param_type_intervals.start ;
@@ -164,7 +164,7 @@ impl Parser{
                 panic!("[Line {:?}] Not Declared all args in function call", self.current_line())
             }
         }
-        self.matches_token(&Token::Rparen, "Expected )");
+        self.matches_token(&Token::Rparen)?;
 
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.func_call_recorder.drain(..));
@@ -177,16 +177,16 @@ impl Parser{
     pub fn parse_print(&mut self) -> Result<NodeIdx, IssueType>{
         self.eat();
 
-       self.unexpected_token(&Token::Lparen)?;
+       self.matches_token(&Token::Lparen)?;
         let type_idx = self.get_tok_node_idx(&Token::Type);
-        self.unexpected_token(&Token::Type)?;
+        self.matches_token(&Token::Type)?;
 
         let ty = self.type_mapping((self.current - 1) as Key);
-        self.matches_token(&Token::Comma, "Expected ,");
+        self.matches_token(&Token::Comma)?;
         let expr_idx = self.parse_expression()?;
         self.matches_type(&ty)?;
-        self.matches_token(&Token::Rparen, "Expected )");
-        self.matches_token(&Token::Scolon, "Expected ;");
+        self.matches_token(&Token::Rparen)?;
+        self.matches_token(&Token::Scolon)?;
 
         let edges_start = self.ast.edge_start();
         self.ast.edges.push(type_idx);

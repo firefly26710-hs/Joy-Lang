@@ -31,9 +31,9 @@ impl Parser {
                 let expr_idx = self.parse_expression()?;
                 self.matches_type(&Type::bool)?;
                 self.build_scope();
-                self.matches_token(&Token::Lbrace,"Expected {");
+                self.matches_token(&Token::Lbrace)?;
                 let stmts_idx = self.parse_stmts().unwrap();
-                self.matches_token(&Token::Rbrace, "Expected }");
+                self.matches_token(&Token::Rbrace)?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{
@@ -51,9 +51,9 @@ impl Parser {
                 let expr_idx = self.parse_expression()?;
                 self.matches_type(&Type::bool)?;
                 self.build_scope();
-                self.matches_token(&Token::Lbrace,"Expected {");
+                self.matches_token(&Token::Lbrace)?;
                 let stmts_idx = self.parse_stmts().unwrap();
-                self.matches_token(&Token::Rbrace, "Expected }");
+                self.matches_token(&Token::Rbrace)?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{
@@ -70,9 +70,9 @@ impl Parser {
 
                 self.eat();
                 self.build_scope();
-                self.matches_token(&Token::Lbrace,"Expected {");
+                self.matches_token(&Token::Lbrace)?;
                 let stmts_idx = self.parse_stmts().unwrap();
-                self.matches_token(&Token::Rbrace, "Expected }");
+                self.matches_token(&Token::Rbrace)?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{
@@ -96,7 +96,7 @@ impl Parser {
 
         self.eat();
 
-        self.matches_token(&Token::Scolon, "Expected ;");
+        self.matches_token(&Token::Scolon)?;
 
         self.push_leaf(Token::BrkStmt, NONE)
     }
@@ -106,7 +106,7 @@ impl Parser {
 
         self.eat();
 
-        self.matches_token(&Token::Scolon, "Expected ;");
+        self.matches_token(&Token::Scolon)?;
 
         self.push_leaf(Token::CtnStmt, NONE)
 

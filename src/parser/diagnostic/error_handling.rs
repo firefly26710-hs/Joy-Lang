@@ -2,11 +2,11 @@ use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
-use crate::parser::types::logic::{is_two_types_in_same_set, left_bigger_than_right};
+use crate::parser::types::logic::{is_in_same_set, left_bigger_than_right};
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn unexpected_token(&mut self, expected_tok : &Token) -> Result<(), IssueType>{
+    pub fn matches_token(&mut self, expected_tok : &Token) -> Result<(), IssueType>{
         let current_tok = self.peek();
 
         if current_tok == expected_tok{
@@ -41,7 +41,7 @@ impl Parser{
     
     
     pub fn has_out_of_loop(&mut self) -> Result<(), IssueType>{
-        if !self.is_in_loop(){
+        if !self.in_loop(){
             return Err(self.outside_of_a_loop_issue());
         }
         
@@ -60,7 +60,7 @@ impl Parser{
 
     pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
         let expr_type = &self.get_expr_type();
-        if !is_two_types_in_same_set(expr_type, expected_type){
+        if !is_in_same_set(expr_type, expected_type){
            return Err( self.mismatch_type_issue(self.stmt.expr_start_key, expected_type, expr_type));
         }
         

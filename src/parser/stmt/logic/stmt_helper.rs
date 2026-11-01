@@ -10,14 +10,7 @@ impl Parser {
         );
         idx.unwrap()
     }
-    pub fn matches_token(&mut self , tok : &Token, error_msg : &str){
-        if self.peek() == tok{
-            self.eat();
-        }else{
-            panic!("[Line {:?}] {:?}", self.current_line(), error_msg);
-        }
-
-    }
+    
 
 
 }

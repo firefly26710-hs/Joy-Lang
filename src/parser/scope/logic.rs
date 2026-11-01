@@ -51,7 +51,7 @@ impl Parser {
         self.scope.loop_counter -= 1;
     }
     
-    pub fn is_in_loop(&self) -> bool{
+    pub fn in_loop(&self) -> bool{
         self.scope.loop_counter >= 1
     }
 
