@@ -293,7 +293,7 @@ impl Parser{
 
         let mut peek_idx = start_key + 1;
         let tokens = &self.lexer.tokenizer.tokens;
-        while matches!(tokens[peek_idx], Token::Int | Token::Float | Token::String) || is_op(&tokens[peek_idx]){
+        while matches!(tokens[peek_idx], Token::Int | Token::Float) || is_op(&tokens[peek_idx]){
             let peek = &tokens[peek_idx];
 
             if !is_op(&peek) && peek != &prev_node_ty{
@@ -309,14 +309,12 @@ impl Parser{
                 let prev_node_type = match prev_node_ty{
                     Token::Int => "integer",
                     Token::Float => "float",
-                    Token::String => "String",
                     _ => panic!("unknown node ty")
                 }.to_string();
 
                 let curr_node_type = match peek{
                     Token::Int => "integer",
                     Token::Float => "float",
-                    Token::String => "String",
                     _ => panic!("unknown node ty")
                 }.to_string();
 

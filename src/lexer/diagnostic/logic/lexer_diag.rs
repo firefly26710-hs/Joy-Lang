@@ -34,25 +34,7 @@ impl Lexer {
         self.error.line += 1;
     }
 
-    pub fn mismatch_string_issue(&mut self, strlen : u32) {
-
-        self.error.has_error = true;
-        let rlt_col_start = self.tokenizer.current - self.error.span_start-strlen - 1;
-        let rlt_col_end =  self.tokenizer.current - self.error.span_start-strlen ;
-
-        let line = self.error.line;
-
-
-        self.error.lex_msg_data.push(
-            LexerMsgData::new(
-                IssueType::MismatchString.into(),
-                line  as usize,
-                rlt_col_start as usize,
-                rlt_col_end as usize,
-                self.error.span_id  as usize
-            )
-        );
-    }
+    
 
 
 

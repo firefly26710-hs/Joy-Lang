@@ -67,17 +67,7 @@ impl<'ctx>Codegen<'ctx>{
                         let bool_ty = self.context.bool_type();
                         bool_ty.const_int(0, false).into()
                     }
-                    Token::String =>{
-                        let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
-                        let str_s = str_interval.start as usize;
-                        let str_e = str_interval.end as usize;
-                        let string_content = &self.parser.lexer.tokenizer.input[str_s..str_e];
-
-                        self.builder.build_global_string_ptr(string_content, "str_lit")
-                            .unwrap()
-                            .as_pointer_value()
-                            .into()
-                    },
+                
                     _ => unreachable!()
                 },
                 (start, end) =>{

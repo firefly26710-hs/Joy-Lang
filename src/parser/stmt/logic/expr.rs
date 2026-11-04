@@ -44,12 +44,6 @@ impl Parser{
                 self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Float, key)
             }
-            Token::String => {
-                self.stmt.is_string = true;
-                let key = self.current as Key;
-                self.eat();
-                self.push_leaf(Token::String, key)
-            }
             Token::True =>{
                 self.stmt.bool_node_sum += 1;
                 let key = self.current as Key;

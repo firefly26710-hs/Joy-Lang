@@ -137,8 +137,6 @@ impl Lexer{
 
                 _ if is_alphanumeric(c) => self.ident(),
 
-                "\"" => self.string(),
-
                 " " | "\r" | "\t" => {},
 
                 "\0" | "\n" => self.collect_span(),
@@ -240,31 +238,7 @@ impl Lexer{
     }
 
 
-    fn string(&mut self){
-        let mut strlen = 0;
-
-        while self.peek() != "\"" && !self.is_finish(){
-            if matches!(self.peek(), "\n"){
-                self.error.spans.push(
-                    (self.error.span_start as SpanStart
-                     , self.tokenizer.current as SpanLength
-                    )
-                );
-            }
-            strlen += 1;
-            self.eat();
-        }
-
-        if self.is_finish(){
-            self.mismatch_string_issue(strlen);
-        }
-
-        //the closing
-        self.eat();
-
-        self.collect_tokenizer_data(Token::String);
-
-    }
+    
     
     
     
