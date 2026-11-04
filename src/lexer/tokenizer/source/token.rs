@@ -3,7 +3,6 @@ pub enum Token{
 
     Int,
     Float,
-    String,
     Ident,
     Type,
 
