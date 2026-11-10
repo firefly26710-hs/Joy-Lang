@@ -532,7 +532,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {}  ".to_string();
+        "fn main() = void {var x = (5 + 1) * 1;}  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
@@ -540,12 +540,11 @@ fn test_par_error(){
 
     let mut parser = Parser::init(lexer);
     _ =parser.build_tree();
+    parser.print_node();
     dbg!(parser.scope.var_scope_stack);
     dbg!(parser.table.var_keys);
     dbg!(parser.table.var_types);
-    if parser.lexer.error.has_error{
-        parser.lexer.output_error();
-    }
+
 
 }
 

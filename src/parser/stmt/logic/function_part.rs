@@ -87,7 +87,7 @@ impl Parser{
         let expr_idx = if matches!(self.last_ret_type(), Type::void){
             NONE
         }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
-            let expr_idx = self.parse_expression()?;
+            let expr_idx = self.parse_expression(0.0)?;
             self.matches_type(&self.last_ret_type().clone())?;
             expr_idx
         }else {
@@ -122,13 +122,7 @@ impl Parser{
             self.push_leaf(Token::Ident, func_name_key)
         };
 
-        match self.look_ret_type(func_name_key){
-            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128 => self.stmt.int_node_sum += 1,
-            Type::f32 | Type::f64 => self.stmt.flt_node_sum += 1,
-            Type::bool => self.stmt.bool_node_sum += 1,
-            Type::String => self.stmt.is_string = true,
-            Type::void => panic!("[Line {:?}] Expression can't with void type", self.current_line())
-        };
+        
 
         self.stmt.func_call_recorder.push(func_name_idx?);
         self.matches_token(&Token::Lparen)?;
@@ -145,7 +139,7 @@ impl Parser{
             let mut counter = 0;
 
             for i in 0..len {
-                let expr_idx = self.parse_expression();
+                let expr_idx = self.parse_expression(0.0);
 
                 let param_type = &self.table.var_types[start as usize..=end as usize][i];
                 let ty = &param_type.clone();
@@ -183,7 +177,7 @@ impl Parser{
 
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma)?;
-        let expr_idx = self.parse_expression()?;
+        let expr_idx = self.parse_expression(0.0)?;
         self.matches_type(&ty)?;
         self.matches_token(&Token::Rparen)?;
         self.matches_token(&Token::Scolon)?;

@@ -2,19 +2,14 @@ use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
-use crate::parser::tree::ast::NodeIdx;
+use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_expression(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_expression(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
 
-        self.stmt.int_node_sum = 0;
-        self.stmt.flt_node_sum = 0;
-        self.stmt.bool_node_sum = 0;
-        self.stmt.regular_op_sum = 0;
-        self.stmt.compare_op_sum = 0;
-        self.stmt.is_string = false;
+
 
         self.stmt.prev_node_type = Type::void;
         self.stmt.is_prev_node_is_ident = false;
@@ -22,12 +17,11 @@ impl Parser{
         self.stmt.prev_node_key = 0;
         self.stmt.expr_start_key = self.current as Key;
 
-        self.expr(0.0)
+        self.expr(min_bp)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
-                self.stmt.int_node_sum += 1;
                 let key = self.current as Key;
                 self.stmt.prev_node_key = key;
                 self.update_node_type(key)?;
@@ -36,7 +30,6 @@ impl Parser{
                 self.push_leaf(Token::Int, key)
             }
             Token::Float =>{
-                self.stmt.flt_node_sum += 1;
                 let key = self.current as Key;
                 self.stmt.prev_node_key = key;
                 self.update_node_type(key)?;
@@ -45,16 +38,42 @@ impl Parser{
                 self.push_leaf(Token::Float, key)
             }
             Token::True =>{
-                self.stmt.bool_node_sum += 1;
                 let key = self.current as Key;
                 self.eat();
                 self.push_leaf(Token::True, key)
             }
             Token::False=> {
-                self.stmt.bool_node_sum += 1;
                 let key = self.current as Key;
                 self.eat();
                 self.push_leaf(Token::False, key)
+            },
+            Token::Sub => {
+                let key = self.current as Key;
+                self.eat();
+                let expr_idx = self.parse_expression(1000.0)?;
+                let start = self.ast.edge_start();
+                self.ast.edges.push(NONE);
+                self.ast.edges.push(expr_idx);
+                let end = self.ast.edge_end();
+                Ok(self.push_node(Token::Sub, key, start, end))
+            },
+            Token::Lparen => {
+                self.eat();
+                let expr_idx = self.parse_expression(0.0)?;
+                self.matches_token(&Token::Rparen)?;
+                Ok(expr_idx)
+            }
+            Token::CmpNot => {
+                let key = self.current as Key;
+                self.eat();
+                self.matches_token(&Token::Lparen)?;
+                let expr_idx = self.parse_expression(0.0)?;
+                self.matches_token(&Token::Rparen)?;
+                let start = self.ast.edge_start();
+                self.ast.edges.push(NONE);
+                self.ast.edges.push(expr_idx);
+                let end = self.ast.edge_end();
+                Ok(self.push_node(Token::CmpNot, key, start, end))
             }
             Token::Ident =>{
                 if self.is_func_call(self.peek_next()){
@@ -89,9 +108,6 @@ impl Parser{
                 break;
             }
 
-            if is_regular_op(op_tok){self.stmt.regular_op_sum += 1}
-            else if is_bool_op(op_tok){self.stmt.bool_node_sum += 1}
-            else if is_compare_op(op_tok){self.stmt.compare_op_sum += 1}
 
             let op_key = self.current as Key;
             let op_tok = self.eat();

@@ -55,6 +55,9 @@ impl Parser{
 
         self.push_node(Token::Program, NONE, start, end);
 
+        if self.lexer.error.has_error{
+            self.lexer.output_error();
+        }
         Ok(0)
     }
 

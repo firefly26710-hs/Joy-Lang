@@ -10,12 +10,7 @@ pub struct Stmt{
     pub branch_recorder:Vec<NodeIdx>,
     pub loop_recorder : Vec<NodeIdx>,
     pub func_call_recorder : Vec<NodeIdx>,
-
-    pub int_node_sum   : u8,
-    pub flt_node_sum   : u8,
-    pub bool_node_sum  : u8,
-    pub regular_op_sum : u8,
-    pub compare_op_sum : u8,
+    
     pub is_string      : bool,
 
     pub is_prev_node_is_ident : bool,
@@ -40,11 +35,7 @@ impl Stmt{
             loop_recorder   : Vec::with_capacity(RECORDER_SIZE),
             func_call_recorder : Vec::with_capacity(RECORDER_SIZE),
 
-            int_node_sum : 0,
-            flt_node_sum : 0,
-            bool_node_sum : 0,
-            regular_op_sum : 0,
-            compare_op_sum : 0,
+            
             has_ident_in_expr : false,
             is_string : false,
             expr_start_key : 0,

@@ -18,7 +18,7 @@ impl Parser{
         self.matches_token(&Token::In)?;
 
         let start_number_idx = {
-            let expr_idx = self.parse_expression();
+            let expr_idx = self.parse_expression(0.0);
             self.matches_type(&Type::i32)?;
             expr_idx
         };
@@ -26,7 +26,7 @@ impl Parser{
         self.matches_token(&Token::Range)?;
 
         let end_number_idx = {
-            let expr_idx = self.parse_expression();
+            let expr_idx = self.parse_expression(0.0);
             self.matches_type(&Type::i32)?;
             expr_idx
         };
@@ -34,7 +34,7 @@ impl Parser{
        self.matches_token(&Token::Vertical)?;
 
         let step_number_idx = {
-            let expr_idx = self.parse_expression();
+            let expr_idx = self.parse_expression(0.0);
             self.matches_type(&Type::i32)?;
             expr_idx
         };
@@ -63,7 +63,7 @@ impl Parser{
         self.eat();
 
         let expr_idx = {
-            let expr_idx = self.parse_expression()?;
+            let expr_idx = self.parse_expression(0.0)?;
             self.matches_type(&Type::bool)?;
             expr_idx
         };
