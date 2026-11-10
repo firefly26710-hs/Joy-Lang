@@ -88,7 +88,7 @@ impl Parser{
             NONE
         }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
             let expr_idx = self.parse_expression(0.0)?;
-            self.matches_type(&self.last_ret_type().clone())?;
+            self.matches_type(&self.last_ret_type().clone(), expr_idx)?;
             expr_idx
         }else {
             panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.last_ret_type())
@@ -139,13 +139,13 @@ impl Parser{
             let mut counter = 0;
 
             for i in 0..len {
-                let expr_idx = self.parse_expression(0.0);
+                let expr_idx = self.parse_expression(0.0)?;
 
                 let param_type = &self.table.var_types[start as usize..=end as usize][i];
                 let ty = &param_type.clone();
-                self.matches_type(ty)?;
+                self.matches_type(ty, expr_idx)?;
                 counter += 1;
-                self.stmt.func_call_recorder.push(expr_idx?);
+                self.stmt.func_call_recorder.push(expr_idx);
 
                 match self.peek() {
                     Token::Comma => self.eat(),
@@ -178,7 +178,7 @@ impl Parser{
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma)?;
         let expr_idx = self.parse_expression(0.0)?;
-        self.matches_type(&ty)?;
+        self.matches_type(&ty, expr_idx)?;
         self.matches_token(&Token::Rparen)?;
         self.matches_token(&Token::Scolon)?;
 

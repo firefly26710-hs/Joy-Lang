@@ -2,7 +2,7 @@ use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
-use crate::parser::types::logic::{is_in_same_set, left_bigger_than_right};
+use crate::parser::types::logic::left_bigger_than_right;
 use crate::parser::types::typ::Type;
 
 impl Parser{
@@ -58,13 +58,11 @@ impl Parser{
         }
     }
 
-    pub fn matches_type(&mut self, expected_type : &Type) -> Result<Type, IssueType>{
-        let expr_type = &self.get_expr_type();
-        if !is_in_same_set(expr_type, expected_type){
-           return Err( self.mismatch_type_issue(self.stmt.expr_start_key, expected_type, expr_type));
-        }
+    pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, IssueType>{
+        let expr_type = &self.parse_expr_type(expr_idx)?;
         
         if matches!(expected_type, Type::void){
+
             if self.stmt.has_ident_in_expr{
                 Ok(expr_type.clone())
             }else{
@@ -72,6 +70,7 @@ impl Parser{
                     Type::i8 | Type::i16 | Type::i32 => Ok(Type::i32),
                     Type::i64 => Ok(Type::i64),
                     Type::i128 => Ok(Type::i128),
+                    Type::bool => Ok(Type::bool),
                     Type::f32 | Type::f64 => Ok(Type::f64),
                     _ => panic!("[Line {:?}]Todo this type : {:?}", self.current_line(), expr_type)
                 }
@@ -87,12 +86,14 @@ impl Parser{
                 if left_bigger_than_right(&expected_type, expr_type) || expected_type == expr_type{
                     Ok(expected_type.clone())
                 }else{
-                    Err(self.type_out_of_range(self.stmt.expr_start_key, &expr_type))
+                    Err(self.type_out_of_range(self.stmt.expr_start_key, &expected_type))
                 }
             }
         }
 
     }
+
+
 
 
 

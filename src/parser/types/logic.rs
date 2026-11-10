@@ -1,14 +1,88 @@
 use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
-use crate::parser::tree::node::Key;
+use crate::llvm::expr::is_comparison_op;
 use crate::parser::center::par::Parser;
+use crate::parser::tree::ast::{NodeIdx, NONE};
+use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
 
-    pub fn get_expr_type(&self) -> Type{
-        self.stmt.prev_node_type.clone()
+    pub fn parse_expr_type(&mut self, expr_idx : u32) -> Result<Type, IssueType> {
+        let node = &self.ast.nodes[expr_idx as usize];
+        let tok = &node.token;
+        let key = node.key;
+        dbg!(key);
+        let edge_span = &node.edge_span;
+        let left_span = edge_span.start;
+        let right_span = edge_span.end;
+        match(left_span, right_span){
+            (NONE, NONE) => match tok{
+                Token::Int => Ok(self.parse_int_type(key)),
+                Token::Float => Ok(self.parse_flt_type(key)),
+                Token::Ident => {
+                    self.stmt.has_ident_in_expr = true;
+                    Ok(self.parse_ident_type(key))
+                },
+                Token::True | Token::False => Ok(Type::bool),
+                _ => panic!("unknown Leaf : {:?}", tok)
+            }
+
+            (left_span, right_span) => {
+                let left_idx = self.ast.edges[left_span as usize..=right_span as usize][0];
+                let right_idx = self.ast.edges[left_span as usize..=right_span as usize][1];
+
+                match (left_idx, right_idx){
+                    // (NONE, rhs) => {},
+                    (lhs, rhs) =>{
+                        if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
+                            return Err(self.comparison_op_chained_issue(self.stmt.prev_op_key));
+                        }
+                        if is_comparison_op(&tok){ 
+                            self.stmt.already_has_comparison_op = true;
+                            self.stmt.prev_op_key = key;
+                        }
+
+                        let l_ty = self.parse_expr_type(lhs)?;
+                        let r_ty = self.parse_expr_type(rhs)?;
+
+                        if !is_two_types_in_same_set(&r_ty, &l_ty){
+                            return Err(self.mismatch_node_type_issue(&l_ty, &r_ty, self.get_key(rhs) as usize));
+                        }
+
+
+
+                        if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
+                            return Err(self.type_out_of_range(self.get_key(lhs), &l_ty));
+                        }else if self.is_ident(rhs) && left_bigger_than_right(&l_ty, &r_ty){
+                            return Err(self.type_out_of_range(self.get_key(rhs), &r_ty));
+                        }else{
+                            if left_bigger_than_right(&l_ty, &r_ty){
+                                if self.stmt.already_has_comparison_op{
+                                    return Ok(Type::bool);
+                                }
+                                return Ok(l_ty)
+                            } else{
+                                if self.stmt.already_has_comparison_op{
+                                    return Ok(Type::bool);
+                                }
+                                return Ok(r_ty)
+                            }
+                        }
+
+                    },
+                    _ => unreachable!()
+                }
+
+
+            }
+
+
+            _ => unreachable!()
+        }
     }
+
+
 
     fn parse_int_type(&self, key : Key) -> Type{
         let interval = &self.lexer.tokenizer.intervals[key as usize];
@@ -50,43 +124,29 @@ impl Parser{
         }
     }
 
+    fn parse_ident_type(&self, key : Key) -> Type{
+        let ident_ty = self.look_var_type(&key);
 
-
-    pub fn update_node_type(&mut self, key : Key) -> Result<(), IssueType>{
-        let prev_type = self.stmt.prev_node_type.clone();
-
-        let node_type = &self.lexer.tokenizer.tokens[key as usize];
-        let curr_type = if matches!(node_type, Token::Int){
-            self.parse_int_type(key)
-        }else if matches!(node_type, Token::Float){
-            self.parse_flt_type(key)
-        }else if matches!(node_type, Token::Ident){
-            self.look_var_type(&key).clone()
-        }else{
-            panic!("[Line {:?}] To do this node type case in error msg!!! : {:?}", self.current_line(), node_type)
-        };
-
-        if !is_in_same_set(&curr_type, &prev_type){
-            return Err(self.mismatch_node_type_issue(&curr_type, &prev_type, self.stmt.prev_node_key as usize))
+        match ident_ty{
+            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
+            => self.parse_int_type(key),
+            Type::f32 | Type::f64 => self.parse_flt_type(key),
+            Type::bool => Type::bool,
+            _ => panic!("unknown ident type : {:?}", ident_ty)
         }
-
-        if self.stmt.is_prev_node_is_ident && left_bigger_than_right(&curr_type, &prev_type){
-            return Err(self.type_out_of_range(self.current as Key, &prev_type))
-        }else{
-            if left_bigger_than_right(&curr_type, &prev_type){
-                self.stmt.prev_node_type = curr_type
-            }else if !left_bigger_than_right(&curr_type, &prev_type){
-                self.stmt.prev_node_type = prev_type;
-            }
-        }
-
-        Ok(())
     }
 
+    fn is_ident(&self ,idx : u32) -> bool{
+        self.ast.nodes[idx as usize].token == Token::Ident
+    }
+
+    fn get_key(&self, idx : NodeIdx) -> Key{
+        self.ast.nodes[idx as usize].key
+    }
 
 }
 
-pub fn is_in_same_set(type_a : &Type, type_b : &Type) -> bool{
+pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
     let a_num = weight(type_a);
     let b_num = weight(type_b);
 
@@ -97,10 +157,11 @@ pub fn is_in_same_set(type_a : &Type, type_b : &Type) -> bool{
     //integer type set
     if a_num > 0 && a_num < 10 && b_num > 0 && b_num < 10 {
         true
+
     //float type set
     }else if a_num > 10 && a_num < 20 && b_num > 10 && b_num < 20{
-         true
-     }else{
+        true
+    }else{
         false
     }
 
@@ -117,15 +178,16 @@ pub fn left_bigger_than_right(type_a : &Type, type_b : &Type) -> bool{
     }
 }
 
+
 fn weight(ty : &Type) -> i32{
     match ty {
         Type::i8 => 1,
         Type::i16 => 2,
         Type::i32 => 3,
         Type::i64 => 4,
-        Type::i128 => 5,
-        Type::f32 => 11,
-        Type::f64 => 12,
+        Type::i128 => 11,
+        Type::f32 => 12,
+        Type::bool => 0,
         Type::void => i32::MIN,
         _ => unreachable!()
     }

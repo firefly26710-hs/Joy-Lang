@@ -90,7 +90,7 @@ impl Lexer{
                 info.push_str(&unknown_fn);
                 info
             },
-            IssueType::MismatchesNodeType {prev_node_type,curr_node_type} => {
+            IssueType::MismatchesNodeType { left_node_type: prev_node_type, right_node_type: curr_node_type } => {
                 let mut info = "cannot use ".to_string();
                 info.push_str(&curr_node_type);
                 info.push_str(" after ");
@@ -109,6 +109,9 @@ impl Lexer{
                 info.push_str(kw.as_str());
                 info.push_str("' outside of a loop");
                 info
+            },
+            IssueType::ComparisonChained => {
+                "comparison operator cannot be chained".to_string()
             }
             _ => unreachable!()
         };

@@ -236,10 +236,36 @@ impl Parser{
         issue
     }
 
+    pub fn comparison_op_chained_issue(&mut self, key : Key) -> IssueType{
+        self.lexer.error.has_error = true;
+
+        let(line,
+            rlt_col_start,
+            rlt_col_end,
+            _alt_col_start,
+            _alt_col_end,
+            span_id)
+            = self.get_data(key as usize);
+
+        let issue = IssueType::ComparisonChained;
+
+        self.lexer.error.lex_msg_data.push(
+            LexerMsgData::new(
+                issue.clone(),
+                line,
+                rlt_col_start,
+                rlt_col_end,
+                span_id
+            )
+        );
+
+        issue
+    }
+
     pub fn mismatch_node_type_issue(
         &mut self,
-        curr_node_ty : &Type,
-        prev_ty   : &Type,
+        left_type: &Type,
+        right_type: &Type,
         start_key : usize
     ) -> IssueType{
 
@@ -256,14 +282,14 @@ impl Parser{
             = self.get_data(curr_node_key);
 
 
-        let prev_node_type = match prev_ty{
+        let left_node_type = match left_type {
             Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
             => "integer",
             Type::f32 | Type::f64 => "float",
             _ => panic!("unknown node ty")
         }.to_string();
 
-        let curr_node_type = match curr_node_ty{
+        let right_node_type = match right_type {
             Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
             => "integer",
             Type::f32 | Type::f64 => "float",
@@ -271,7 +297,7 @@ impl Parser{
         }.to_string();
 
         let issue = IssueType::MismatchesNodeType {
-            prev_node_type, curr_node_type
+            left_node_type, right_node_type
         };
 
         self.lexer.error.lex_msg_data.push(
@@ -284,7 +310,7 @@ impl Parser{
             )
         );
 
-        let prev_node_ty = match prev_ty {
+        let prev_node_ty = match right_type {
             Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
             => Token::Int,
             Type::f32 | Type::f64 => Token::Float,
@@ -319,7 +345,8 @@ impl Parser{
                 }.to_string();
 
                 let issue = IssueType::MismatchesNodeType {
-                    prev_node_type, curr_node_type
+                    left_node_type: prev_node_type,
+                    right_node_type: curr_node_type
                 };
 
                 self.lexer.error.lex_msg_data.push(
@@ -532,11 +559,11 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {var x = not(1 + 1) * 1;}  ".to_string();
+        "fn main() = void {var x = 1 > 1 and 1;}  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-   // lexer.print_output();
+    lexer.print_output();
 
     let mut parser = Parser::init(lexer);
     _ =parser.build_tree();

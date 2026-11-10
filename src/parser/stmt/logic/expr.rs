@@ -8,13 +8,6 @@ use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_expression(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
-
-
-
-        self.stmt.prev_node_type = Type::void;
-        self.stmt.is_prev_node_is_ident = false;
-        self.stmt.has_ident_in_expr = false;
-        self.stmt.prev_node_key = 0;
         self.stmt.expr_start_key = self.current as Key;
 
         self.expr(min_bp)
@@ -23,18 +16,12 @@ impl Parser{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
                 let key = self.current as Key;
-                self.stmt.prev_node_key = key;
-                self.update_node_type(key)?;
                 self.eat();
-                self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Int, key)
             }
             Token::Float =>{
                 let key = self.current as Key;
-                self.stmt.prev_node_key = key;
-                self.update_node_type(key)?;
                 self.eat();
-                self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Float, key)
             }
             Token::True =>{
@@ -81,10 +68,6 @@ impl Parser{
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
                     self.var_not_in_scope(ident_key)?;
-                    self.update_node_type(ident_key)?;
-                    self.eat();
-                    self.stmt.is_prev_node_is_ident = true;
-                    self.stmt.has_ident_in_expr = true;
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }

@@ -29,7 +29,7 @@ impl Parser {
 
                 self.eat();
                 let expr_idx = self.parse_expression(0.0)?;
-                self.matches_type(&Type::bool)?;
+                self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
                 let stmts_idx = self.parse_stmts().unwrap();
@@ -49,7 +49,7 @@ impl Parser {
                 }
                 self.eat();
                 let expr_idx = self.parse_expression(0.0)?;
-                self.matches_type(&Type::bool)?;
+                self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
                 let stmts_idx = self.parse_stmts().unwrap();

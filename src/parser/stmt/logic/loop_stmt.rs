@@ -18,24 +18,24 @@ impl Parser{
         self.matches_token(&Token::In)?;
 
         let start_number_idx = {
-            let expr_idx = self.parse_expression(0.0);
-            self.matches_type(&Type::i32)?;
+            let expr_idx = self.parse_expression(0.0)?;
+            self.matches_type(&Type::i32, expr_idx)?;
             expr_idx
         };
 
         self.matches_token(&Token::Range)?;
 
         let end_number_idx = {
-            let expr_idx = self.parse_expression(0.0);
-            self.matches_type(&Type::i32)?;
+            let expr_idx = self.parse_expression(0.0)?;
+            self.matches_type(&Type::i32, expr_idx)?;
             expr_idx
         };
 
        self.matches_token(&Token::Vertical)?;
 
         let step_number_idx = {
-            let expr_idx = self.parse_expression(0.0);
-            self.matches_type(&Type::i32)?;
+            let expr_idx = self.parse_expression(0.0)?;
+            self.matches_type(&Type::i32, expr_idx)?;
             expr_idx
         };
 
@@ -46,9 +46,9 @@ impl Parser{
 
         let start = self.ast.edge_start();
         self.ast.edges.push(loop_ident_idx);
-        self.ast.edges.push(start_number_idx?);
-        self.ast.edges.push(end_number_idx?);
-        self.ast.edges.push(step_number_idx?);
+        self.ast.edges.push(start_number_idx);
+        self.ast.edges.push(end_number_idx);
+        self.ast.edges.push(step_number_idx);
         self.ast.edges.push(block_idx);
         let end = self.ast.edge_end();
 
@@ -62,11 +62,8 @@ impl Parser{
 
         self.eat();
 
-        let expr_idx = {
-            let expr_idx = self.parse_expression(0.0)?;
-            self.matches_type(&Type::bool)?;
-            expr_idx
-        };
+        let expr_idx = self.parse_expression(0.0)?;
+        self.matches_type(&Type::bool, expr_idx)?;
 
         self.matches_token(&Token::Lbrace)?;
         let stmts_idx = self.parse_stmts()?;

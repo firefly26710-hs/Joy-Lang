@@ -99,13 +99,13 @@ impl<'ctx>Codegen<'ctx>{
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;
 
-                            let lhs = if is_bool_op(&tok){
+                            let lhs = if is_comparison_op(&tok){
                                 self.build_expr(lhs_idx, &Type::i32)
                             }else{
                                 self.build_expr(lhs_idx, ty)
                             };
 
-                            let rhs = if is_bool_op(&tok){
+                            let rhs = if is_comparison_op(&tok){
                                 self.build_expr(rhs_idx, &Type::i32)
                             }else{
                                 self.build_expr(rhs_idx, ty)
@@ -287,7 +287,7 @@ impl<'ctx>Codegen<'ctx>{
 
 }
 
-pub fn is_bool_op(tok : &Token) -> bool{
+pub fn is_comparison_op(tok : &Token) -> bool{
     matches!(tok, Token::EqEq   | Token::NotEq | Token::Grt | Token::Les| Token::GrtEq  | Token::LesEq )
 }
     
