@@ -76,7 +76,7 @@ impl Parser{
 
         self.matches_token(&Token::Eq)?;
 
-        let expr_idx = self.parse_expression(0.0)?;
+        let expr_idx = self.parse_expression()?;
         let actually_ty = self.matches_type(&declared_ty, expr_idx)?;
 
 
@@ -112,7 +112,7 @@ impl Parser{
         let op_tok_key = self.current as Key;
         let op_tok = self.eat();
 
-        let expr_idx = self.parse_expression(0.0)?;
+        let expr_idx = self.parse_expression()?;
         let ident_type = self.look_var_type(&key);
         self.matches_type(&ident_type.clone(), expr_idx)?;
 

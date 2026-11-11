@@ -88,7 +88,7 @@ impl Parser{
         let expr_idx = if matches!(self.last_ret_type(), Type::void){
             NONE
         }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
-            let expr_idx = self.parse_expression(0.0)?;
+            let expr_idx = self.parse_expression()?;
             self.matches_type(&self.last_ret_type().clone(), expr_idx)?;
             expr_idx
         }else {
@@ -140,7 +140,7 @@ impl Parser{
             let mut counter = 0;
 
             for i in 0..len {
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.parse_expression()?;
 
                 let param_type = &self.table.var_types[start as usize..=end as usize][i];
                 let ty = &param_type.clone();
@@ -178,7 +178,7 @@ impl Parser{
 
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma)?;
-        let expr_idx = self.parse_expression(0.0)?;
+        let expr_idx = self.parse_expression()?;
         self.matches_type(&ty, expr_idx)?;
         self.matches_token(&Token::Rparen)?;
         self.matches_token(&Token::Scolon)?;

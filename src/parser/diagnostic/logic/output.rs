@@ -111,9 +111,7 @@ impl Parser{
                 ExprIssue::LiteralOutOfRange {expected_type_string}) =>
                 {
                     let mut info = "literal out of range for ".to_string();
-                    info.push_str("'");
                     info.push_str(expected_type_string.as_str());
-                    info.push_str("'");
                     info
                 }
 

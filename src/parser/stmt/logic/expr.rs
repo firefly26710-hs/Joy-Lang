@@ -8,10 +8,10 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_expression(&mut self, min_bp : f32) -> Result<NodeIdx, ParserIssue>{
+    pub fn parse_expression(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.stmt.expr_start_key = self.current as Key;
 
-        self.expr(min_bp)
+        self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, ParserIssue>{
         let mut lhs_idx = match self.peek(){
@@ -38,7 +38,7 @@ impl Parser{
             Token::Sub => {
                 let key = self.current as Key;
                 self.eat();
-                let expr_idx = self.parse_expression(1000.0)?;
+                let expr_idx = self.expr(1000.0)?;
                 let start = self.ast.edge_start();
                 self.ast.edges.push(NONE);
                 self.ast.edges.push(expr_idx);
@@ -47,7 +47,7 @@ impl Parser{
             },
             Token::Lparen => {
                 self.eat();
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.expr(0.0)?;
                 self.matches_token(&Token::Rparen)?;
                 Ok(expr_idx)
             }
@@ -55,7 +55,7 @@ impl Parser{
                 let key = self.current as Key;
                 self.eat();
                 self.matches_token(&Token::Lparen)?;
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.expr(0.0)?;
                 self.matches_token(&Token::Rparen)?;
                 let start = self.ast.edge_start();
                 self.ast.edges.push(NONE);

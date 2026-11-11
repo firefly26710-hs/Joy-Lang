@@ -35,20 +35,22 @@ impl Parser{
 
     pub fn mismatch_type_issue(
         &mut self,
-        expr_start_key : Key,
+        expr_idx : NodeIdx,
         expected_type : &Type,
         actual_type : &Type
     ) -> ParserIssue {
         self.lexer.error.has_error = true;
 
-        let actual_type_key = expr_start_key as usize;
+        let (start_tok_key, end_tok_key)  = self.get_min_and_max_key(expr_idx as usize);
 
-        let span_id = self.lexer.error.span_ids[actual_type_key] as usize;
+        let span_id = self.lexer.error.span_ids[start_tok_key] as usize;
         let line = span_id + 1;
 
-        let interval = &self.lexer.tokenizer.intervals[actual_type_key];
-        let start =interval.start as usize;
-        let end = interval.end as usize;
+        let start_interval = &self.lexer.tokenizer.intervals[start_tok_key];
+        let start = start_interval.start as usize;
+
+        let end_interval = &self.lexer.tokenizer.intervals[end_tok_key];
+        let end = end_interval.end as usize;
 
         let expected_type = from_type_to_string(expected_type).to_string();
         let actual_type =  from_type_to_string(actual_type).to_string();
@@ -70,19 +72,23 @@ impl Parser{
 
 
 
-    pub fn type_out_of_range(
+    pub fn expr_type_out_of_range(
         &mut self,
-        key : Key,
+        expr_idx : NodeIdx,
         expected_type : &Type,
     ) -> ParserIssue {
         self.lexer.error.has_error = true;
 
-        let wrong_literal_key = key as usize;
-        let span_id = self.lexer.error.span_ids[wrong_literal_key] as usize;
+        let (start_tok_key, end_tok_key)  = self.get_min_and_max_key(expr_idx as usize);
+
+        let span_id = self.lexer.error.span_ids[start_tok_key] as usize;
         let line = span_id + 1;
-        let interval = &self.lexer.tokenizer.intervals[wrong_literal_key];
-        let start = interval.start as usize;
-        let end = interval.end as usize;
+
+        let start_interval = &self.lexer.tokenizer.intervals[start_tok_key];
+        let start = start_interval.start as usize;
+
+        let end_interval = &self.lexer.tokenizer.intervals[end_tok_key];
+        let end = end_interval.end as usize;
 
 
         let expected_type_string = from_type_to_string(&expected_type).to_string();
@@ -126,7 +132,7 @@ impl Parser{
         issue
     }
 
-    pub fn mismatch_node_type_issue(
+    pub fn mismatches_expression_type(
         &mut self,
         left_type: &Type,
         right_type: &Type,
@@ -182,7 +188,7 @@ impl Parser{
         issue
 
     }
-    
+
     pub fn mismatch_binary_op_type(&mut self, expr_idx : NodeIdx, expr_type : Type) -> ParserIssue{
         self.lexer.error.has_error = true;
 
@@ -204,7 +210,7 @@ impl Parser{
             Type::bool => "bool",
             _ => panic!("unknown node ty")
         }.to_string();
-        
+
         let issue = ParserIssue::Expr(ExprIssue::BinaryOpMismatches {expr_type_string});
 
         self.lexer.error.par_msg_data.push(
@@ -218,7 +224,7 @@ impl Parser{
         );
 
         issue
-        
+
     }
 
     
@@ -311,15 +317,14 @@ fn is_stmt(tok : &Token) -> bool{
 
 pub fn from_type_to_string(ty : &Type) -> String{
     let str = match ty {
-        Type::i8  => "i8",
-        Type::i16 => "i16",
-        Type::i32 => "i32",
-        Type::i64 => "i64",
-        Type::i128=> "i128",
-        Type::f32 => "f32",
-        Type::f64 => "f64",
-        Type::bool => "bool",
-        Type::void => "void"
+        Type::i8  => "'i8'",
+        Type::i16 => "'i16'",
+        Type::i32 => "'i32'",
+        Type::i64 => "'i64'",
+        Type::i128=> "'i128'",
+        Type::f32 | Type::f64 => "floating-point number",
+        Type::bool => "'bool'",
+        Type::void => "'void'"
     };
     
     str.to_string()

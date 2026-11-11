@@ -28,16 +28,24 @@ impl Parser{
             }
         }else{
             if self.stmt.has_ident_in_expr{
+                if !is_two_types_in_same_set(expected_type, expr_type){
+                    return Err(self.mismatch_type_issue(expr_idx, &expected_type, &expr_type))
+                }
+
                 if left_bigger_than_right(&expected_type, &expr_type){
-                    Err(self.mismatch_type_issue(self.stmt.expr_start_key, &expected_type, &expr_type))
+                    Err(self.expr_type_out_of_range(expr_idx, &expected_type))
                 }else{
                     Ok(expr_type.clone())
                 }
             }else{
+                if !is_two_types_in_same_set(expected_type, expr_type){
+                    return Err(self.mismatch_type_issue(expr_idx, &expected_type, &expr_type))
+                }
+
                 if left_bigger_than_right(&expected_type, expr_type) || expected_type == expr_type{
                     Ok(expected_type.clone())
                 }else{
-                    Err(self.type_out_of_range(self.stmt.expr_start_key, &expected_type))
+                    Err(self.expr_type_out_of_range(expr_idx, &expected_type))
                 }
             }
         }
@@ -111,15 +119,15 @@ impl Parser{
                         
                         
                         if !is_two_types_in_same_set(&r_ty, &l_ty){
-                            return Err(self.mismatch_node_type_issue(&l_ty, &r_ty, self.get_key(rhs) as usize));
+                            return Err(self.mismatches_expression_type(&l_ty, &r_ty, rhs as usize));
                         }
 
                         
 
                         if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
-                            Err(self.type_out_of_range(self.get_key(lhs), &l_ty))
+                            Err(self.expr_type_out_of_range(self.get_key(lhs), &l_ty))
                         }else if self.is_ident(rhs) && left_bigger_than_right(&l_ty, &r_ty){
-                            Err(self.type_out_of_range(self.get_key(rhs), &r_ty))
+                            Err(self.expr_type_out_of_range(self.get_key(rhs), &r_ty))
                         }else{
                             if left_bigger_than_right(&l_ty, &r_ty){
                                 if self.stmt.already_has_comparison_op{
@@ -134,8 +142,7 @@ impl Parser{
                             }
                         }
 
-                    },
-                    _ => unreachable!()
+                    }
                 }
 
 

@@ -31,7 +31,7 @@ impl Parser {
 
 
                 self.eat();
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.parse_expression()?;
                 self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
@@ -51,7 +51,7 @@ impl Parser {
                     panic!("[Line {:?}] Expected 'elif' token, but found 'if'", self.current_line())
                 }
                 self.eat();
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.parse_expression()?;
                 self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
