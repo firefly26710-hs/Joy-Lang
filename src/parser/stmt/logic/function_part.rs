@@ -5,10 +5,11 @@ use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_function(&mut self) -> Result<NodeIdx, LexerIssueType>{
+    pub fn parse_function(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.build_scope();
 
 
@@ -81,7 +82,7 @@ impl Parser{
 
 
 
-    pub fn parse_ret(&mut self) -> Result<NodeIdx, LexerIssueType>{
+    pub fn parse_ret(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
 
         let expr_idx = if matches!(self.last_ret_type(), Type::void){
@@ -105,7 +106,7 @@ impl Parser{
        Ok( self.push_node(Token::RetStmt, NONE, start, end))
     }
 
-    pub fn parse_func_call(&mut self) -> Result<NodeIdx, LexerIssueType>{
+    pub fn parse_func_call(&mut self) -> Result<NodeIdx, ParserIssue>{
         let expr_func_idx = self.expr_func_call()?;
 
        self.matches_token(&Token::Scolon)?;
@@ -113,7 +114,7 @@ impl Parser{
         Ok(expr_func_idx)
     }
 
-    pub fn expr_func_call(&mut self) -> Result<NodeIdx, LexerIssueType> {
+    pub fn expr_func_call(&mut self) -> Result<NodeIdx, ParserIssue> {
         let func_name_key = self.find_same_func_key(self.current as Key);
         self.fn_not_exist(func_name_key)?;
 
@@ -168,7 +169,7 @@ impl Parser{
     }
 
 
-    pub fn parse_print(&mut self) -> Result<NodeIdx, LexerIssueType>{
+    pub fn parse_print(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
 
        self.matches_token(&Token::Lparen)?;

@@ -1,18 +1,54 @@
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::llvm::expr::is_comparison_op;
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
+    pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, ParserIssue>{
+        self.stmt.already_has_comparison_op = false;
 
-    pub fn parse_expr_type(&mut self, expr_idx : u32) -> Result<Type, LexerIssueType> {
+        let expr_type = &self.parse_expr_type(expr_idx)?;
+
+        if matches!(expected_type, Type::void){
+
+            if self.stmt.has_ident_in_expr{
+                Ok(expr_type.clone())
+            }else{
+                match expr_type{
+                    Type::i8 | Type::i16 | Type::i32 => Ok(Type::i32),
+                    Type::i64 => Ok(Type::i64),
+                    Type::i128 => Ok(Type::i128),
+                    Type::bool => Ok(Type::bool),
+                    Type::f32 | Type::f64 => Ok(Type::f64),
+                    _ => panic!("[Line {:?}]Todo this type : {:?}", self.current_line(), expr_type)
+                }
+            }
+        }else{
+            if self.stmt.has_ident_in_expr{
+                if left_bigger_than_right(&expected_type, &expr_type){
+                    Err(self.mismatch_type_issue(self.stmt.expr_start_key, &expected_type, &expr_type))
+                }else{
+                    Ok(expr_type.clone())
+                }
+            }else{
+                if left_bigger_than_right(&expected_type, expr_type) || expected_type == expr_type{
+                    Ok(expected_type.clone())
+                }else{
+                    Err(self.type_out_of_range(self.stmt.expr_start_key, &expected_type))
+                }
+            }
+        }
+
+    }
+    
+
+    pub fn parse_expr_type(&mut self, expr_idx : u32) -> Result<Type, ParserIssue> {
         let node = &self.ast.nodes[expr_idx as usize];
         let tok = &node.token;
         let key = node.key;
-        dbg!(key);
         let edge_span = &node.edge_span;
         let left_span = edge_span.start;
         let right_span = edge_span.end;
@@ -39,11 +75,10 @@ impl Parser{
                     },
                     (lhs, rhs) =>{
                         if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
-                            return Err(self.comparison_op_chained_issue(self.stmt.prev_op_key));
+                            return Err(self.comparison_op_chained_issue(key));
                         }
                         if is_comparison_op(&tok){ 
                             self.stmt.already_has_comparison_op = true;
-                            self.stmt.prev_op_key = key;
                         }
 
                         let l_ty = self.parse_expr_type(lhs)?;

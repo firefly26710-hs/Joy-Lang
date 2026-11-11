@@ -14,7 +14,6 @@ pub struct Stmt{
 
     pub expr_start_key : u32,
     pub already_has_comparison_op: bool,
-    pub prev_op_key : u32,
     pub has_ident_in_expr : bool,
 
 
@@ -35,7 +34,6 @@ impl Stmt{
 
             expr_start_key : 0,
             already_has_comparison_op: false,
-            prev_op_key : 0,
             has_ident_in_expr        : false,
 
 

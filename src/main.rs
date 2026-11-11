@@ -4,15 +4,14 @@ pub mod llvm;
 
 use crate::llvm::codegen::Codegen;
 use crate::parser::center::par::Parser;
-use inkwell::OptimizationLevel;
 use inkwell::context::Context;
 use std::env;
 use std::fs::File;
 use std::io::Read;
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 
-fn main() -> Result<(), LexerIssueType> {
+fn main() -> Result<(), ParserIssue> {
     let args : Vec<String> = env::args().collect();
     if args.len() < 2{
         panic!("No file in {:?}", args[0]);

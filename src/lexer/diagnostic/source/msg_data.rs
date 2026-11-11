@@ -28,33 +28,5 @@ impl LexerMsgData {
         
     }
 }
-#[derive(Debug, Clone, PartialEq)]
-pub struct ParserMsgData{
-    pub issue    : LexerIssueType,
-    pub line     : usize,
-    pub rlt_col_start: usize,
-    pub rlt_col_end  : usize,
-    pub span_start   : SpanStart,
-    pub span_length  : SpanLength
-}
 
-impl ParserMsgData{
-    fn new(
-        issue: LexerIssueType,
-        line : usize,
-        rlt_col_start: usize,
-        rlt_col_end  : usize,
-        span_start   : SpanStart,
-        span_length  : SpanLength
-    ) -> Self{
-        Self{
-            issue,
-            line,
-            rlt_col_start,
-            rlt_col_end,
-            span_start,
-            span_length
-        }
-    }
-}
 

@@ -1,3 +1,4 @@
 pub mod parser_diag;
-pub mod error_handling;
 pub mod source;
+pub mod error_hang;
+pub mod logic;

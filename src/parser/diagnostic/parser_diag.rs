@@ -1,9 +1,10 @@
-use crate::parser::stmt::logic::expr::is_op;
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
-use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
+use crate::parser::diagnostic::source::issue::ScopeIssue;
+use crate::parser::diagnostic::source::issue::{ExprIssue, TokenIssue};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
+use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
@@ -12,30 +13,29 @@ impl Parser{
     pub fn unexpected_token_issue(
         &mut self,
         correct_token : &Token,
-    ) -> LexerIssueType {
+    ) -> ParserIssue {
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            alt_col_start,
-            alt_col_end,
-            span_id)
-        = self.get_data(wrong_tok_key);
+        let span_id = self.lexer.error.span_ids[wrong_tok_key] as usize;
+        let line = span_id + 1;
 
-        let wrong_string = self.lexer.tokenizer.input[alt_col_start..alt_col_end].to_string();
+        let interval = &self.lexer.tokenizer.intervals[wrong_tok_key];
+        let start =interval.start as usize;
+        let end = interval.end as usize;
+
+        let wrong_string = self.lexer.tokenizer.input[start..end].to_string();
         let correct_string = from_tok_to_string(correct_token).to_string();
 
-        let issue = LexerIssueType::UnExpectedToken{wrong_string, correct_string};
+        let issue = ParserIssue::Token(TokenIssue::UnExpectedToken {wrong_string, correct_string});
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -43,28 +43,26 @@ impl Parser{
         issue
     }
 
-    pub fn unclosed_delimiter_token_issue(&mut self) -> LexerIssueType {
+    pub fn unclosed_delimiter_token_issue(&mut self) -> ParserIssue {
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(wrong_tok_key);
+        let span_id = self.lexer.error.span_ids[wrong_tok_key] as usize;
+        let line = span_id + 1;
 
+        let interval = &self.lexer.tokenizer.intervals[wrong_tok_key];
+        let start =interval.start as usize;
+        let end = interval.end as usize;
 
-        let issue = LexerIssueType::UnclosedDelimiter;
+        let issue = ParserIssue::Token(TokenIssue::UnclosedDelimiter);
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -72,30 +70,25 @@ impl Parser{
         issue
     }
 
-    pub fn unexpected_expression_issue(&mut self) -> LexerIssueType {
+    pub fn unexpected_expression_issue(&mut self) -> ParserIssue {
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            alt_col_start,
-            alt_col_end,
-            span_id)
-            = self.get_data(wrong_tok_key);
+        let span_id = self.lexer.error.span_ids[wrong_tok_key] as usize;
+        let interval = &self.lexer.tokenizer.intervals[wrong_tok_key];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+        let wrong_string = self.lexer.tokenizer.input[start..end].to_string();
 
-        let wrong_string = self.lexer.tokenizer.input[alt_col_start..alt_col_end].to_string();
-        let correct_string = "expression".to_string();
+        let issue = ParserIssue::Expr(ExprIssue::UnExpectedExpression{wrong_string});
 
-        let issue = LexerIssueType::UnExpectedToken{wrong_string, correct_string};
-
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
-                line,
-                rlt_col_start,
-                rlt_col_end,
+                span_id + 1,
+                start,
+                end,
                 span_id
             )
         );
@@ -108,30 +101,29 @@ impl Parser{
         expr_start_key : Key,
         expected_type : &Type,
         actual_type : &Type
-    ) -> LexerIssueType {
+    ) -> ParserIssue {
         self.lexer.error.has_error = true;
 
-        let actual_type_idx = expr_start_key as usize; // 記得要改
+        let actual_type_key = expr_start_key as usize;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(actual_type_idx);
+        let span_id = self.lexer.error.span_ids[actual_type_key] as usize;
+        let line = span_id + 1;
+
+        let interval = &self.lexer.tokenizer.intervals[actual_type_key];
+        let start =interval.start as usize;
+        let end = interval.end as usize;
 
         let expected_type = from_type_to_string(expected_type).to_string();
         let actual_type = from_type_to_string(actual_type).to_string();
 
-        let issue = LexerIssueType::MismatchesType {expected_type, actual_type};
+        let issue = ParserIssue::Expr(ExprIssue::MismatchesType {expected_type, actual_type});
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
-                line,
-                rlt_col_start,
-                rlt_col_end,
+                span_id + 1,
+                start,
+                end,
                 span_id
             )
         );
@@ -139,31 +131,27 @@ impl Parser{
         issue
     }
 
-    pub fn variable_not_in_scope_issue(&mut self, key: Key ) -> LexerIssueType {
+    pub fn variable_not_in_scope_issue(&mut self, wrong_tok_key: Key ) -> ParserIssue {
         self.lexer.error.has_error = true;
+        let wrong_tok_key = wrong_tok_key as usize;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(key as usize);
+        let span_id = self.lexer.error.span_ids[wrong_tok_key] as usize;
+        let line = span_id + 1;
 
-        let interval = &self.lexer.tokenizer.intervals[key as usize];
-        let start = interval.start as usize;
+        let interval = &self.lexer.tokenizer.intervals[wrong_tok_key];
+        let start =interval.start as usize;
         let end = interval.end as usize;
 
-        let unknown_var = self.lexer.tokenizer.input[start..end].to_string();
+        let unknown_var_string = self.lexer.tokenizer.input[start..end].to_string();
 
-        let issue = LexerIssueType::VariableNotInScope{unknown_var};
+        let issue = ParserIssue::Scope(ScopeIssue::VariableNotInScope { unknown_var_string });
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -172,31 +160,26 @@ impl Parser{
 
     }
 
-    pub fn cannot_found_function_issue(&mut self, key: Key) -> LexerIssueType {
+    pub fn cannot_found_function_issue(&mut self, key: Key) -> ParserIssue {
         self.lexer.error.has_error = true;
+        let unknown_func_key = key as usize;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(key as usize);
-
-        let interval = &self.lexer.tokenizer.intervals[key as usize];
+        let span_id = self.lexer.error.span_ids[unknown_func_key] as usize;
+        let line = span_id + 1;
+        let interval = &self.lexer.tokenizer.intervals[unknown_func_key];
         let start = interval.start as usize;
         let end = interval.end as usize;
 
         let unknown_fn = self.lexer.tokenizer.input[start..end].to_string();
 
-        let issue = LexerIssueType::FunctionNotFound{ unknown_fn };
+        let issue = ParserIssue::Scope(ScopeIssue::FunctionNotFound { unknown_fn_string: unknown_fn });
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -209,26 +192,26 @@ impl Parser{
         &mut self,
         key : Key,
         expected_type : &Type,
-    ) -> LexerIssueType {
+    ) -> ParserIssue {
         self.lexer.error.has_error = true;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(key as usize);
+        let wrong_literal_key = key as usize;
+        let span_id = self.lexer.error.span_ids[wrong_literal_key] as usize;
+        let line = span_id + 1;
+        let interval = &self.lexer.tokenizer.intervals[span_id];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
 
-        let ty_str = from_type_to_string(&expected_type);
-        let issue = LexerIssueType::LiteralOutOfRange{expected_type : ty_str.to_string()};
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        let expected_type_string = from_type_to_string(&expected_type).to_string();
+        let issue = ParserIssue::Expr(ExprIssue::LiteralOutOfRange { expected_type_string});
+
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -236,25 +219,26 @@ impl Parser{
         issue
     }
 
-    pub fn comparison_op_chained_issue(&mut self, key : Key) -> LexerIssueType {
+    pub fn comparison_op_chained_issue(&mut self, key : Key) -> ParserIssue {
         self.lexer.error.has_error = true;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(key as usize);
+        dbg!(key);
+        let second_comp_op_key = key as usize;
 
-        let issue = LexerIssueType::ComparisonChained;
+        let span_id = self.lexer.error.span_ids[second_comp_op_key] as usize;
+        let line = span_id + 1;
+        let interval = &self.lexer.tokenizer.intervals[span_id];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        let issue = ParserIssue::Expr(ExprIssue::ComparisonOpChained);
+
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -266,20 +250,18 @@ impl Parser{
         &mut self,
         left_type: &Type,
         right_type: &Type,
-        start_key : usize
-    ) -> LexerIssueType {
+        right_expr_key: usize
+    ) -> ParserIssue {
 
         self.lexer.error.has_error = true;
-        let curr_node_key = start_key;
+        let right_expr_key = right_expr_key;
 
+        let span_id = self.lexer.error.span_ids[right_expr_key] as usize;
+        let line = span_id + 1;
+        let interval = &self.lexer.tokenizer.intervals[right_expr_key];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(curr_node_key);
 
 
         let left_node_type = match left_type {
@@ -298,105 +280,46 @@ impl Parser{
             _ => panic!("unknown node ty")
         }.to_string();
 
-        let issue = LexerIssueType::MismatchesNodeType {
+        let issue = ParserIssue::Expr(ExprIssue::MismatchesNodeType {
             left_node_type, right_node_type
-        };
+        });
 
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
-
-        let prev_node_ty = match right_type {
-            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
-            => Token::Int,
-            Type::f32 | Type::f64 => Token::Float,
-            _ => panic!("unknown node ty")
-        };
-
-        let mut peek_idx = start_key + 1;
-        let tokens = &self.lexer.tokenizer.tokens;
-        while matches!(tokens[peek_idx], Token::Int | Token::Float) || is_op(&tokens[peek_idx]){
-            let peek = &tokens[peek_idx];
-
-            if !is_op(&peek) && peek != &prev_node_ty{
-                let(line,
-                    rlt_col_start,
-                    rlt_col_end,
-                    _alt_col_start,
-                    _alt_col_end,
-                    span_id)
-                    = self.get_data(peek_idx).clone();
-
-
-                let prev_node_type = match prev_node_ty{
-                    Token::Int => "integer",
-                    Token::Float => "float",
-                    _ => panic!("unknown node ty")
-                }.to_string();
-
-                let curr_node_type = match peek{
-                    Token::Int => "integer",
-                    Token::Float => "float",
-                    _ => panic!("unknown node ty")
-                }.to_string();
-
-                let issue = LexerIssueType::MismatchesNodeType {
-                    left_node_type: prev_node_type,
-                    right_node_type: curr_node_type
-                };
-
-                self.lexer.error.lex_msg_data.push(
-                    LexerMsgData::new(
-                        issue.clone(),
-                        line,
-                        rlt_col_start,
-                        rlt_col_end,
-                        span_id
-                    )
-                );
-            }
-
-            peek_idx += 1;
-        }
-
-
 
         issue
 
     }
 
-    pub fn outside_of_a_loop_issue(&mut self) -> LexerIssueType {
+    pub fn outside_of_a_loop_issue(&mut self) -> ParserIssue {
         self.lexer.error.has_error = true;
 
-        let kw_idx = self.current;
+        let kw_key = self.current;
 
-        let(line,
-            rlt_col_start,
-            rlt_col_end,
-            _alt_col_start,
-            _alt_col_end,
-            span_id)
-            = self.get_data(kw_idx);
-
-        let interval = &self.lexer.tokenizer.intervals[kw_idx];
+        let span_id = self.lexer.error.span_ids[kw_key] as usize;
+        let line = span_id + 1;
+        let interval = &self.lexer.tokenizer.intervals[kw_key];
         let start = interval.start as usize;
         let end = interval.end as usize;
 
+
         let kw = self.lexer.tokenizer.input[start..end].to_string();
 
-        let issue = LexerIssueType::OutOfLoop {kw};
-        self.lexer.error.lex_msg_data.push(
-            LexerMsgData::new(
+        let issue = ParserIssue::Scope(ScopeIssue::OutOfLoop {kw});
+
+        self.lexer.error.par_msg_data.push(
+            ParserMsgData::new(
                 issue.clone(),
                 line,
-                rlt_col_start,
-                rlt_col_end,
+                start,
+                end,
                 span_id
             )
         );
@@ -404,51 +327,6 @@ impl Parser{
         issue
     }
 
-
-
-    pub fn get_data(&self, wrong_tok_key : usize) -> (usize, usize, usize, usize, usize, usize){
-
-        let already_look_last_tok = self.current >= self.lexer.error.span_ids.len();
-        //get range of sentence which has it
-
-
-
-        let span_id = if already_look_last_tok{
-            self.lexer.error.span_ids[wrong_tok_key - 1] as usize
-        }else{
-            self.lexer.error.span_ids[wrong_tok_key] as usize
-        };
-
-        let span_range = if already_look_last_tok{
-            self.lexer.error.spans[span_id - 1]
-        }else{
-            self.lexer.error.spans[span_id]
-        };
-
-        let line = span_id + 1;
-        //alt means absolute
-        let alt_span_start = span_range.0 as usize;
-
-        //get itself Absolute column
-        let interval = if already_look_last_tok{
-            &self.lexer.tokenizer.intervals[wrong_tok_key - 1]
-        }else{
-            &self.lexer.tokenizer.intervals[wrong_tok_key]
-        };
-
-        let alt_col_start = interval.start as usize;
-
-        let alt_col_end = interval.end as usize;
-
-
-
-        let rlt_col_start = alt_col_start - alt_span_start;
-        let rlt_col_end = alt_col_end - alt_span_start;
-
-        (line,  rlt_col_start, rlt_col_end, alt_col_start, alt_col_end, span_id)
-
-
-    }
 
 
 
@@ -561,12 +439,11 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {var x = 1 > 1 and 1 < 1;} fn add = void(var x = x;)  ".to_string();
+        "fn main() = void {var x = 5 > 1 < 3;}".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     lexer.print_output();
-
     let mut parser = Parser::init(lexer);
     _ =parser.build_tree();
     parser.print_node();
