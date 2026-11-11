@@ -227,7 +227,7 @@ impl Parser{
 
         let span_id = self.lexer.error.span_ids[second_comp_op_key] as usize;
         let line = span_id + 1;
-        let interval = &self.lexer.tokenizer.intervals[span_id];
+        let interval = &self.lexer.tokenizer.intervals[second_comp_op_key];
         let start = interval.start as usize;
         let end = interval.end as usize;
 

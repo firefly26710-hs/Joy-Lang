@@ -74,16 +74,17 @@ impl Parser{
                         _ => unreachable!()
                     },
                     (lhs, rhs) =>{
-                        if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
-                            return Err(self.comparison_op_chained_issue(key));
-                        }
-                        if is_comparison_op(&tok){ 
-                            self.stmt.already_has_comparison_op = true;
-                        }
+                        let tok = tok.clone();
 
                         let l_ty = self.parse_expr_type(lhs)?;
                         let r_ty = self.parse_expr_type(rhs)?;
 
+                        if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
+                            return Err(self.comparison_op_chained_issue(key));
+                        }
+                        if is_comparison_op(&tok){
+                            self.stmt.already_has_comparison_op = true;
+                        }
                         
                         
                         
@@ -94,21 +95,20 @@ impl Parser{
                         
 
                         if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
-                            return Err(self.type_out_of_range(self.get_key(lhs), &l_ty));
+                            Err(self.type_out_of_range(self.get_key(lhs), &l_ty))
                         }else if self.is_ident(rhs) && left_bigger_than_right(&l_ty, &r_ty){
-                            return Err(self.type_out_of_range(self.get_key(rhs), &r_ty));
+                            Err(self.type_out_of_range(self.get_key(rhs), &r_ty))
                         }else{
                             if left_bigger_than_right(&l_ty, &r_ty){
-                                
                                 if self.stmt.already_has_comparison_op{
                                     return Ok(Type::bool);
                                 }
-                                return Ok(l_ty)
+                                Ok(l_ty)
                             } else{
                                 if self.stmt.already_has_comparison_op{
                                     return Ok(Type::bool);
                                 }
-                                return Ok(r_ty)
+                                Ok(r_ty)
                             }
                         }
 
@@ -118,9 +118,6 @@ impl Parser{
 
 
             }
-
-
-            _ => unreachable!()
         }
     }
 

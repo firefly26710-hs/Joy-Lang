@@ -137,6 +137,7 @@ impl Parser{
             }
 
         };
+        
 
         println!("{file_name}:{line}:{col}: {error}: {info} ");
         println!("    {left_correct_part}{wrong_part}{right_correct_part}");
