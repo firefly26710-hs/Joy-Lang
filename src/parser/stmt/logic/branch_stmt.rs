@@ -1,11 +1,11 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::types::typ::Type;
 
 impl Parser {
-    pub fn parse_if(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_if(&mut self) -> Result<NodeIdx, LexerIssueType>{
        
         
         let b_recorder_start = self.stmt.branch_recorder.len();
@@ -22,7 +22,7 @@ impl Parser {
        Ok( self.push_node(Token::IfStmt, NONE, start, end))
     }
 
-    fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), IssueType>{
+    fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), LexerIssueType>{
         match self.peek(){
             Token::If => {
 
@@ -91,7 +91,7 @@ impl Parser {
         }
     }
 
-    pub fn parse_break(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_break(&mut self) -> Result<NodeIdx, LexerIssueType>{
         self.has_out_of_loop()?;
 
         self.eat();
@@ -101,7 +101,7 @@ impl Parser {
         self.push_leaf(Token::BrkStmt, NONE)
     }
 
-    pub fn parse_ctn(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_ctn(&mut self) -> Result<NodeIdx, LexerIssueType>{
         self.has_out_of_loop()?;
 
         self.eat();

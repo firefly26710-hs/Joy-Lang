@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::{NONE, NodeIdx};
@@ -6,7 +6,7 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_for(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_for(&mut self) -> Result<NodeIdx, LexerIssueType>{
         self.build_scope();
         self.eat();
 
@@ -57,7 +57,7 @@ impl Parser{
         Ok(self.push_node(Token::ForStmt, NONE, start, end))
     }
 
-    pub fn parse_while(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_while(&mut self) -> Result<NodeIdx, LexerIssueType>{
         self.build_scope();
 
         self.eat();

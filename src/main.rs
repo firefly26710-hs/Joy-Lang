@@ -10,9 +10,9 @@ use std::env;
 use std::fs::File;
 use std::io::Read;
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 
-fn main() -> Result<(), IssueType> {
+fn main() -> Result<(), LexerIssueType> {
     let args : Vec<String> = env::args().collect();
     if args.len() < 2{
         panic!("No file in {:?}", args[0]);

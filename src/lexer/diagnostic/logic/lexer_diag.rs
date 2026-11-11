@@ -1,6 +1,6 @@
 use crate::lexer::center::lex::Lexer;
 use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 
 impl Lexer {
@@ -14,7 +14,7 @@ impl Lexer {
 
         self.error.lex_msg_data.push(
             LexerMsgData::new(
-                IssueType::IllegalToken,
+                LexerIssueType::IllegalToken,
                 line as usize,
                 rlt_col_start as usize,
                 rlt_col_end as usize,

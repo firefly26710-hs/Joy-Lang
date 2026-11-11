@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -7,12 +7,12 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_expression(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
+    pub fn parse_expression(&mut self, min_bp : f32) -> Result<NodeIdx, LexerIssueType>{
         self.stmt.expr_start_key = self.current as Key;
 
         self.expr(min_bp)
     }
-    fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
+    fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, LexerIssueType>{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
                 let key = self.current as Key;

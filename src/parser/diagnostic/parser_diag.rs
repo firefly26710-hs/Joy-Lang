@@ -1,6 +1,6 @@
 use crate::parser::stmt::logic::expr::is_op;
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -12,7 +12,7 @@ impl Parser{
     pub fn unexpected_token_issue(
         &mut self,
         correct_token : &Token,
-    ) -> IssueType{
+    ) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
@@ -28,7 +28,7 @@ impl Parser{
         let wrong_string = self.lexer.tokenizer.input[alt_col_start..alt_col_end].to_string();
         let correct_string = from_tok_to_string(correct_token).to_string();
 
-        let issue = IssueType::UnExpectedToken{wrong_string, correct_string};
+        let issue = LexerIssueType::UnExpectedToken{wrong_string, correct_string};
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -43,7 +43,7 @@ impl Parser{
         issue
     }
 
-    pub fn unclosed_delimiter_token_issue(&mut self) -> IssueType{
+    pub fn unclosed_delimiter_token_issue(&mut self) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
@@ -57,7 +57,7 @@ impl Parser{
             = self.get_data(wrong_tok_key);
 
 
-        let issue = IssueType::UnclosedDelimiter;
+        let issue = LexerIssueType::UnclosedDelimiter;
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -72,7 +72,7 @@ impl Parser{
         issue
     }
 
-    pub fn unexpected_expression_issue(&mut self) -> IssueType{
+    pub fn unexpected_expression_issue(&mut self) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let wrong_tok_key = self.current;
@@ -88,7 +88,7 @@ impl Parser{
         let wrong_string = self.lexer.tokenizer.input[alt_col_start..alt_col_end].to_string();
         let correct_string = "expression".to_string();
 
-        let issue = IssueType::UnExpectedToken{wrong_string, correct_string};
+        let issue = LexerIssueType::UnExpectedToken{wrong_string, correct_string};
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -108,7 +108,7 @@ impl Parser{
         expr_start_key : Key,
         expected_type : &Type,
         actual_type : &Type
-    ) -> IssueType{
+    ) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let actual_type_idx = expr_start_key as usize; // 記得要改
@@ -124,7 +124,7 @@ impl Parser{
         let expected_type = from_type_to_string(expected_type).to_string();
         let actual_type = from_type_to_string(actual_type).to_string();
 
-        let issue = IssueType::MismatchesType {expected_type, actual_type};
+        let issue = LexerIssueType::MismatchesType {expected_type, actual_type};
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -139,7 +139,7 @@ impl Parser{
         issue
     }
 
-    pub fn variable_not_in_scope_issue(&mut self, key: Key ) -> IssueType{
+    pub fn variable_not_in_scope_issue(&mut self, key: Key ) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let(line,
@@ -156,7 +156,7 @@ impl Parser{
 
         let unknown_var = self.lexer.tokenizer.input[start..end].to_string();
 
-        let issue = IssueType::VariableNotInScope{unknown_var};
+        let issue = LexerIssueType::VariableNotInScope{unknown_var};
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -172,7 +172,7 @@ impl Parser{
 
     }
 
-    pub fn cannot_found_function_issue(&mut self, key: Key) -> IssueType{
+    pub fn cannot_found_function_issue(&mut self, key: Key) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let(line,
@@ -189,7 +189,7 @@ impl Parser{
 
         let unknown_fn = self.lexer.tokenizer.input[start..end].to_string();
 
-        let issue = IssueType::FunctionNotFound{ unknown_fn };
+        let issue = LexerIssueType::FunctionNotFound{ unknown_fn };
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -209,7 +209,7 @@ impl Parser{
         &mut self,
         key : Key,
         expected_type : &Type,
-    ) -> IssueType{
+    ) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let(line,
@@ -221,7 +221,7 @@ impl Parser{
             = self.get_data(key as usize);
 
         let ty_str = from_type_to_string(&expected_type);
-        let issue = IssueType::LiteralOutOfRange{expected_type : ty_str.to_string()};
+        let issue = LexerIssueType::LiteralOutOfRange{expected_type : ty_str.to_string()};
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -236,7 +236,7 @@ impl Parser{
         issue
     }
 
-    pub fn comparison_op_chained_issue(&mut self, key : Key) -> IssueType{
+    pub fn comparison_op_chained_issue(&mut self, key : Key) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let(line,
@@ -247,7 +247,7 @@ impl Parser{
             span_id)
             = self.get_data(key as usize);
 
-        let issue = IssueType::ComparisonChained;
+        let issue = LexerIssueType::ComparisonChained;
 
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
@@ -267,7 +267,7 @@ impl Parser{
         left_type: &Type,
         right_type: &Type,
         start_key : usize
-    ) -> IssueType{
+    ) -> LexerIssueType {
 
         self.lexer.error.has_error = true;
         let curr_node_key = start_key;
@@ -286,6 +286,7 @@ impl Parser{
             Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
             => "integer",
             Type::f32 | Type::f64 => "float",
+            Type::bool => "bool",
             _ => panic!("unknown node ty")
         }.to_string();
 
@@ -293,10 +294,11 @@ impl Parser{
             Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
             => "integer",
             Type::f32 | Type::f64 => "float",
+            Type::bool => "bool",
             _ => panic!("unknown node ty")
         }.to_string();
 
-        let issue = IssueType::MismatchesNodeType {
+        let issue = LexerIssueType::MismatchesNodeType {
             left_node_type, right_node_type
         };
 
@@ -344,7 +346,7 @@ impl Parser{
                     _ => panic!("unknown node ty")
                 }.to_string();
 
-                let issue = IssueType::MismatchesNodeType {
+                let issue = LexerIssueType::MismatchesNodeType {
                     left_node_type: prev_node_type,
                     right_node_type: curr_node_type
                 };
@@ -369,7 +371,7 @@ impl Parser{
 
     }
 
-    pub fn outside_of_a_loop_issue(&mut self) -> IssueType{
+    pub fn outside_of_a_loop_issue(&mut self) -> LexerIssueType {
         self.lexer.error.has_error = true;
 
         let kw_idx = self.current;
@@ -388,7 +390,7 @@ impl Parser{
 
         let kw = self.lexer.tokenizer.input[start..end].to_string();
 
-        let issue = IssueType::OutOfLoop {kw};
+        let issue = LexerIssueType::OutOfLoop {kw};
         self.lexer.error.lex_msg_data.push(
             LexerMsgData::new(
                 issue.clone(),
@@ -559,7 +561,7 @@ fn from_type_to_string(ty : &Type) -> &str{
 #[test]
 fn test_par_error(){
     let input =
-        "fn main() = void {var x = 1 > 1 and 1;}  ".to_string();
+        "fn main() = void {var x = 1 > 1 and 1 < 1;} fn add = void(var x = x;)  ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();

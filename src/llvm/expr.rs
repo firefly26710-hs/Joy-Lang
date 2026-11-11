@@ -290,4 +290,8 @@ impl<'ctx>Codegen<'ctx>{
 pub fn is_comparison_op(tok : &Token) -> bool{
     matches!(tok, Token::EqEq   | Token::NotEq | Token::Grt | Token::Les| Token::GrtEq  | Token::LesEq )
 }
+
+pub fn is_binary_op(tok : &Token) -> bool{
+    matches!(tok, Token::CmpAnd | Token::CmpOr)
+}
     

@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -7,7 +7,7 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_stmts(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_stmts(&mut self) -> Result<NodeIdx, LexerIssueType>{
         
         let start_idx = self.stmt.func_recorder.len();
         while self.peek() != &Token::EOF{
@@ -36,7 +36,7 @@ impl Parser{
        Ok( self.push_node(Token::BlockStmt, NONE, edge_start, edge_end))
     }
 
-    fn matches_stmts(&mut self) -> Result<NodeIdx, IssueType>{
+    fn matches_stmts(&mut self) -> Result<NodeIdx, LexerIssueType>{
         match self.peek(){
             Token::Val | Token::Var => self.parse_var(),
             Token::If     => self.parse_if(),
@@ -53,7 +53,7 @@ impl Parser{
     }
 
 
-    pub fn parse_var(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_var(&mut self) -> Result<NodeIdx, LexerIssueType>{
         self.eat();
 
 
@@ -93,7 +93,7 @@ impl Parser{
     }
 
 
-    fn ident_branch(&mut self) -> Result<NodeIdx, IssueType>{
+    fn ident_branch(&mut self) -> Result<NodeIdx, LexerIssueType>{
         match self.peek_next(){
             Token::Lparen => self.parse_func_call(),
             Token::Eq |Token::AddEq | Token::SubEq | Token::MulEq | Token::DivEq
@@ -102,7 +102,7 @@ impl Parser{
         }
     }
 
-    fn parse_var_update(&mut self) -> Result<NodeIdx, IssueType>{
+    fn parse_var_update(&mut self) -> Result<NodeIdx, LexerIssueType>{
         let key = self.find_same_ident_key(self.current as Key);
 
         let ident_name_idx = self.push_leaf(Token::Ident, key)?;

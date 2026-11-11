@@ -1,9 +1,9 @@
 use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LexerMsgData {
-    pub issue    : IssueType,
+    pub issue    : LexerIssueType,
     pub line     : usize,
     pub rlt_col_start: usize,
     pub rlt_col_end  : usize,
@@ -12,7 +12,7 @@ pub struct LexerMsgData {
 
 impl LexerMsgData {
     pub fn new(
-        issue: IssueType,
+        issue: LexerIssueType,
         line : usize,
         rlt_col_start : usize,
         rlt_col_end : usize,
@@ -30,7 +30,7 @@ impl LexerMsgData {
 }
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParserMsgData{
-    pub issue    : IssueType,
+    pub issue    : LexerIssueType,
     pub line     : usize,
     pub rlt_col_start: usize,
     pub rlt_col_end  : usize,
@@ -40,13 +40,13 @@ pub struct ParserMsgData{
 
 impl ParserMsgData{
     fn new(
-        issue: IssueType,
+        issue: LexerIssueType,
         line : usize,
         rlt_col_start: usize,
         rlt_col_end  : usize,
         span_start   : SpanStart,
         span_length  : SpanLength
-    )  -> Self{
+    ) -> Self{
         Self{
             issue,
             line,

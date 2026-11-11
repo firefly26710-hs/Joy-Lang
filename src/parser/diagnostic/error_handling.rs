@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
@@ -6,7 +6,7 @@ use crate::parser::types::logic::left_bigger_than_right;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn matches_token(&mut self, expected_tok : &Token) -> Result<(), IssueType>{
+    pub fn matches_token(&mut self, expected_tok : &Token) -> Result<(), LexerIssueType>{
         let current_tok = self.peek();
 
         if current_tok == expected_tok{
@@ -17,7 +17,7 @@ impl Parser{
         }
     }
 
-    pub fn unclosed_delimiter(&mut self, expected_tok : &Token) -> Result<(), IssueType>{
+    pub fn unclosed_delimiter(&mut self, expected_tok : &Token) -> Result<(), LexerIssueType>{
         let current_tok = self.peek();
 
 
@@ -29,7 +29,7 @@ impl Parser{
         }
     }
 
-    pub fn var_not_in_scope(&mut self, current_key: Key) -> Result<(), IssueType>{
+    pub fn var_not_in_scope(&mut self, current_key: Key) -> Result<(), LexerIssueType>{
         let prev_key = self.current as Key;
 
         if prev_key != current_key {
@@ -40,7 +40,7 @@ impl Parser{
     }
     
     
-    pub fn has_out_of_loop(&mut self) -> Result<(), IssueType>{
+    pub fn has_out_of_loop(&mut self) -> Result<(), LexerIssueType>{
         if !self.in_loop(){
             return Err(self.outside_of_a_loop_issue());
         }
@@ -48,7 +48,7 @@ impl Parser{
         Ok(())
     }
     
-    pub fn fn_not_exist(&mut self, current_key : Key) -> Result<(), IssueType>{
+    pub fn fn_not_exist(&mut self, current_key : Key) -> Result<(), LexerIssueType>{
         let prev_key = self.current as Key;
         
         if prev_key != current_key{
@@ -58,7 +58,7 @@ impl Parser{
         }
     }
 
-    pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, IssueType>{
+    pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, LexerIssueType>{
         let expr_type = &self.parse_expr_type(expr_idx)?;
         
         if matches!(expected_type, Type::void){

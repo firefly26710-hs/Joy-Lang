@@ -1,5 +1,5 @@
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::scope::data::Scope;
@@ -13,7 +13,7 @@ use crate::parser::types::typ::Type;
 
 pub struct Parser{
 
-    //data
+    //source
     pub ast : AST,
     pub lexer : Lexer ,
 
@@ -43,7 +43,7 @@ impl Parser{
         }
     }
 
-    pub fn build_tree(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn build_tree(&mut self) -> Result<NodeIdx, LexerIssueType>{
         while self.lexer.tokenizer.tokens[self.current] != Token::EOF{
             let function_idx = self.parse_function()?;
             self.stmt.programs.push(function_idx);
@@ -82,7 +82,7 @@ impl Parser{
         &mut self,
         tok : Token,
         key : Key
-    ) ->Result<NodeIdx, IssueType>{
+    ) ->Result<NodeIdx, LexerIssueType>{
         Ok(self.push_node(tok, key, NONE, NONE))
     }
 

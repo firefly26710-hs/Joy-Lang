@@ -1,4 +1,4 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::llvm::expr::is_comparison_op;
 use crate::parser::center::par::Parser;
@@ -8,7 +8,7 @@ use crate::parser::types::typ::Type;
 
 impl Parser{
 
-    pub fn parse_expr_type(&mut self, expr_idx : u32) -> Result<Type, IssueType> {
+    pub fn parse_expr_type(&mut self, expr_idx : u32) -> Result<Type, LexerIssueType> {
         let node = &self.ast.nodes[expr_idx as usize];
         let tok = &node.token;
         let key = node.key;
@@ -33,7 +33,10 @@ impl Parser{
                 let right_idx = self.ast.edges[left_span as usize..=right_span as usize][1];
 
                 match (left_idx, right_idx){
-                    // (NONE, rhs) => {},
+                    (NONE, rhs) => match tok{
+                        Token::Sub | Token::CmpNot  => self.parse_expr_type(rhs),
+                        _ => unreachable!()
+                    },
                     (lhs, rhs) =>{
                         if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
                             return Err(self.comparison_op_chained_issue(self.stmt.prev_op_key));
@@ -46,11 +49,14 @@ impl Parser{
                         let l_ty = self.parse_expr_type(lhs)?;
                         let r_ty = self.parse_expr_type(rhs)?;
 
+                        
+                        
+                        
                         if !is_two_types_in_same_set(&r_ty, &l_ty){
                             return Err(self.mismatch_node_type_issue(&l_ty, &r_ty, self.get_key(rhs) as usize));
                         }
 
-
+                        
 
                         if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
                             return Err(self.type_out_of_range(self.get_key(lhs), &l_ty));
@@ -58,6 +64,7 @@ impl Parser{
                             return Err(self.type_out_of_range(self.get_key(rhs), &r_ty));
                         }else{
                             if left_bigger_than_right(&l_ty, &r_ty){
+                                
                                 if self.stmt.already_has_comparison_op{
                                     return Ok(Type::bool);
                                 }
