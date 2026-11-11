@@ -1,5 +1,5 @@
 use crate::lexer::tokenizer::source::token::Token;
-use crate::llvm::expr::is_comparison_op;
+use crate::llvm::expr::{is_binary_op, is_comparison_op};
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NodeIdx, NONE};
@@ -73,7 +73,7 @@ impl Parser{
                         Token::Sub => {
                             let expr_type = self.parse_expr_type(rhs)?;
                             if expr_type == Type::bool{
-                                return Err(self.mismatch_expr_type_in_unary_issue(key, self.get_key(rhs), Type::bool));
+                                return Err(self.mismatch_expr_type_in_unary_issue(key, rhs,Type::bool));
                             }
 
                             Ok(expr_type)
@@ -83,7 +83,7 @@ impl Parser{
                         Token::CmpNot  => {
                             let expr_type = self.parse_expr_type(rhs)?;
                             if expr_type != Type::bool{
-                                return Err(self.mismatch_expr_type_in_unary_issue(key, self.get_key(rhs), Type::bool));
+                                return Err(self.mismatch_expr_type_in_unary_issue(key, rhs,Type::bool));
                             }
 
                             Ok(expr_type)
@@ -95,6 +95,11 @@ impl Parser{
 
                         let l_ty = self.parse_expr_type(lhs)?;
                         let r_ty = self.parse_expr_type(rhs)?;
+
+                        if is_binary_op(&tok){
+                            if l_ty != Type::bool{ return Err(self.mismatch_binary_op_type(lhs, l_ty)) }
+                            if r_ty != Type::bool{ return Err(self.mismatch_binary_op_type(rhs, r_ty))}
+                        }
 
                         if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
                             return Err(self.comparison_op_chained_issue(key));

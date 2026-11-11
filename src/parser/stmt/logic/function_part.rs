@@ -11,8 +11,8 @@ use crate::parser::types::typ::Type;
 impl Parser{
     pub fn parse_function(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.build_scope();
-
-
+        self.table.var_key_start = self.table.var_keys.len();
+        
         self.matches_token(&Token::Fn)?;
         let func_name_key = self.current as Key;
         let func_name_node_idx = self.get_tok_node_idx(&Token::Ident);

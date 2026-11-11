@@ -1,4 +1,3 @@
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
@@ -10,11 +9,14 @@ impl Parser {
        
         
         let b_recorder_start = self.stmt.branch_recorder.len();
-        self.record_branch_idx(b_recorder_start);
+        self.record_branch_idx(b_recorder_start)?;
 
+        dbg!(&self.stmt.branch_recorder);
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.branch_recorder.drain(..));
         let end = self.ast.edge_end();
+
+
 
         if !self.stmt.already_full_ret_in_if{
             self.match_counter_number();
@@ -33,7 +35,7 @@ impl Parser {
                 self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts().unwrap();
+                let stmts_idx = self.parse_stmts()?;
                 self.matches_token(&Token::Rbrace)?;
                 self.destroy_scope();
 
@@ -53,7 +55,7 @@ impl Parser {
                 self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts().unwrap();
+                let stmts_idx = self.parse_stmts()?;
                 self.matches_token(&Token::Rbrace)?;
                 self.destroy_scope();
 
@@ -72,7 +74,7 @@ impl Parser {
                 self.eat();
                 self.build_scope();
                 self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts().unwrap();
+                let stmts_idx = self.parse_stmts()?;
                 self.matches_token(&Token::Rbrace)?;
                 self.destroy_scope();
 
@@ -88,7 +90,7 @@ impl Parser {
 
         match self.peek(){
             Token::Elif | Token::Else => self.record_branch_idx(b_recorder_start),
-            _ => return Ok(())
+            _ => Ok(())
         }
     }
 

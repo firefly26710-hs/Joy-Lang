@@ -73,6 +73,10 @@ impl<'ctx> Codegen<'ctx>{
             self.compile_function(self.parser.ast.edges[start..=end][i]);
         }
 
+        if self.parser.lexer.error.has_error{
+            self.output_error();
+        }
+
     }
 
     pub fn get_edge_slice(&self, start : Start, end : End) -> &[NodeIdx]{

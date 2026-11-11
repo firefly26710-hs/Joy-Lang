@@ -50,9 +50,9 @@ impl Parser{
         let col = (rlt_start + 1).to_string().blue().bold();
 
 
-        let mut no_color_notices = String::new();
-        for _ in 0..wrong_part.len() {
-            no_color_notices.push_str("^");
+        let mut no_color_notices = "^".to_string();
+        for _ in 0..wrong_part.len() - 1 {
+            no_color_notices.push_str("~");
         }
         let yellow_notices = no_color_notices.yellow();
 
@@ -118,7 +118,7 @@ impl Parser{
                 }
 
             ParserIssue::Expr(
-                ExprIssue::MismatchesNodeType {left_node_type, right_node_type}) =>
+                ExprIssue::MismatchesExprType { left_expr_type_string: left_node_type, right_expr_type_string: right_node_type }) =>
                 {
                     let mut info = "cannot use ".to_string();
                     info.push_str(&right_node_type);
@@ -149,6 +149,13 @@ impl Parser{
                     info.push_str("' to the type '");
                     info.push_str(right_expr_type_string);
                     info.push_str("'");
+                    info
+                }
+            ParserIssue::Expr(
+                ExprIssue::BinaryOpMismatches {expr_type_string}) =>
+                {
+                    let mut info = "expected bool, find ".to_string();
+                    info.push_str(expr_type_string);
                     info
                 }
 

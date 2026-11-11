@@ -4,9 +4,10 @@ use crate::parser::tree::ast::NONE;
 use crate::parser::types::typ::Type;
 use inkwell::types::BasicMetadataTypeEnum;
 use inkwell::values::{BasicValueEnum, FunctionValue};
+use crate::llvm::diagnostic::source::issue::GenIssue;
 
 impl<'ctx>Codegen<'ctx>{
-    pub fn build_function(&mut self, func_idx : u32){
+    pub fn build_function(&mut self, func_idx : u32) -> Result<(), GenIssue>{
         let func_node = &self.parser.ast.nodes[func_idx as usize];
         let idxs = &func_node.edge_span;
         let edge_start = idxs.start;
@@ -82,6 +83,8 @@ impl<'ctx>Codegen<'ctx>{
 
         }
         self.functions.push(func);
+
+        Ok(())
     }
 
     pub fn compile_function(&mut self, func_idx : u32){
@@ -172,21 +175,23 @@ impl<'ctx>Codegen<'ctx>{
         }
     }
 
-    pub fn build_ret_stmt(&mut self ,start : Start, end : End){
+    pub fn build_ret_stmt(&mut self ,start : Start, end : End) -> Result<(), GenIssue>{
         let is_return_void = self.ret_type == Type::void;
 
         if!is_return_void{
             let childs = &self.get_edge_slice(start, end);
             let expr_idx = childs[1] as usize;
-            let expr = self.build_expr(expr_idx, &self.ret_type.clone());
+            let expr = self.build_expr(expr_idx, &self.ret_type.clone())?;
             self.builder.build_return(Some(&expr)).unwrap();
         }else{
             self.builder.build_return(None).unwrap();
         }
 
+        Ok(())
+
     }
 
-    pub fn build_call_stmt(&mut self ,start : Start, end : End){
+    pub fn build_call_stmt(&mut self ,start : Start, end : End) -> Result<(), GenIssue>{
         let name_idx = self.get_edge_slice(start, end)[0];
         let name_key = self.get_node(name_idx).key;
         let has_param = self.get_edge_slice(start, end).len() > 1;
@@ -201,13 +206,15 @@ impl<'ctx>Codegen<'ctx>{
                 let ty = &self.parser.table.var_types[param_start..=param_end][i].clone();
                 let expr_idx = self.parser.ast.edges[(start as usize) + 1 + i] as usize;
                 let val = if ty != &Type::bool {
-                    self.build_expr(expr_idx, &ty)
+                    self.build_expr(expr_idx, &ty)?
                 } else {
-                    self.build_expr(expr_idx, &Type::i64)
+                    self.build_expr(expr_idx, &Type::i64)?
                 };
 
                 self.call_param_types.push(val.into());
             }
+
+
         }
 
         let func = self.get_func_ptr(name_key);
@@ -217,6 +224,8 @@ impl<'ctx>Codegen<'ctx>{
         let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
         self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
         self.call_param_types.clear();
+
+        Ok(())
 
 
     }

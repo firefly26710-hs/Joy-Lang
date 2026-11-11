@@ -15,8 +15,9 @@ pub enum ExprIssue{
     LiteralOutOfRange{ expected_type_string: String},
     MismatchesType{expected_type : String,  actual_type : String},
     MismatchUnaryType{unary_op_string : String, right_expr_type_string : String},
-    MismatchesNodeType{ left_node_type: String, right_node_type: String},
-    ComparisonOpChained
+    MismatchesExprType { left_expr_type_string: String, right_expr_type_string: String},
+    ComparisonOpChained,
+    BinaryOpMismatches{expr_type_string : String}
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum ScopeIssue{

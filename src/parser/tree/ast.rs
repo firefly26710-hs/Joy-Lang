@@ -16,9 +16,9 @@ pub struct AST{
 impl AST{
     pub fn init() -> Self{
         Self{
-            nodes   : Vec::with_capacity(MAX_SIZE),
-            edges: Vec::with_capacity(MAX_SIZE),
-            expr_recorder: Vec::with_capacity(MAX_SIZE),
+            nodes : Vec::with_capacity(MAX_SIZE),
+            edges : Vec::with_capacity(MAX_SIZE),
+            expr_recorder : Vec::with_capacity(MAX_SIZE),
 
             
         }

@@ -48,9 +48,9 @@ impl Lexer{
         let col = (rlt_col_start + 1).to_string().blue().bold();
 
 
-        let mut no_color_notices = String::new();
-        for _ in 0..wrong_part.len() {
-            no_color_notices.push_str("^");
+        let mut no_color_notices = "^".to_string();
+        for _ in 0..wrong_part.len() - 1 {
+            no_color_notices.push_str("~");
         }
         let yellow_notices = no_color_notices.yellow();
 
