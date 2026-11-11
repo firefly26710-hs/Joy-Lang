@@ -1,5 +1,6 @@
 use std::process::exit;
 use colored::Colorize;
+use crate::lexer::center::lex::Lexer;
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 use crate::parser::diagnostic::source::issue::ParserIssue;
@@ -24,12 +25,16 @@ impl Parser{
         let span = self.lexer.error.spans[span_id];
         let span_start = span.0 as usize;
         let span_length = span.1 as usize;
-        let sentence = &self.lexer.tokenizer.input[span_start..span_length];
+        let mut sentence = &self.lexer.tokenizer.input[span_start..span_length];
+
+        if sentence.contains("\n"){
+            let length = sentence.len();
+            sentence = &sentence[..length - 1];
+        }
 
         let rlt_start = wrong_tok_start - span_start;
         let rlt_end = wrong_tok_end - span_start;
 
-        let sentence_end = sentence.len();
 
         let left_correct_part = &sentence[0..rlt_start];
         let wrong_part = &sentence[rlt_start..rlt_end].red();
@@ -136,8 +141,19 @@ impl Parser{
                 "comparison operator cannot be chained".to_string()
             }
 
+            ParserIssue::Expr(
+                ExprIssue::MismatchUnaryType {unary_op_string, right_expr_type_string}) =>
+                {
+                    let mut info = "cannot apply unary operator '".to_string();
+                    info.push_str(unary_op_string.as_str());
+                    info.push_str("' to the type '");
+                    info.push_str(right_expr_type_string);
+                    info.push_str("'");
+                    info
+                }
+
         };
-        
+
 
         println!("{file_name}:{line}:{col}: {error}: {info} ");
         println!("    {left_correct_part}{wrong_part}{right_correct_part}");
@@ -147,7 +163,21 @@ impl Parser{
     }
 
 
+}
 
+#[test]
+fn test_par_error(){
+    let input =
+        "fn main() = void {\n var x = not(1 + 1 - 1);}  ".to_string();
+    let input = input + "\n\0\0\0";
+    let mut lexer = Lexer::init(input, "main.joy".to_string());
+    lexer.tokenize();
+    // lexer.print_output();
 
+    let mut parser = Parser::init(lexer);
+    _= parser.build_tree();
+    dbg!(parser.scope.var_scope_stack);
+    dbg!(parser.table.var_keys);
+    dbg!(parser.table.var_types);
 
 }

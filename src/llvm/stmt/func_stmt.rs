@@ -40,8 +40,6 @@ impl<'ctx>Codegen<'ctx>{
                     Type::bool => self.context.bool_type().into(),
                     Type::f64 => self.context.f64_type().into(),
                     Type::f32 => self.context.f32_type().into(),
-                    Type::String => self.context.ptr_type(inkwell::AddressSpace::default()).into(),
-
                     _ => unreachable!()
                 };
                 self.param_types.push(type_context);
@@ -63,11 +61,7 @@ impl<'ctx>Codegen<'ctx>{
             Type::f64 => self.context.f64_type().fn_type(&self.param_types, false),
             Type::bool => self.context.bool_type().fn_type(&self.param_types, false),
             Type::void => self.context.void_type().fn_type(&self.param_types, false),
-            Type::String => {
-                let i8_ptr_type = self.context.ptr_type(inkwell::AddressSpace::default());
-                i8_ptr_type.fn_type(&self.param_types, false)
-            },
-
+            
         };
 
         let func = self.module.add_function(name_str, fn_type, None);

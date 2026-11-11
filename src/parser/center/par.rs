@@ -16,7 +16,7 @@ pub struct Parser{
 
     //source
     pub ast : AST,
-    pub lexer : Lexer ,
+    pub lexer : Lexer,
 
     pub table : Table,
     pub scope : Scope,
@@ -143,7 +143,6 @@ impl Parser{
             "f32"    => Type::f32,
             "f64"    => Type::f64,
             "bool"   => Type::bool,
-            "String" => Type::String,
             "void"   => Type::void,
             _ => panic!("[Line {:?}] Unknown Type : {:?}",self.current_line(), type_str)
         }

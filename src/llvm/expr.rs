@@ -51,7 +51,6 @@ impl<'ctx>Codegen<'ctx>{
                         Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),
                         Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
                         Type::bool => self.context.bool_type().into(),
-                        Type::String => self.context.ptr_type(inkwell::AddressSpace::default()).into(),
                         _ => panic!("Expected Type{:?}", var_type)
                     };
 

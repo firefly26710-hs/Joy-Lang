@@ -70,7 +70,24 @@ impl Parser{
 
                 match (left_idx, right_idx){
                     (NONE, rhs) => match tok{
-                        Token::Sub | Token::CmpNot  => self.parse_expr_type(rhs),
+                        Token::Sub => {
+                            let expr_type = self.parse_expr_type(rhs)?;
+                            if expr_type == Type::bool{
+                                return Err(self.mismatch_expr_type_in_unary_issue(key, self.get_key(rhs), Type::bool));
+                            }
+
+                            Ok(expr_type)
+
+                        }
+
+                        Token::CmpNot  => {
+                            let expr_type = self.parse_expr_type(rhs)?;
+                            if expr_type != Type::bool{
+                                return Err(self.mismatch_expr_type_in_unary_issue(key, self.get_key(rhs), Type::bool));
+                            }
+
+                            Ok(expr_type)
+                        }
                         _ => unreachable!()
                     },
                     (lhs, rhs) =>{

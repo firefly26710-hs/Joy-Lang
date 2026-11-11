@@ -147,7 +147,6 @@ impl<'ctx> Codegen<'ctx>{
         let format = match ty{
             Type::i32 | Type::bool    => "%d",
             Type::f64    			  => "%f",
-            Type::String 			  => "%s",
             _ => unreachable!()
         };
 

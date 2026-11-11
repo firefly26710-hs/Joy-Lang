@@ -1,4 +1,3 @@
-use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
 use crate::parser::diagnostic::source::issue::ParserIssue;
 
 #[derive(Debug, Clone, PartialEq)]

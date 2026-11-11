@@ -49,17 +49,17 @@ fn main() -> Result<(), ParserIssue> {
 }
 
 #[test]
-fn test(){
+fn diag_test(){
     let input =
-        "fn main() = void{\n    print(String, \"Hello World\");\n}
+        "fn main() = void{\n var x : i8 = 111111;}
     ".to_string();
-    let input = input + "\0\0\0";
+    let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     lexer.print_output();
 
     let mut parser = Parser::init(lexer);
-    parser.build_tree();
+    let _ = parser.build_tree();
     dbg!(&parser.table.var_keys);
     dbg!(&parser.table.func_keys);
     dbg!(&parser.table.param_idxs);
@@ -67,6 +67,7 @@ fn test(){
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
+    llvm.module.print_to_stderr();
 
 
 

@@ -14,6 +14,7 @@ pub enum ExprIssue{
     UnExpectedExpression{wrong_string : String},
     LiteralOutOfRange{ expected_type_string: String},
     MismatchesType{expected_type : String,  actual_type : String},
+    MismatchUnaryType{unary_op_string : String, right_expr_type_string : String},
     MismatchesNodeType{ left_node_type: String, right_node_type: String},
     ComparisonOpChained
 }
