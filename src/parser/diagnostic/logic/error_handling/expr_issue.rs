@@ -72,7 +72,7 @@ impl Parser{
 
 
 
-    pub fn expr_type_out_of_range(
+    pub fn literal_out_of_range(
         &mut self,
         expr_idx : NodeIdx,
         expected_type : &Type,

@@ -9,8 +9,9 @@ use crate::parser::types::typ::Type;
 impl Parser{
     pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, ParserIssue>{
         self.stmt.already_has_comparison_op = false;
+        self.stmt.unary_sub_counter = 0;
+        let expr_type = &self.parse_expr_type(expr_idx, expected_type)?;
 
-        let expr_type = &self.parse_expr_type(expr_idx)?;
 
         if matches!(expected_type, Type::void){
 
@@ -33,7 +34,7 @@ impl Parser{
                 }
 
                 if left_bigger_than_right(&expected_type, &expr_type){
-                    Err(self.expr_type_out_of_range(expr_idx, &expected_type))
+                    Err(self.literal_out_of_range(expr_idx, &expected_type))
                 }else{
                     Ok(expr_type.clone())
                 }
@@ -42,10 +43,10 @@ impl Parser{
                     return Err(self.mismatch_type_issue(expr_idx, &expected_type, &expr_type))
                 }
 
-                if left_bigger_than_right(&expected_type, expr_type) || expected_type == expr_type{
+                if left_bigger_equal_than_right(&expected_type, expr_type){
                     Ok(expected_type.clone())
                 }else{
-                    Err(self.expr_type_out_of_range(expr_idx, &expected_type))
+                    Err(self.literal_out_of_range(expr_idx, &expected_type))
                 }
             }
         }
@@ -53,7 +54,7 @@ impl Parser{
     }
     
 
-    pub fn parse_expr_type(&mut self, expr_idx : u32) -> Result<Type, ParserIssue> {
+    pub fn parse_expr_type(&mut self, expr_idx : u32, expected_type : &Type) -> Result<Type, ParserIssue> {
         let node = &self.ast.nodes[expr_idx as usize];
         let tok = &node.token;
         let key = node.key;
@@ -62,12 +63,9 @@ impl Parser{
         let right_span = edge_span.end;
         match(left_span, right_span){
             (NONE, NONE) => match tok{
-                Token::Int => Ok(self.parse_int_type(key)),
-                Token::Float => Ok(self.parse_flt_type(key)),
-                Token::Ident => {
-                    self.stmt.has_ident_in_expr = true;
-                    Ok(self.parse_ident_type(key))
-                },
+                Token::Int => Ok(self.parse_int_type(key, expected_type, expr_idx)?),
+                Token::Float => Ok(self.parse_flt_type(key, expected_type, expr_idx)?),
+                Token::Ident => Ok(self.parse_ident_type(key)?),
                 Token::True | Token::False => Ok(Type::bool),
                 _ => panic!("unknown Leaf : {:?}", tok)
             }
@@ -79,7 +77,10 @@ impl Parser{
                 match (left_idx, right_idx){
                     (NONE, rhs) => match tok{
                         Token::Sub => {
-                            let expr_type = self.parse_expr_type(rhs)?;
+                            if self.stmt.unary_sub_counter == 0{ self.stmt.first_unary_expr_idx = expr_idx; }
+                            self.stmt.unary_sub_counter += 1;
+                            let expr_type = self.parse_expr_type(rhs, expected_type)?;
+                            self.stmt.unary_sub_counter  -= 1;
                             if expr_type == Type::bool{
                                 return Err(self.mismatch_expr_type_in_unary_issue(key, rhs,Type::bool));
                             }
@@ -89,9 +90,9 @@ impl Parser{
                         }
 
                         Token::CmpNot  => {
-                            let expr_type = self.parse_expr_type(rhs)?;
+                            let expr_type = self.parse_expr_type(rhs, expected_type)?;
                             if expr_type != Type::bool{
-                                return Err(self.mismatch_expr_type_in_unary_issue(key, rhs,Type::bool));
+                                return Err(self.mismatch_expr_type_in_unary_issue(key, rhs, expr_type));
                             }
 
                             Ok(expr_type)
@@ -101,8 +102,8 @@ impl Parser{
                     (lhs, rhs) =>{
                         let tok = tok.clone();
 
-                        let l_ty = self.parse_expr_type(lhs)?;
-                        let r_ty = self.parse_expr_type(rhs)?;
+                        let l_ty = self.parse_expr_type(lhs, expected_type)?;
+                        let r_ty = self.parse_expr_type(rhs, expected_type)?;
 
                         if is_binary_op(&tok){
                             if l_ty != Type::bool{ return Err(self.mismatch_binary_op_type(lhs, l_ty)) }
@@ -125,11 +126,11 @@ impl Parser{
                         
 
                         if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
-                            Err(self.expr_type_out_of_range(self.get_key(lhs), &l_ty))
+                            Err(self.literal_out_of_range(lhs, &l_ty))
                         }else if self.is_ident(rhs) && left_bigger_than_right(&l_ty, &r_ty){
-                            Err(self.expr_type_out_of_range(self.get_key(rhs), &r_ty))
+                            Err(self.literal_out_of_range(rhs, &r_ty))
                         }else{
-                            if left_bigger_than_right(&l_ty, &r_ty){
+                            if left_bigger_equal_than_right(&l_ty, &r_ty){
                                 if self.stmt.already_has_comparison_op{
                                     return Ok(Type::bool);
                                 }
@@ -152,56 +153,99 @@ impl Parser{
 
 
 
-    fn parse_int_type(&self, key : Key) -> Type{
+    fn parse_int_type(&mut self, key : Key, expected_type : &Type, expr_idx : NodeIdx) -> Result<Type, ParserIssue>{
         let interval = &self.lexer.tokenizer.intervals[key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
-        let int_val: i128 = match self.lexer.tokenizer.input[start..end].parse() {
+        let int_val: u128 = match self.lexer.tokenizer.input[start..end].parse() {
             Ok(val) => val,
             Err(val) => {
                 panic!("[Line {:?}] Expected Int but find : {:?}", self.current_line(), val)
             }
         };
 
-        match int_val{
-            -128..=127 => Type::i8,
-            -32768..=32767 => Type::i16,
-            -2147483648..=2147483647 => Type::i32,
-            -9223372036854775808..9223372036854775807 => Type::i64,
-            -170141183460469231731687303715884105728..=170141183460469231731687303715884105727 => Type::i128,
+        if self.stmt.unary_sub_counter == 0 {
+            match int_val {
+                0..=127 => Ok(Type::i8),
+                0..=32767 => Ok(Type::i16),
+                0..=2147483647 => Ok(Type::i32),
+                0..=9223372036854775807 => Ok(Type::i64),
+                0..=170141183460469231731687303715884105727 => Ok(Type::i128),
+                _ =>{
+                    let expected_type = if expected_type == &Type::void{
+                        &Type::i32
+                    }else {
+                        expected_type
+                    };
+                    Err(self.literal_out_of_range(expr_idx, expected_type ))
+                }
+            }
+        }else{
+            if self.stmt.unary_sub_counter & 1 == 0{
+                let expected_type = if expected_type == &Type::void{
+                    &Type::i32
+                }else{
+                    &expected_type
+                };
+
+                return Err(self.literal_out_of_range(self.stmt.first_unary_expr_idx, expected_type))
+            }
+
+
+            let val_ty = match int_val {
+                0..=128 => Type::i8,
+                0..=32768 => Type::i16,
+                0..=2147483648 => Type::i32,
+                0..=9223372036854775808 => Type::i64,
+                0..=170141183460469231731687303715884105728 => Type::i128,
+                 _ => {
+                     let expected_type = if expected_type == &Type::void {
+                         &Type::i32
+                     } else {
+                         expected_type
+                     };
+                     Err(self.literal_out_of_range(expr_idx, expected_type))
+                 }?
+            };
+
+            if !left_bigger_equal_than_right(&expected_type, &val_ty) {
+                 return Err(self.literal_out_of_range(self.stmt.first_unary_expr_idx, expected_type));
+            }
+
+            Ok(val_ty)
         }
+
+
     }
 
-    fn parse_flt_type(&self, key: Key) -> Type{
+    fn parse_flt_type(&mut self, key: Key, expected_type : &Type, expr_idx : NodeIdx) -> Result<Type, ParserIssue>{
         let interval = &self.lexer.tokenizer.intervals[key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
         let flt_val: f64 = match self.lexer.tokenizer.input[start..end].parse() {
             Ok(val) => val,
-            Err(val) => {
-                panic!("[Line {:?}] Expected Int but find : {:?}", self.current_line(), val)
-            }
+            _ => panic!("[Line {:?}]Parse Float Error", self.current_line())
         };
 
+
+
         match flt_val{
-            -3.40282347e+38..=3.40282347e+38 => Type::f32,
-            -1.7976931348623157e+308..=1.7976931348623157e+308=> Type::f64,
-            _ => panic!(
-                "[Line {:?}] Mismatch Float value {:?}", self.current_line(), flt_val
-            )
+            0.0..=3.40282347e+38 => Ok(Type::f32),
+            0.0..=1.7976931348623157e+308=> Ok(Type::f64),
+            _ => {
+                let expected_type = if expected_type == &Type::void{
+                    &Type::f64
+                }else {
+                    expected_type
+                };
+                Err(self.literal_out_of_range(expr_idx, expected_type ))
+            }
         }
     }
 
-    fn parse_ident_type(&self, key : Key) -> Type{
-        let ident_ty = self.look_var_type(&key);
-
-        match ident_ty{
-            Type::i8 | Type::i16 | Type::i32 | Type::i64 | Type::i128
-            => self.parse_int_type(key),
-            Type::f32 | Type::f64 => self.parse_flt_type(key),
-            Type::bool => Type::bool,
-            _ => panic!("unknown ident type : {:?}", ident_ty)
-        }
+    fn parse_ident_type(&mut self, key : Key) -> Result<Type, ParserIssue>{
+        self.stmt.has_ident_in_expr = true;
+        Ok(self.look_var_type(&key).clone())
     }
 
     fn is_ident(&self ,idx : u32) -> bool{
@@ -218,7 +262,7 @@ pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
     let a_num = weight(type_a);
     let b_num = weight(type_b);
 
-    if a_num == i32::MIN || b_num == i32::MIN{
+    if a_num == i32::MAX || b_num == i32::MAX{
         return true;
     }
 
@@ -235,7 +279,20 @@ pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
 
 }
 
+pub fn left_bigger_equal_than_right(type_a : &Type, type_b : &Type) -> bool{
+
+    let weight_a = weight(type_a);
+    let weight_b = weight(type_b);
+
+    if weight_a >= weight_b {
+        true
+    }else{
+        false
+    }
+}
+
 pub fn left_bigger_than_right(type_a : &Type, type_b : &Type) -> bool{
+
     let weight_a = weight(type_a);
     let weight_b = weight(type_b);
 
@@ -253,11 +310,11 @@ fn weight(ty : &Type) -> i32{
         Type::i16 => 2,
         Type::i32 => 3,
         Type::i64 => 4,
-        Type::i128 => 11,
-        Type::f32 => 12,
+        Type::i128 => 5,
+        Type::f32 => 11,
+        Type::f64 => 12,
         Type::bool => 0,
-        Type::void => i32::MIN,
-        _ => unreachable!()
+        Type::void => i32::MAX,
     }
 }
 

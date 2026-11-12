@@ -226,7 +226,7 @@ impl Lexer{
             "print"    => {
                 self.collect_tokenizer_data(Token::Print);
             },
-            "void"|"i8" | "i16" | "i32" | "i64" |
+            "void"|"i8" | "i16" | "i32" | "i64" | "i128"|
             "f32" | "f64" | "bool" | "String" => {
                 self.collect_tokenizer_data(Token::Type);
             },

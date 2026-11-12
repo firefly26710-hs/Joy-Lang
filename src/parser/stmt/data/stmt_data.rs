@@ -1,5 +1,6 @@
 use inkwell::llvm_sys::lto::thinlto_codegen_set_final_cache_size_relative_to_available_space;
 use crate::parser::tree::ast::{NodeIdx, NONE};
+use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 const RECORDER_SIZE : usize = 256;
@@ -15,6 +16,8 @@ pub struct Stmt{
     pub expr_start_key : u32,
     pub already_has_comparison_op: bool,
     pub has_ident_in_expr : bool,
+    pub unary_sub_counter: u16,
+    pub first_unary_expr_idx : Key,
 
 
     pub ret_times_in_branch: u8,
@@ -35,7 +38,8 @@ impl Stmt{
             expr_start_key : 0,
             already_has_comparison_op: false,
             has_ident_in_expr        : false,
-
+            unary_sub_counter: 0,
+            first_unary_expr_idx : 0,
 
             ret_times_in_branch: 0,
             real_times_in_branch: 0,

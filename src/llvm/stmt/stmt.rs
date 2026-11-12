@@ -75,6 +75,7 @@ impl<'ctx> Codegen<'ctx>{
         //build alloc
         let alloc = self.builder.build_alloca(var_type, name_str).unwrap();
         self.builder.build_store(alloc, expr).unwrap();
+
         self.variables.push(alloc);
 
         Ok(())

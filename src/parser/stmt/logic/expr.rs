@@ -68,6 +68,7 @@ impl Parser{
                     self.expr_func_call()
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
+                    self.eat();
                     self.var_not_in_scope(ident_key)?;
                     self.push_leaf(Token::Ident, ident_key)
                 }

@@ -28,9 +28,18 @@ impl<'ctx>Codegen<'ctx>{
                     let str_e = str_interval.end as usize;
                     let int_ty = self.int_type_mapping(&ty);
                     let var_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
-                    let u_integer : u64 = var_str.parse().unwrap();
-                    Ok(int_ty.const_int(u_integer, false).into())
-                },
+
+                    if ty == &Type::i128{
+                        let integer : u128 = var_str.parse().unwrap();
+
+                        let two_u64 = [integer as u64, (integer >> 64) as u64];
+                        Ok(int_ty.const_int_arbitrary_precision(&two_u64).into())
+
+                    }else{
+                        let integer : u64 = var_str.parse().unwrap();
+                        Ok(int_ty.const_int(integer, true).into())
+                    }
+                }
                 Token::Float => {
                     let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
                     let str_s = str_interval.start as usize;
@@ -40,22 +49,21 @@ impl<'ctx>Codegen<'ctx>{
                     let float : f64 = var_str.parse().unwrap();
                     Ok(flt_ty.const_float(float).into())
                 },
-                    Token::Ident => {
-                        let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
-                        let str_s = str_interval.start as usize;
-                        let str_e = str_interval.end as usize;
-                        let name_str = &self.parser.lexer.tokenizer.input[str_s ..str_e];
-                        let alloc = self.get_var_ptr(key);
-                        let var_type = self.parser.look_var_type(&key);
+                Token::Ident => {
+                    let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
+                    let str_s = str_interval.start as usize;
+                    let str_e = str_interval.end as usize;
+                    let name_str = &self.parser.lexer.tokenizer.input[str_s ..str_e];
+                    let alloc = self.get_var_ptr(key);
+                    let var_type = self.parser.look_var_type(&key);
+                    let basic_ty: BasicTypeEnum<'ctx> = match var_type {
+                        Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),
+                        Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
+                        Type::bool => self.context.bool_type().into(),
+                        _ => panic!("Expected Type{:?}", var_type)
+                    };
 
-                        let basic_ty: BasicTypeEnum<'ctx> = match var_type {
-                            Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),
-                            Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
-                            Type::bool => self.context.bool_type().into(),
-                            _ => panic!("Expected Type{:?}", var_type)
-                        };
-
-                        Ok(self.builder.build_load(basic_ty, alloc, name_str).unwrap())
+                    Ok(self.builder.build_load(basic_ty, alloc, name_str).unwrap())
                 },
 
                     Token::True => {
@@ -77,7 +85,7 @@ impl<'ctx>Codegen<'ctx>{
                             match tok{
                                 Token::Sub => match rhs{
                                     BasicValueEnum::IntValue(i_val) => {
-                                        Ok(self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into())
+                                       Ok(self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into())
                                     },
                                     BasicValueEnum::FloatValue(f_val) => {
                                         Ok(self.builder.build_float_neg(f_val, "Neg_Float").unwrap().into())
@@ -93,7 +101,7 @@ impl<'ctx>Codegen<'ctx>{
                                 _ => unreachable!()
                             }
                         },
-                        (_l_idx,_rhs) => {
+                        (_, _) => {
                             let idxs = self.get_edge_slice(start, end);
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;
@@ -111,15 +119,17 @@ impl<'ctx>Codegen<'ctx>{
                             };
 
                             match(lhs, rhs){
+
                                 (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match tok{
                                     Token::Add => {
-                                        Ok(self.builder.build_int_add(l, r, "Int_Add").unwrap().into())
+                                        self.check_expression_overflow("add", expr_idx as NodeIdx, ty, l, r)
                                     },
                                     Token::Sub => {
-                                        Ok(self.builder.build_int_sub(l, r, "Int_Sub").unwrap().into())
+
+                                        self.check_expression_overflow("sub", expr_idx as NodeIdx, ty, l, r)
                                     },
                                     Token::Mul => {
-                                        Ok(self.builder.build_int_mul(l, r, "Int_Mul").unwrap().into())
+                                        self.check_expression_overflow("mul", expr_idx as NodeIdx, ty, l, r)
                                     },
                                     Token::Div    => {
                                         if r.get_sign_extended_constant().unwrap() == 0{
@@ -285,13 +295,13 @@ impl<'ctx>Codegen<'ctx>{
 
 
 
-    fn int_type_mapping(&self, ty : &Type)  -> inkwell::types::IntType<'ctx>{
+    pub fn int_type_mapping(&self, ty : &Type)  -> inkwell::types::IntType<'ctx>{
         match ty{
             Type::i8 => self.context.i8_type(),
             Type::i16 => self.context.i16_type(),
             Type::i32 =>  self.context.i32_type(),
             Type::i64 =>  self.context.i64_type(),
-            Type::i128 => self.context.i8_type(),
+            Type::i128 => self.context.i128_type(),
             _ => unreachable!()
         }
     }

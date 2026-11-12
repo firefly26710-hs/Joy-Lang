@@ -72,7 +72,6 @@ impl<'ctx> Codegen<'ctx>{
         for i in 0..len{
             self.compile_function(self.parser.ast.edges[start..=end][i]);
         }
-
         if self.parser.lexer.error.has_error{
             self.output_error();
         }

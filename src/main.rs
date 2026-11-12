@@ -17,7 +17,7 @@ fn main() -> Result<(), ParserIssue> {
         panic!("No file in {:?}", args[0]);
     }
 
-
+    
     let mut file =File::open(&args[1]).expect("Can't find file");
     let file_size = file.metadata().map(|m| m.len() as usize).unwrap_or(0);
     let mut input = String::with_capacity(file_size + 3);
@@ -50,7 +50,7 @@ fn main() -> Result<(), ParserIssue> {
 
 #[test]
 fn diag_test(){
-    let input = "fn main() = void{ var x : i8 = 111111 + 1111111; }
+    let input = "fn main() = void{ var x : i8 = 1 ; var y = x + 1; }
     ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
