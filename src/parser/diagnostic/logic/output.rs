@@ -59,103 +59,56 @@ impl Parser{
         let info = match issue{
             ParserIssue::Token(
                 TokenIssue::UnExpectedToken {
-                    wrong_string, correct_string}) =>
-                {
-                    let mut info = "expected ".to_string();
-                    info.push_str(correct_string);
-                    info.push_str(", find  ");
-                    info.push_str(wrong_string);
-                    info
-                },
+                    wrong_string, correct_string})
+            => format!("expected {:?}, find {:?}", correct_string, wrong_string),
 
-            ParserIssue::Token(TokenIssue::UnclosedDelimiter) =>
-                {
-                    "unclosed delimiter".to_string()
-                },
+
+            ParserIssue::Token(TokenIssue::UnclosedDelimiter)
+            => "unclosed delimiter".to_string(),
 
             ParserIssue::Scope(
-                ScopeIssue::VariableNotInScope {unknown_var_string}) =>
-                {
-                    let mut info = "cannot find value ".to_string();
-                    info.push_str(&unknown_var_string);
-                    info.push_str(" in this scope");
-                    info
-                },
+                ScopeIssue::VariableNotInScope {unknown_var_string})
+            => format!("cannot find value {unknown_var_string} in this scope"),
 
             ParserIssue::Scope(
-                ScopeIssue::FunctionNotFound { unknown_fn_string }) =>
-                {
-                    let mut info = "cannot find function ".to_string();
-                    info.push_str(&unknown_fn_string);
-                    info
-                }
+                ScopeIssue::FunctionNotFound { unknown_fn_string })
+            => format!("cannot find function {unknown_fn_string}"),
 
             ParserIssue::Scope(
-                ScopeIssue::OutOfLoop {kw}) =>
-                {
-                    let mut info = "'".to_string();
-                    info.push_str(kw.as_str());
-                    info.push_str("' outside of a loop");
-                    info
-                }
+                ScopeIssue::OutOfLoop {kw})
+            => format!("{kw} outside of a loop"),
 
-            ParserIssue::Expr(ExprIssue::UnExpectedExpression{wrong_string}) =>
-                {
-                    let mut info = "expected expression, find ".to_string();
-                    info.push_str(wrong_string);
-                    info
-                }
-
+            ParserIssue::Expr(ExprIssue::UnExpectedExpression{wrong_string})
+            => format!("expected expression, find {wrong_string}"),
+            
             ParserIssue::Expr(
-                ExprIssue::LiteralOutOfRange {expected_type_string}) =>
-                {
-                    let mut info = "literal out of range for ".to_string();
-                    info.push_str(expected_type_string.as_str());
-                    info
-                }
-
+                ExprIssue::LiteralOutOfRange {expected_type_string}) 
+            => format!("literal out of range for {expected_type_string}"),
+            
             ParserIssue::Expr(
-                ExprIssue::MismatchesExprType { left_expr_type_string: left_node_type, right_expr_type_string: right_node_type }) =>
-                {
-                    let mut info = "cannot use ".to_string();
-                    info.push_str(&right_node_type);
-                    info.push_str(" after ");
-                    info.push_str(&left_node_type);
-                    info
-                }
-
+                ExprIssue::MismatchesExprType { left_expr_type_string: left_node_type, right_expr_type_string: right_node_type }) 
+            => format!("cannot use {right_node_type} after {left_node_type}"),
+            
             ParserIssue::Expr(
-                ExprIssue::MismatchesType {expected_type, actual_type}) =>
-                {
-                    let mut info = "expected ".to_string();
-                    info.push_str(&expected_type);
-                    info.push_str(" but found ");
-                    info.push_str(&actual_type);
-                    info
-                }
+                ExprIssue::MismatchesType {expected_type, actual_type}) 
+            => format!("expected {expected_type}, but found {actual_type}"),
+            
+                
 
             ParserIssue::Expr(ExprIssue::ComparisonOpChained) => {
                 "comparison operator cannot be chained".to_string()
             }
 
             ParserIssue::Expr(
-                ExprIssue::MismatchUnaryType {unary_op_string, right_expr_type_string}) =>
-                {
-                    let mut info = "cannot apply unary operator '".to_string();
-                    info.push_str(unary_op_string.as_str());
-                    info.push_str("' to the type '");
-                    info.push_str(right_expr_type_string);
-                    info.push_str("'");
-                    info
-                }
+                ExprIssue::MismatchUnaryType {unary_op_string, right_expr_type_string}) 
+            => format!("cannnot apply unary operator {unary_op_string} to the type {right_expr_type_string}"),
+                
+            
+                
             ParserIssue::Expr(
-                ExprIssue::BinaryOpMismatches {expr_type_string}) =>
-                {
-                    let mut info = "expected bool, find ".to_string();
-                    info.push_str(expr_type_string);
-                    info
-                }
-
+                ExprIssue::BinaryOpMismatches {expr_type_string}) 
+            => format!("expected bool, find {expr_type_string}")
+            
         };
 
 

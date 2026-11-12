@@ -317,14 +317,14 @@ fn is_stmt(tok : &Token) -> bool{
 
 pub fn from_type_to_string(ty : &Type) -> String{
     let str = match ty {
-        Type::i8  => "'i8'",
-        Type::i16 => "'i16'",
-        Type::i32 => "'i32'",
-        Type::i64 => "'i64'",
-        Type::i128=> "'i128'",
+        Type::i8  => "i8",
+        Type::i16 => "i16",
+        Type::i32 => "i32",
+        Type::i64 => "i64",
+        Type::i128=> "i128",
         Type::f32 | Type::f64 => "floating-point number",
-        Type::bool => "'bool'",
-        Type::void => "'void'"
+        Type::bool => "bool",
+        Type::void => "void"
     };
     
     str.to_string()
