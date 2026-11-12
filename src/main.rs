@@ -50,7 +50,7 @@ fn main() -> Result<(), ParserIssue> {
 
 #[test]
 fn diag_test(){
-    let input = "fn main() = void{ var x : i8 = 1 ; var y = x + 1; }
+    let input = "fn main() = i32{}
     ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());

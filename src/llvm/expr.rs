@@ -6,10 +6,9 @@ use inkwell::types::BasicTypeEnum;
 use inkwell::values::BasicValueEnum;
 use inkwell::{FloatPredicate, IntPredicate};
 use crate::lexer::tokenizer::source::token::Token;
-use crate::llvm::diagnostic::source::issue::GenIssue;
 
 impl<'ctx>Codegen<'ctx>{
-    pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> Result<BasicValueEnum<'ctx>, GenIssue>{
+    pub fn build_expr(&mut self, expr_idx : usize, ty : &Type) -> BasicValueEnum<'ctx>{
         let tok = self.parser.ast.nodes[expr_idx].token.clone();
         let key = self.parser.ast.nodes[expr_idx].key;
         let idxs = &self.parser.ast.nodes[expr_idx].edge_span;
@@ -17,7 +16,7 @@ impl<'ctx>Codegen<'ctx>{
         let end = idxs.end;
 
         if matches!(tok, Token::CallStmt){
-           return Ok(self.build_expr_call(start , end)?)
+           return self.build_expr_call(start , end)
         }
 
         match(start, end){
@@ -33,11 +32,11 @@ impl<'ctx>Codegen<'ctx>{
                         let integer : u128 = var_str.parse().unwrap();
 
                         let two_u64 = [integer as u64, (integer >> 64) as u64];
-                        Ok(int_ty.const_int_arbitrary_precision(&two_u64).into())
+                        int_ty.const_int_arbitrary_precision(&two_u64).into()
 
                     }else{
                         let integer : u64 = var_str.parse().unwrap();
-                        Ok(int_ty.const_int(integer, true).into())
+                        int_ty.const_int(integer, true).into()
                     }
                 }
                 Token::Float => {
@@ -47,7 +46,7 @@ impl<'ctx>Codegen<'ctx>{
                     let flt_ty = self.flt_type_mapping(&ty);
                     let var_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
                     let float : f64 = var_str.parse().unwrap();
-                    Ok(flt_ty.const_float(float).into())
+                    flt_ty.const_float(float).into()
                 },
                 Token::Ident => {
                     let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
@@ -63,16 +62,16 @@ impl<'ctx>Codegen<'ctx>{
                         _ => panic!("Expected Type{:?}", var_type)
                     };
 
-                    Ok(self.builder.build_load(basic_ty, alloc, name_str).unwrap())
+                    self.builder.build_load(basic_ty, alloc, name_str).unwrap()
                 },
 
                     Token::True => {
                         let bool_ty = self.context.bool_type();
-                        Ok(bool_ty.const_int(1, true).into())
+                        bool_ty.const_int(1, true).into()
                     },
                     Token::False => {
                         let bool_ty = self.context.bool_type();
-                        Ok(bool_ty.const_int(0, false).into())
+                        bool_ty.const_int(0, false).into()
                     }
                 
                     _ => unreachable!()
@@ -81,20 +80,20 @@ impl<'ctx>Codegen<'ctx>{
                     let childs = self.get_edge_slice(start, end);
                     match (childs[0], childs[1]){
                         (NONE, r_idx) => {
-                            let rhs = self.build_expr(r_idx as usize, ty)?;
+                            let rhs = self.build_expr(r_idx as usize, ty);
                             match tok{
                                 Token::Sub => match rhs{
                                     BasicValueEnum::IntValue(i_val) => {
-                                       Ok(self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into())
+                                       self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into()
                                     },
                                     BasicValueEnum::FloatValue(f_val) => {
-                                        Ok(self.builder.build_float_neg(f_val, "Neg_Float").unwrap().into())
+                                        self.builder.build_float_neg(f_val, "Neg_Float").unwrap().into()
                                     },
                                     _ => unreachable!()
                                 },
                                 Token::CmpNot => match rhs{
                                     BasicValueEnum::IntValue(i_val) => {
-                                        Ok(self.builder.build_not(i_val,"Not_Val").unwrap().into())
+                                        self.builder.build_not(i_val,"Not_Val").unwrap().into()
                                     }
                                     _ => unreachable!()
                                 }
@@ -107,143 +106,121 @@ impl<'ctx>Codegen<'ctx>{
                             let rhs_idx = idxs[1] as usize;
 
                             let lhs = if is_comparison_op(&tok){
-                                self.build_expr(lhs_idx, &Type::i32)?
+                                self.build_expr(lhs_idx, &Type::i32)
                             }else{
-                                self.build_expr(lhs_idx, ty)?
+                                self.build_expr(lhs_idx, ty)
                             };
 
                             let rhs = if is_comparison_op(&tok){
-                                self.build_expr(rhs_idx, &Type::i32)?
+                                self.build_expr(rhs_idx, &Type::i32)
                             }else{
-                                self.build_expr(rhs_idx, ty)?
+                                self.build_expr(rhs_idx, ty)
                             };
 
                             match(lhs, rhs){
 
                                 (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match tok{
                                     Token::Add => {
-                                        self.check_expression_overflow("add", expr_idx as NodeIdx, ty, l, r)
+                                        self.builder.build_int_add(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Sub => {
-
-                                        self.check_expression_overflow("sub", expr_idx as NodeIdx, ty, l, r)
+                                        self.builder.build_int_sub(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Mul => {
-                                        self.check_expression_overflow("mul", expr_idx as NodeIdx, ty, l, r)
+                                        self.builder.build_int_mul(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Div    => {
-                                        if r.get_sign_extended_constant().unwrap() == 0{
-                                            return Err( self.divided_by_zero_issue(expr_idx as NodeIdx));
-                                        }
-
-                                        Ok(self.builder.build_int_signed_div(l, r, "Int_Div").unwrap().into())
-
+                                        self.builder.build_int_signed_div(l, r, "Int_Div").unwrap().into()
                                     },
                                     Token::Mod    => {
-                                        if r.get_sign_extended_constant().unwrap() == 0{
-                                            return Err( self.divided_by_zero_issue(expr_idx as NodeIdx));
-                                        }
-                                        
-                                        Ok(self.builder.build_int_signed_rem(l, r, "Int_Mod").unwrap().into())
+                                        self.builder.build_int_signed_rem(l, r, "Int_Mod").unwrap().into()
                                     },
                                     Token::Les    => {
-                                        Ok(self.builder.build_int_compare(
+                                        self.builder.build_int_compare(
                                             IntPredicate::SLT,
                                             l, r,
                                             "Int_Lesser"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::Grt => {
-                                        Ok(self.builder.build_int_compare(
+                                        self.builder.build_int_compare(
                                             IntPredicate::SGT,
                                             l, r,
                                             "Int_Greater"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::LesEq => {
-                                        Ok(self.builder.build_int_compare(
+                                        self.builder.build_int_compare(
                                             IntPredicate::SLE,
                                             l, r,
                                             "Int_LesEq"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::GrtEq => {
-                                        Ok(self.builder.build_int_compare(
+                                        self.builder.build_int_compare(
                                             IntPredicate::SGE,
                                             l, r,
                                             "Int_GrtEq"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::EqEq => {
-                                        Ok(self.builder.build_int_compare(
+                                        self.builder.build_int_compare(
                                             IntPredicate::EQ,
                                             l, r,
                                             "Int_EqEq"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     _ => unreachable!()
                                 },
                                 (BasicValueEnum::FloatValue(l), BasicValueEnum::FloatValue(r)) => match tok{
                                     Token::Add =>{
-                                        Ok(self.builder.build_float_add(l, r, "Flt_Add").unwrap().into())
+                                        self.builder.build_float_add(l, r, "Flt_Add").unwrap().into()
                                     },
                                     Token::Sub =>{
-                                        Ok(self.builder.build_float_sub(l, r, "Flt_Sub").unwrap().into())
+                                        self.builder.build_float_sub(l, r, "Flt_Sub").unwrap().into()
                                     },
                                     Token::Mul    =>{
-                                        Ok(self.builder.build_float_mul(l, r, "Flt_Mul").unwrap().into())
+                                        self.builder.build_float_mul(l, r, "Flt_Mul").unwrap().into()
                                     },
                                     Token::Div    => {
-                                        let (number, _) = r.get_constant().unwrap();
-                                        if number == 0.0{
-                                            return Err( self.divided_by_zero_issue(expr_idx as NodeIdx));
-                                        }
-
-
-                                        Ok(self.builder.build_float_div(l, r, "Flt_Div").unwrap().into())
+                                        self.builder.build_float_div(l, r, "Flt_Div").unwrap().into()
                                     },
                                     Token::Mod    => {
-                                        let (number, _) = r.get_constant().unwrap();
-                                        if number == 0.0{
-                                            return Err( self.divided_by_zero_issue(expr_idx as NodeIdx));
-                                        }
-                                        
-                                        Ok(self.builder.build_float_rem(l, r,"Flt_Mod").unwrap().into())
-                                    },
+                                        self.builder.build_float_rem(l, r,"Flt_Mod").unwrap().into()                                    },
                                     Token::Les    => {
-                                        Ok(self.builder.build_float_compare(
+                                        self.builder.build_float_compare(
                                             FloatPredicate::OLT,
                                             l, r,
                                             "Flt_Lesser"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::Grt => {
-                                        Ok(self.builder.build_float_compare(
+                                        self.builder.build_float_compare(
                                             FloatPredicate::OGT,
                                             l, r,
                                             "Flt_Greater"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::LesEq => {
-                                        Ok(self.builder.build_float_compare(
+                                        self.builder.build_float_compare(
                                             FloatPredicate::OLE,
                                             l, r,
                                             "Flt_LesEq"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::GrtEq => {
-                                        Ok(self.builder.build_float_compare(
+                                        self.builder.build_float_compare(
                                             FloatPredicate::OGE,
                                             l, r,
                                             "FLOAT_GrtEq"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     Token::EqEq => {
-                                        Ok(self.builder.build_float_compare(
+                                        self.builder.build_float_compare(
                                             FloatPredicate::OEQ,
                                             l, r,
                                             "FLOAT_EqEq"
-                                        ).unwrap().into())
+                                        ).unwrap().into()
                                     },
                                     _ => unreachable!()
                                 },
@@ -258,7 +235,7 @@ impl<'ctx>Codegen<'ctx>{
 
     }
 
-    fn build_expr_call(&mut self ,start : Start, end : End) -> Result<BasicValueEnum<'ctx>, GenIssue>{
+    fn build_expr_call(&mut self ,start : Start, end : End) -> BasicValueEnum<'ctx>{
         let name_idx = self.get_edge_slice(start, end)[0];
         let name_key = self.get_node(name_idx).key;
         let has_param = self.get_edge_slice(start, end).len() > 1;
@@ -274,9 +251,9 @@ impl<'ctx>Codegen<'ctx>{
                 let ty = &self.parser.table.var_types[param_start..=param_end][i].clone();
                 let expr_idx = self.parser.ast.edges[(start as usize) + 1 + i] as usize;
                 let val = if ty != &Type::bool {
-                    self.build_expr(expr_idx, &ty)?
+                    self.build_expr(expr_idx, &ty)
                 } else {
-                    self.build_expr(expr_idx, &Type::i64)?
+                    self.build_expr(expr_idx, &Type::i64)
                 };
 
                 self.call_param_types.push(val.into());
@@ -290,7 +267,7 @@ impl<'ctx>Codegen<'ctx>{
         let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
         let func_call_val = self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
         self.call_param_types.clear();
-        Ok(func_call_val.try_as_basic_value().unwrap_basic())
+        func_call_val.try_as_basic_value().unwrap_basic()
     }
 
 

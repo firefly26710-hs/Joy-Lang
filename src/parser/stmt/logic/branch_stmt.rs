@@ -28,15 +28,11 @@ impl Parser {
     fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), ParserIssue>{
         match self.peek(){
             Token::If => {
-
-
                 self.eat();
                 let expr_idx = self.parse_expression()?;
                 self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
-                self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts()?;
-                self.matches_token(&Token::Rbrace)?;
+                let stmts_idx = self.parse_scope()?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{
@@ -54,11 +50,8 @@ impl Parser {
                 let expr_idx = self.parse_expression()?;
                 self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
-                self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts()?;
-                self.matches_token(&Token::Rbrace)?;
+                let stmts_idx = self.parse_scope()?;
                 self.destroy_scope();
-
                 if !self.stmt.already_full_ret_in_if{
                     self.check_has_ret_in_end(stmts_idx, false);
                 }
@@ -73,9 +66,7 @@ impl Parser {
 
                 self.eat();
                 self.build_scope();
-                self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts()?;
-                self.matches_token(&Token::Rbrace)?;
+                let stmts_idx = self.parse_scope()?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{

@@ -2,10 +2,9 @@ use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::types::typ::Type;
 use inkwell::values::BasicValueEnum;
-use crate::llvm::diagnostic::source::issue::GenIssue;
 
 impl<'ctx>Codegen<'ctx>{
-    pub fn build_for_stmt(&mut self ,start : Start, end : End) -> Result<(), GenIssue>{
+    pub fn build_for_stmt(&mut self ,start : Start, end : End){
         let name_node_idx = self.get_edge_slice(start, end)[0];
         let name_node =  &self.get_node(name_node_idx);
         let name_key = name_node.key;
@@ -19,9 +18,9 @@ impl<'ctx>Codegen<'ctx>{
         let step_number_idx = self.get_edge_slice(start, end)[3] as usize;
 
 
-        let s_number : BasicValueEnum = self.build_expr(s_number_idx, &Type::i64)?;
-        let e_number : BasicValueEnum = self.build_expr(e_number_idx, &Type::i64)?;
-        let step_number : BasicValueEnum = self.build_expr(step_number_idx, &Type::i64)?;
+        let s_number : BasicValueEnum = self.build_expr(s_number_idx, &Type::i64);
+        let e_number : BasicValueEnum = self.build_expr(e_number_idx, &Type::i64);
+        let step_number : BasicValueEnum = self.build_expr(step_number_idx, &Type::i64);
 
 
         let i64_type = self.context.i64_type();
@@ -83,10 +82,9 @@ impl<'ctx>Codegen<'ctx>{
 
         //for.end
         self.builder.position_at_end(end_bb);
-        Ok(())
     }
 
-    pub fn build_while_stmt(&mut self ,start : Start, end : End) -> Result<(), GenIssue>{
+    pub fn build_while_stmt(&mut self ,start : Start, end : End){
         let child = self.get_edge_slice(start, end);
         let func = self.current_fn.unwrap();
 
@@ -103,7 +101,7 @@ impl<'ctx>Codegen<'ctx>{
         //while.cond
         self.builder.build_unconditional_branch(cond_bb).unwrap();
         self.builder.position_at_end(cond_bb);
-        let cond_val = self.build_expr(cond_idx as usize, &Type::i32)?.into_int_value();
+        let cond_val = self.build_expr(cond_idx as usize, &Type::i32).into_int_value();
         self.builder.build_conditional_branch(cond_val, body_bb, end_bb).unwrap();
 
         //while.body
@@ -114,7 +112,6 @@ impl<'ctx>Codegen<'ctx>{
         //while.end
         self.builder.position_at_end(end_bb);
 
-        Ok(())
     }
 
 

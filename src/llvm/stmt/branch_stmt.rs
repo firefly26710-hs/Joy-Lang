@@ -1,10 +1,9 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::llvm::diagnostic::source::issue::GenIssue;
 use crate::parser::types::typ::Type;
 
 impl<'ctx>Codegen<'ctx>{
-    pub fn build_if_stmt(&mut self ,start: Start, end : End) -> Result<(), GenIssue>{
+    pub fn build_if_stmt(&mut self ,start: Start, end : End){
         let func = self.current_fn.unwrap();
         self.builder.position_at_end(func.get_last_basic_block().unwrap());
 
@@ -43,32 +42,32 @@ impl<'ctx>Codegen<'ctx>{
                     self.builder.position_at_end(prev_cond_bb);
 
                     let prev_cond_val = self
-                        .build_expr(prev_expr_idx as usize, &Type::i32)?
+                        .build_expr(prev_expr_idx as usize, &Type::i32)
                         .into_int_value();
                     self.builder.build_conditional_branch(prev_cond_val, prev_body_bb, cur_cond_bb).unwrap();
 
                     //prev body
                     self.builder.position_at_end(prev_body_bb);
-                    self.build_stmts(prev_stmt_idx)?;
+                    self.build_stmts(prev_stmt_idx);
                     self.builder.build_unconditional_branch(end_bb).unwrap();
                 }else{
                     //prev cond
                     self.builder.position_at_end(prev_cond_bb);
                     let prev_cond_val = self
-                        .build_expr(prev_expr_idx as usize, &Type::i32)?
+                        .build_expr(prev_expr_idx as usize, &Type::i32)
                         .into_int_value();
                     self.builder.build_conditional_branch(prev_cond_val, prev_body_bb, cur_cond_bb).unwrap();
 
                     //prev body
                     self.builder.position_at_end(prev_body_bb);
-                    self.build_stmts(prev_stmt_idx)?;
+                    self.build_stmts(prev_stmt_idx);
 
                     //cur cond
                     self.builder.position_at_end(cur_cond_bb);
                     self.builder.build_unconditional_branch(self.body_blocks[i]).unwrap();
 
                     self.builder.position_at_end(self.body_blocks[i]);
-                    self.build_stmts(curr_stmt_idx)?;
+                    self.build_stmts(curr_stmt_idx);
                     self.builder.build_unconditional_branch(end_bb).unwrap();
                 }
             }
@@ -83,14 +82,14 @@ impl<'ctx>Codegen<'ctx>{
                 //prev cond
                 self.builder.position_at_end(prev_cond_bb);
                 let cond_val = self
-                    .build_expr(last_expr_idx as usize, &Type::i32)?
+                    .build_expr(last_expr_idx as usize, &Type::i32)
                     .into_int_value();
 
                 self.builder.build_conditional_branch(cond_val, prev_body_bb, end_bb).unwrap();
 
                 //prev body
                 self.builder.position_at_end(prev_body_bb);
-                self.build_stmts(last_stmt_idx)?;
+                self.build_stmts(last_stmt_idx);
                 self.builder.build_unconditional_branch(end_bb).unwrap();
             }
         }else{
@@ -101,31 +100,27 @@ impl<'ctx>Codegen<'ctx>{
             let stmt_idx = self.get_edge_slice(start, end)[1];
             self.builder.position_at_end(if_cond);
             let cond_val = self
-                .build_expr(expr_idx as usize, &Type::i32)?
+                .build_expr(expr_idx as usize, &Type::i32)
                 .into_int_value();
 
             self.builder.build_conditional_branch(cond_val, if_body, end_bb).unwrap();
 
             self.builder.position_at_end(if_body);
-            self.build_stmts(stmt_idx)?;
+            self.build_stmts(stmt_idx);
             self.builder.build_unconditional_branch(end_bb).unwrap();
         }
 
         self.builder.position_at_end(end_bb);
 
-        Ok(())
     }
 
-    pub fn build_brk_stmt(&mut self) -> Result<(), GenIssue>{
+    pub fn build_brk_stmt(&mut self){
         let exit_bb = self.brk_goto_block.pop().unwrap();
         self.builder.build_unconditional_branch(exit_bb).unwrap();
-
-        Ok(())
     }
-    pub fn build_ctn_stmt(&mut self) -> Result<(), GenIssue>{
+    pub fn build_ctn_stmt(&mut self){
         let bb = self.ctn_goto_block.pop().unwrap();
         self.builder.build_unconditional_branch(bb).unwrap();
 
-        Ok(())
     }
 }

@@ -8,8 +8,9 @@ use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_stmts(&mut self) -> Result<NodeIdx, ParserIssue>{
-        
+    pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
+
+        self.matches_token(&Token::Lbrace)?;
         let start_idx = self.stmt.func_recorder.len();
         while self.peek() != &Token::EOF{
             match self.matches_stmts(){
@@ -29,6 +30,7 @@ impl Parser{
                 }
             };
         }
+        self.unclosed_delimiter(&Token::Rbrace)?;
 
         let edge_start : Start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.func_recorder.drain(start_idx..));
@@ -48,6 +50,7 @@ impl Parser{
             Token::Brk   => self.parse_break(),
             Token::Ctn   => self.parse_ctn(),
             Token::Print => self.parse_print(),
+            Token::Lbrace=> self.parse_scope(),
             Token::Rbrace=> Ok(NONE),
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }

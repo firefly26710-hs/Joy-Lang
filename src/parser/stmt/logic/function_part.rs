@@ -63,9 +63,7 @@ impl Parser{
         self.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
 
-        self.matches_token(&Token::Lbrace)?;
-        let stmt_idx = self.parse_stmts()?;
-        self.unclosed_delimiter(&Token::Rbrace)?;
+        let stmt_idx = self.parse_scope()?;
 
         let start = self.ast.edge_start();
         self.stmt.func_recorder.push(stmt_idx);
@@ -207,6 +205,10 @@ impl Parser{
         let start = stmt_edge.start as usize;
         let end = stmt_edge.end as usize;
         let stmt_node_idx = *self.ast.edges[start..=end].last().unwrap();
+        if stmt_node_idx == NONE{
+            panic!("Expected return {:?}",  ret_type );
+        }
+
         let stmt_tok = &self.ast.nodes[stmt_node_idx as usize].token;
 
         if matches!(stmt_tok, Token::RetStmt){

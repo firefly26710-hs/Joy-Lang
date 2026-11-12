@@ -41,9 +41,7 @@ impl Parser{
         };
 
 
-        self.matches_token(&Token::Lbrace)?;
-        let block_idx = self.parse_stmts()?;
-        self.unclosed_delimiter(&Token::Rbrace)?;
+        let block_idx = self.parse_scope()?;
 
         let start = self.ast.edge_start();
         self.ast.edges.push(loop_ident_idx);
@@ -66,9 +64,7 @@ impl Parser{
         let expr_idx = self.parse_expression()?;
         self.matches_type(&Type::bool, expr_idx)?;
 
-        self.matches_token(&Token::Lbrace)?;
-        let stmts_idx = self.parse_stmts()?;
-        self.unclosed_delimiter(&Token::Rbrace)?;
+        let stmts_idx = self.parse_scope()?;
 
         self.destroy_scope();
 

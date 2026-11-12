@@ -6,10 +6,9 @@ use crate::parser::types::typ::Type;
 use inkwell::types::BasicTypeEnum;
 use inkwell::values::{BasicValueEnum, PointerValue};
 use crate::lexer::tokenizer::source::token::Token;
-use crate::llvm::diagnostic::source::issue::GenIssue;
 
 impl<'ctx> Codegen<'ctx>{
-    pub fn build_stmts(&mut self, stmts_idx : NodeIdx) -> Result<(), GenIssue>{
+    pub fn build_stmts(&mut self, stmts_idx : NodeIdx){
         let stmts_node_edges = &self.get_node(stmts_idx).edge_span;
         let edges_start = stmts_node_edges.start ;
         let edges_end = stmts_node_edges.end;
@@ -38,14 +37,14 @@ impl<'ctx> Codegen<'ctx>{
                 Token::PrintStmt => self.build_print_stmt(start, end),
                 Token::BrkStmt => self.build_brk_stmt(),
                 Token::CtnStmt => self.build_ctn_stmt(),
-                _ => unreachable!()
-            }?
+                Token::BlockStmt=> self.build_stmts(stmt_node_idx),
+                _ => panic!("Unknown Stmt : {:?}", tok)
+            }
         }
 
-        Ok(())
     }
 
-    pub fn build_var_stmt(&mut self, start : Start, end : End) -> Result<(), GenIssue>{
+    pub fn build_var_stmt(&mut self, start : Start, end : End){
         let edges = self.get_edge_slice(start, end);
         let name_node = &self.parser.ast.nodes[edges[0] as usize];
         let name_key = name_node.key;
@@ -53,7 +52,7 @@ impl<'ctx> Codegen<'ctx>{
         //build expression
         let declared_type = self.parser.look_var_type(&name_key).clone();
         let expr_idx = edges[1] as usize;
-        let expr = self.build_expr(expr_idx, &declared_type)?;
+        let expr = self.build_expr(expr_idx, &declared_type);
 
 
         //get variable name
@@ -78,10 +77,9 @@ impl<'ctx> Codegen<'ctx>{
 
         self.variables.push(alloc);
 
-        Ok(())
     }
 
-    pub fn build_update_data(&mut self ,start: Start, end: End, op_tok : Token) -> Result<(), GenIssue>{
+    pub fn build_update_data(&mut self ,start: Start, end: End, op_tok : Token){
         let edges = self.get_edge_slice(start, end);
         let key = self.get_node(edges[0]).key;
 
@@ -104,11 +102,11 @@ impl<'ctx> Codegen<'ctx>{
 
         let prev_val = self.builder.build_load(ty_context, var_ptr, name_str).unwrap();
 
-        let rhs_val = self.build_expr(edges[1] as usize, &ty)?;
+        let rhs_val = self.build_expr(edges[1] as usize, &ty);
 
         if matches!(op_tok, Token::Eq){
             self.builder.build_store(var_ptr, rhs_val).unwrap();
-            return Ok(());
+            return;
         }
 
 
@@ -134,10 +132,9 @@ impl<'ctx> Codegen<'ctx>{
 
         self.builder.build_store(var_ptr, new_val).unwrap();
 
-        Ok(())
     }
 
-    pub fn build_print_stmt(&mut self, start: Start, end: End) -> Result<(), GenIssue>{
+    pub fn build_print_stmt(&mut self, start: Start, end: End){
         let print_func = match self.module.get_function("printf") {
             Some(func) => func,
             None => {
@@ -160,7 +157,7 @@ impl<'ctx> Codegen<'ctx>{
 
         let expr_idx = self.get_edge_slice(start, end)[1] as usize;
 
-        let expr_val = self.build_expr(expr_idx, &ty)?;
+        let expr_val = self.build_expr(expr_idx, &ty);
         let format_str = self.builder.build_global_string_ptr(
             format, "print_fmt"
         ).unwrap();
@@ -173,7 +170,6 @@ impl<'ctx> Codegen<'ctx>{
             "print_call"
         ).unwrap();
 
-        Ok(())
     }
 
 

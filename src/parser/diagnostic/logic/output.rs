@@ -62,9 +62,9 @@ impl Parser{
                     wrong_string, correct_string}) =>
                 {
                     let mut info = "expected ".to_string();
-                    info.push_str(&correct_string);
-                    info.push_str(", find ");
-                    info.push_str(&wrong_string);
+                    info.push_str(correct_string);
+                    info.push_str(", find  ");
+                    info.push_str(wrong_string);
                     info
                 },
 
@@ -97,7 +97,6 @@ impl Parser{
                     info.push_str(kw.as_str());
                     info.push_str("' outside of a loop");
                     info
-
                 }
 
             ParserIssue::Expr(ExprIssue::UnExpectedExpression{wrong_string}) =>
