@@ -126,14 +126,22 @@ impl Parser{
                         
 
                         if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
-                            Err(self.literal_out_of_range(lhs, &l_ty))
+                            Err(self.literal_out_of_range(lhs, expected_type))
                         }else if self.is_ident(rhs) && left_bigger_than_right(&l_ty, &r_ty){
-                            Err(self.literal_out_of_range(rhs, &r_ty))
+                            Err(self.literal_out_of_range(rhs, expected_type))
                         }else{
                             if left_bigger_equal_than_right(&l_ty, &r_ty){
                                 if self.stmt.already_has_comparison_op{
                                     return Ok(Type::bool);
                                 }
+                                if !left_bigger_equal_than_right(expected_type, &l_ty){
+                                    return Err(self.literal_out_of_range(lhs, expected_type));
+                                }
+
+                                if !left_bigger_equal_than_right(expected_type, &r_ty){
+                                    return Err(self.literal_out_of_range(rhs, expected_type))
+                                }
+
                                 Ok(l_ty)
                             } else{
                                 if self.stmt.already_has_comparison_op{
@@ -252,9 +260,7 @@ impl Parser{
         self.ast.nodes[idx as usize].token == Token::Ident
     }
 
-    fn get_key(&self, idx : NodeIdx) -> Key{
-        self.ast.nodes[idx as usize].key
-    }
+
 
 }
 
