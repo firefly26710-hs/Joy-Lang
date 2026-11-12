@@ -1,17 +1,18 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_function(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_function(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.build_scope();
-
-
+        self.table.var_key_start = self.table.var_keys.len();
+        
         self.matches_token(&Token::Fn)?;
         let func_name_key = self.current as Key;
         let func_name_node_idx = self.get_tok_node_idx(&Token::Ident);
@@ -62,9 +63,7 @@ impl Parser{
         self.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
 
-        self.matches_token(&Token::Lbrace)?;
-        let stmt_idx = self.parse_stmts()?;
-        self.unclosed_delimiter(&Token::Rbrace)?;
+        let stmt_idx = self.parse_scope()?;
 
         let start = self.ast.edge_start();
         self.stmt.func_recorder.push(stmt_idx);
@@ -81,14 +80,14 @@ impl Parser{
 
 
 
-    pub fn parse_ret(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_ret(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
 
         let expr_idx = if matches!(self.last_ret_type(), Type::void){
             NONE
         }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
-            let expr_idx = self.parse_expression(0.0)?;
-            self.matches_type(&self.last_ret_type().clone())?;
+            let expr_idx = self.parse_expression()?;
+            self.matches_type(&self.last_ret_type().clone(), expr_idx)?;
             expr_idx
         }else {
             panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.last_ret_type())
@@ -105,7 +104,7 @@ impl Parser{
        Ok( self.push_node(Token::RetStmt, NONE, start, end))
     }
 
-    pub fn parse_func_call(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_func_call(&mut self) -> Result<NodeIdx, ParserIssue>{
         let expr_func_idx = self.expr_func_call()?;
 
        self.matches_token(&Token::Scolon)?;
@@ -113,7 +112,7 @@ impl Parser{
         Ok(expr_func_idx)
     }
 
-    pub fn expr_func_call(&mut self) -> Result<NodeIdx, IssueType> {
+    pub fn expr_func_call(&mut self) -> Result<NodeIdx, ParserIssue> {
         let func_name_key = self.find_same_func_key(self.current as Key);
         self.fn_not_exist(func_name_key)?;
 
@@ -139,13 +138,13 @@ impl Parser{
             let mut counter = 0;
 
             for i in 0..len {
-                let expr_idx = self.parse_expression(0.0);
+                let expr_idx = self.parse_expression()?;
 
                 let param_type = &self.table.var_types[start as usize..=end as usize][i];
                 let ty = &param_type.clone();
-                self.matches_type(ty)?;
+                self.matches_type(ty, expr_idx)?;
                 counter += 1;
-                self.stmt.func_call_recorder.push(expr_idx?);
+                self.stmt.func_call_recorder.push(expr_idx);
 
                 match self.peek() {
                     Token::Comma => self.eat(),
@@ -168,7 +167,7 @@ impl Parser{
     }
 
 
-    pub fn parse_print(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_print(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
 
        self.matches_token(&Token::Lparen)?;
@@ -177,8 +176,8 @@ impl Parser{
 
         let ty = self.type_mapping((self.current - 1) as Key);
         self.matches_token(&Token::Comma)?;
-        let expr_idx = self.parse_expression(0.0)?;
-        self.matches_type(&ty)?;
+        let expr_idx = self.parse_expression()?;
+        self.matches_type(&ty, expr_idx)?;
         self.matches_token(&Token::Rparen)?;
         self.matches_token(&Token::Scolon)?;
 
@@ -206,6 +205,10 @@ impl Parser{
         let start = stmt_edge.start as usize;
         let end = stmt_edge.end as usize;
         let stmt_node_idx = *self.ast.edges[start..=end].last().unwrap();
+        if stmt_node_idx == NONE{
+            panic!("Expected return {:?}",  ret_type );
+        }
+
         let stmt_tok = &self.ast.nodes[stmt_node_idx as usize].token;
 
         if matches!(stmt_tok, Token::RetStmt){

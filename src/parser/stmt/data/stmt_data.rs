@@ -1,5 +1,6 @@
 use inkwell::llvm_sys::lto::thinlto_codegen_set_final_cache_size_relative_to_available_space;
-use crate::parser::tree::ast::NodeIdx;
+use crate::parser::tree::ast::{NodeIdx, NONE};
+use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 const RECORDER_SIZE : usize = 256;
@@ -11,13 +12,12 @@ pub struct Stmt{
     pub loop_recorder : Vec<NodeIdx>,
     pub func_call_recorder : Vec<NodeIdx>,
     
-    pub is_string      : bool,
 
-    pub is_prev_node_is_ident : bool,
-    pub has_ident_in_expr     : bool,
     pub expr_start_key : u32,
-    pub prev_node_key  : u32,
-    pub prev_node_type : Type,
+    pub already_has_comparison_op: bool,
+    pub has_ident_in_expr : bool,
+    pub unary_sub_counter: u16,
+    pub first_unary_expr_idx : Key,
 
 
     pub ret_times_in_branch: u8,
@@ -35,15 +35,11 @@ impl Stmt{
             loop_recorder   : Vec::with_capacity(RECORDER_SIZE),
             func_call_recorder : Vec::with_capacity(RECORDER_SIZE),
 
-            
-            has_ident_in_expr : false,
-            is_string : false,
             expr_start_key : 0,
-            prev_node_key : 0,
-            prev_node_type: Type::void,
-
-            is_prev_node_is_ident : false,
-
+            already_has_comparison_op: false,
+            has_ident_in_expr        : false,
+            unary_sub_counter: 0,
+            first_unary_expr_idx : 0,
 
             ret_times_in_branch: 0,
             real_times_in_branch: 0,

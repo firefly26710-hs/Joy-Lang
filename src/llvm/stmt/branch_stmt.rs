@@ -22,8 +22,7 @@ impl<'ctx>Codegen<'ctx>{
         let end_bb = self.context.append_basic_block(func, "end.bb");
 
         self.builder.build_unconditional_branch(self.cod_blocks[0]).unwrap();
-
-        if self.cod_blocks.len() > 2 && self.body_blocks.len() > 2{
+        if self.cod_blocks.len() > 1 && self.body_blocks.len() > 1{
             for i in 1..branch_num{
                 let prev_cond_bb = self.cod_blocks[i - 1];
                 let prev_body_bb = self.body_blocks[i - 1];
@@ -68,7 +67,7 @@ impl<'ctx>Codegen<'ctx>{
                     self.builder.build_unconditional_branch(self.body_blocks[i]).unwrap();
 
                     self.builder.position_at_end(self.body_blocks[i]);
-                    self.build_stmts(curr_stmt_idx );
+                    self.build_stmts(curr_stmt_idx);
                     self.builder.build_unconditional_branch(end_bb).unwrap();
                 }
             }
@@ -112,16 +111,16 @@ impl<'ctx>Codegen<'ctx>{
         }
 
         self.builder.position_at_end(end_bb);
+
     }
 
     pub fn build_brk_stmt(&mut self){
         let exit_bb = self.brk_goto_block.pop().unwrap();
         self.builder.build_unconditional_branch(exit_bb).unwrap();
-
-
     }
     pub fn build_ctn_stmt(&mut self){
         let bb = self.ctn_goto_block.pop().unwrap();
         self.builder.build_unconditional_branch(bb).unwrap();
+
     }
 }

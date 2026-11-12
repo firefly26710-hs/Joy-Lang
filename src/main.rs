@@ -4,21 +4,20 @@ pub mod llvm;
 
 use crate::llvm::codegen::Codegen;
 use crate::parser::center::par::Parser;
-use inkwell::OptimizationLevel;
 use inkwell::context::Context;
 use std::env;
 use std::fs::File;
 use std::io::Read;
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 
-fn main() -> Result<(), IssueType> {
+fn main() -> Result<(), ParserIssue> {
     let args : Vec<String> = env::args().collect();
     if args.len() < 2{
         panic!("No file in {:?}", args[0]);
     }
 
-
+    
     let mut file =File::open(&args[1]).expect("Can't find file");
     let file_size = file.metadata().map(|m| m.len() as usize).unwrap_or(0);
     let mut input = String::with_capacity(file_size + 3);
@@ -50,24 +49,18 @@ fn main() -> Result<(), IssueType> {
 }
 
 #[test]
-fn test(){
-    let input =
-        "fn main() = void{\n    print(String, \"Hello World\");\n}
+fn diag_test(){
+    let input = "fn main() = void{var x : i8 = -128;}
     ".to_string();
-    let input = input + "\0\0\0";
+    let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-    lexer.print_output();
-
     let mut parser = Parser::init(lexer);
-    parser.build_tree();
-    dbg!(&parser.table.var_keys);
-    dbg!(&parser.table.func_keys);
-    dbg!(&parser.table.param_idxs);
-    dbg!(&parser.table.var_types);
+    let _ = parser.build_tree();
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();
+    llvm.module.print_to_stderr();
 
 
 

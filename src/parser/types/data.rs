@@ -10,6 +10,7 @@ pub struct Table{
     pub func_keys     : Vec<KeyId>,
     pub param_idxs    : Vec<Interval>,
     pub ret_types     : Vec<Type>,
+    pub var_key_start : usize
 }
 
 impl Table{
@@ -20,6 +21,7 @@ impl Table{
             func_keys   : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
             param_idxs  : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
             ret_types   : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+            var_key_start : 0
         }
     }
 

@@ -1,5 +1,5 @@
-use crate::lexer::diagnostic::source::msg_data::{LexerMsgData, ParserMsgData};
-
+use crate::lexer::diagnostic::source::msg_data::{LexerMsgData};
+use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 pub type SpanStart = usize;
 pub type SpanLength = usize;
 pub type ColStart = u32;
@@ -9,7 +9,7 @@ pub type ColEnd = u32;
 #[derive(Debug, Clone, PartialEq)]
 
 pub struct Error{
-	pub lex_msg_data: Vec<LexerMsgData>,
+	pub lex_msg_data : Vec<LexerMsgData>,
 	pub par_msg_data : Vec<ParserMsgData>,
     pub file_name   : String,
     pub spans       : Vec<(SpanStart, SpanLength)>,

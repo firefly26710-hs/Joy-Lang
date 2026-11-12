@@ -16,10 +16,6 @@ impl<'ctx>Codegen<'ctx>{
         let s_number_idx = self.get_edge_slice(start, end)[1] as usize;
         let e_number_idx =  self.get_edge_slice(start, end)[2] as usize;
         let step_number_idx = self.get_edge_slice(start, end)[3] as usize;
-        //build range number
-
-
-
 
 
         let s_number : BasicValueEnum = self.build_expr(s_number_idx, &Type::i64);
@@ -86,7 +82,6 @@ impl<'ctx>Codegen<'ctx>{
 
         //for.end
         self.builder.position_at_end(end_bb);
-
     }
 
     pub fn build_while_stmt(&mut self ,start : Start, end : End){
@@ -116,6 +111,7 @@ impl<'ctx>Codegen<'ctx>{
 
         //while.end
         self.builder.position_at_end(end_bb);
+
     }
 
 

@@ -1,40 +1,28 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_expression(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
-
-
-
-        self.stmt.prev_node_type = Type::void;
-        self.stmt.is_prev_node_is_ident = false;
-        self.stmt.has_ident_in_expr = false;
-        self.stmt.prev_node_key = 0;
+    pub fn parse_expression(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.stmt.expr_start_key = self.current as Key;
 
-        self.expr(min_bp)
+        self.expr(0.0)
     }
-    fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, IssueType>{
+    fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, ParserIssue>{
         let mut lhs_idx = match self.peek(){
             Token::Int =>{
                 let key = self.current as Key;
-                self.stmt.prev_node_key = key;
-                self.update_node_type(key)?;
                 self.eat();
-                self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Int, key)
             }
             Token::Float =>{
                 let key = self.current as Key;
-                self.stmt.prev_node_key = key;
-                self.update_node_type(key)?;
                 self.eat();
-                self.stmt.is_prev_node_is_ident = false;
                 self.push_leaf(Token::Float, key)
             }
             Token::True =>{
@@ -50,7 +38,7 @@ impl Parser{
             Token::Sub => {
                 let key = self.current as Key;
                 self.eat();
-                let expr_idx = self.parse_expression(1000.0)?;
+                let expr_idx = self.expr(1000.0)?;
                 let start = self.ast.edge_start();
                 self.ast.edges.push(NONE);
                 self.ast.edges.push(expr_idx);
@@ -59,7 +47,7 @@ impl Parser{
             },
             Token::Lparen => {
                 self.eat();
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.expr(0.0)?;
                 self.matches_token(&Token::Rparen)?;
                 Ok(expr_idx)
             }
@@ -67,7 +55,7 @@ impl Parser{
                 let key = self.current as Key;
                 self.eat();
                 self.matches_token(&Token::Lparen)?;
-                let expr_idx = self.parse_expression(0.0)?;
+                let expr_idx = self.expr(0.0)?;
                 self.matches_token(&Token::Rparen)?;
                 let start = self.ast.edge_start();
                 self.ast.edges.push(NONE);
@@ -80,11 +68,8 @@ impl Parser{
                     self.expr_func_call()
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
-                    self.var_not_in_scope(ident_key)?;
-                    self.update_node_type(ident_key)?;
                     self.eat();
-                    self.stmt.is_prev_node_is_ident = true;
-                    self.stmt.has_ident_in_expr = true;
+                    self.var_not_in_scope(ident_key)?;
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }

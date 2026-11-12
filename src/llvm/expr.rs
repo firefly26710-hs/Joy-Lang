@@ -1,6 +1,6 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::parser::tree::ast::NONE;
+use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::types::typ::Type;
 use inkwell::types::BasicTypeEnum;
 use inkwell::values::BasicValueEnum;
@@ -27,9 +27,18 @@ impl<'ctx>Codegen<'ctx>{
                     let str_e = str_interval.end as usize;
                     let int_ty = self.int_type_mapping(&ty);
                     let var_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
-                    let u_integer : u64 = var_str.parse().unwrap();
-                    int_ty.const_int(u_integer, false).into()
-                },
+
+                    if ty == &Type::i128{
+                        let integer : u128 = var_str.parse().unwrap();
+
+                        let two_u64 = [integer as u64, (integer >> 64) as u64];
+                        int_ty.const_int_arbitrary_precision(&two_u64).into()
+
+                    }else{
+                        let integer : u64 = var_str.parse().unwrap();
+                        int_ty.const_int(integer, true).into()
+                    }
+                }
                 Token::Float => {
                     let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
                     let str_s = str_interval.start as usize;
@@ -46,18 +55,15 @@ impl<'ctx>Codegen<'ctx>{
                     let name_str = &self.parser.lexer.tokenizer.input[str_s ..str_e];
                     let alloc = self.get_var_ptr(key);
                     let var_type = self.parser.look_var_type(&key);
-
                     let basic_ty: BasicTypeEnum<'ctx> = match var_type {
                         Type::i8 |Type::i16|Type::i32 | Type::i64 | Type::i128 => self.int_type_mapping(var_type).into(),
                         Type::f32 | Type::f64 => self.flt_type_mapping(var_type).into(),
                         Type::bool => self.context.bool_type().into(),
-                        Type::String => self.context.ptr_type(inkwell::AddressSpace::default()).into(),
                         _ => panic!("Expected Type{:?}", var_type)
                     };
 
                     self.builder.build_load(basic_ty, alloc, name_str).unwrap()
-
-                    },
+                },
 
                     Token::True => {
                         let bool_ty = self.context.bool_type();
@@ -78,7 +84,7 @@ impl<'ctx>Codegen<'ctx>{
                             match tok{
                                 Token::Sub => match rhs{
                                     BasicValueEnum::IntValue(i_val) => {
-                                        self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into()
+                                       self.builder.build_int_neg(i_val, "Neg_Int").unwrap().into()
                                     },
                                     BasicValueEnum::FloatValue(f_val) => {
                                         self.builder.build_float_neg(f_val, "Neg_Float").unwrap().into()
@@ -94,33 +100,34 @@ impl<'ctx>Codegen<'ctx>{
                                 _ => unreachable!()
                             }
                         },
-                        (__l_idx__,__r_idx__) => {
+                        (_, _) => {
                             let idxs = self.get_edge_slice(start, end);
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;
 
-                            let lhs = if is_bool_op(&tok){
+                            let lhs = if is_comparison_op(&tok){
                                 self.build_expr(lhs_idx, &Type::i32)
                             }else{
                                 self.build_expr(lhs_idx, ty)
                             };
 
-                            let rhs = if is_bool_op(&tok){
+                            let rhs = if is_comparison_op(&tok){
                                 self.build_expr(rhs_idx, &Type::i32)
                             }else{
                                 self.build_expr(rhs_idx, ty)
                             };
 
                             match(lhs, rhs){
+
                                 (BasicValueEnum::IntValue(l), BasicValueEnum::IntValue(r)) => match tok{
                                     Token::Add => {
                                         self.builder.build_int_add(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Sub => {
-                                        self.builder.build_int_sub(l, r, "Int_Sub").unwrap().into()
+                                        self.builder.build_int_sub(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Mul => {
-                                        self.builder.build_int_mul(l, r, "Int_Mul").unwrap().into()
+                                        self.builder.build_int_mul(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Div    => {
                                         self.builder.build_int_signed_div(l, r, "Int_Div").unwrap().into()
@@ -179,8 +186,7 @@ impl<'ctx>Codegen<'ctx>{
                                         self.builder.build_float_div(l, r, "Flt_Div").unwrap().into()
                                     },
                                     Token::Mod    => {
-                                        self.builder.build_float_rem(l, r,"Flt_Mod").unwrap().into()
-                                    },
+                                        self.builder.build_float_rem(l, r,"Flt_Mod").unwrap().into()                                    },
                                     Token::Les    => {
                                         self.builder.build_float_compare(
                                             FloatPredicate::OLT,
@@ -266,13 +272,13 @@ impl<'ctx>Codegen<'ctx>{
 
 
 
-    fn int_type_mapping(&self, ty : &Type)  -> inkwell::types::IntType<'ctx>{
+    pub fn int_type_mapping(&self, ty : &Type)  -> inkwell::types::IntType<'ctx>{
         match ty{
             Type::i8 => self.context.i8_type(),
             Type::i16 => self.context.i16_type(),
             Type::i32 =>  self.context.i32_type(),
             Type::i64 =>  self.context.i64_type(),
-            Type::i128 => self.context.i8_type(),
+            Type::i128 => self.context.i128_type(),
             _ => unreachable!()
         }
     }
@@ -287,7 +293,11 @@ impl<'ctx>Codegen<'ctx>{
 
 }
 
-pub fn is_bool_op(tok : &Token) -> bool{
+pub fn is_comparison_op(tok : &Token) -> bool{
     matches!(tok, Token::EqEq   | Token::NotEq | Token::Grt | Token::Les| Token::GrtEq  | Token::LesEq )
+}
+
+pub fn is_binary_op(tok : &Token) -> bool{
+    matches!(tok, Token::CmpAnd | Token::CmpOr)
 }
     

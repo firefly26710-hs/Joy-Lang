@@ -1,7 +1,8 @@
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::lexer::tokenizer::source::token::Token;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::scope::data::Scope;
 use crate::parser::stmt::data::stmt_data::Stmt;
 use crate::parser::tree::ast::{AST, NONE, NodeIdx};
@@ -13,9 +14,9 @@ use crate::parser::types::typ::Type;
 
 pub struct Parser{
 
-    //data
+    //source
     pub ast : AST,
-    pub lexer : Lexer ,
+    pub lexer : Lexer,
 
     pub table : Table,
     pub scope : Scope,
@@ -43,7 +44,7 @@ impl Parser{
         }
     }
 
-    pub fn build_tree(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn build_tree(&mut self) -> Result<NodeIdx, ParserIssue>{
         while self.lexer.tokenizer.tokens[self.current] != Token::EOF{
             let function_idx = self.parse_function()?;
             self.stmt.programs.push(function_idx);
@@ -56,7 +57,7 @@ impl Parser{
         self.push_node(Token::Program, NONE, start, end);
 
         if self.lexer.error.has_error{
-            self.lexer.output_error();
+            self.output_parser_error();
         }
         Ok(0)
     }
@@ -82,7 +83,7 @@ impl Parser{
         &mut self,
         tok : Token,
         key : Key
-    ) ->Result<NodeIdx, IssueType>{
+    ) ->Result<NodeIdx, ParserIssue>{
         Ok(self.push_node(tok, key, NONE, NONE))
     }
 
@@ -142,7 +143,6 @@ impl Parser{
             "f32"    => Type::f32,
             "f64"    => Type::f64,
             "bool"   => Type::bool,
-            "String" => Type::String,
             "void"   => Type::void,
             _ => panic!("[Line {:?}] Unknown Type : {:?}",self.current_line(), type_str)
         }

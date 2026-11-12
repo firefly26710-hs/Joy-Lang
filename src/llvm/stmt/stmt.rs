@@ -37,9 +37,11 @@ impl<'ctx> Codegen<'ctx>{
                 Token::PrintStmt => self.build_print_stmt(start, end),
                 Token::BrkStmt => self.build_brk_stmt(),
                 Token::CtnStmt => self.build_ctn_stmt(),
-                _ => unreachable!()
+                Token::BlockStmt=> self.build_stmts(stmt_node_idx),
+                _ => panic!("Unknown Stmt : {:?}", tok)
             }
         }
+
     }
 
     pub fn build_var_stmt(&mut self, start : Start, end : End){
@@ -72,7 +74,9 @@ impl<'ctx> Codegen<'ctx>{
         //build alloc
         let alloc = self.builder.build_alloca(var_type, name_str).unwrap();
         self.builder.build_store(alloc, expr).unwrap();
+
         self.variables.push(alloc);
+
     }
 
     pub fn build_update_data(&mut self ,start: Start, end: End, op_tok : Token){
@@ -127,6 +131,7 @@ impl<'ctx> Codegen<'ctx>{
         };
 
         self.builder.build_store(var_ptr, new_val).unwrap();
+
     }
 
     pub fn build_print_stmt(&mut self, start: Start, end: End){
@@ -147,7 +152,6 @@ impl<'ctx> Codegen<'ctx>{
         let format = match ty{
             Type::i32 | Type::bool    => "%d",
             Type::f64    			  => "%f",
-            Type::String 			  => "%s",
             _ => unreachable!()
         };
 
@@ -165,9 +169,6 @@ impl<'ctx> Codegen<'ctx>{
             ],
             "print_call"
         ).unwrap();
-
-
-
 
     }
 

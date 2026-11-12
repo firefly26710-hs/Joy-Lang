@@ -1,14 +1,16 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
+use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn parse_stmts(&mut self) -> Result<NodeIdx, IssueType>{
-        
+    pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
+
+        self.matches_token(&Token::Lbrace)?;
         let start_idx = self.stmt.func_recorder.len();
         while self.peek() != &Token::EOF{
             match self.matches_stmts(){
@@ -28,6 +30,7 @@ impl Parser{
                 }
             };
         }
+        self.unclosed_delimiter(&Token::Rbrace)?;
 
         let edge_start : Start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.func_recorder.drain(start_idx..));
@@ -36,7 +39,7 @@ impl Parser{
        Ok( self.push_node(Token::BlockStmt, NONE, edge_start, edge_end))
     }
 
-    fn matches_stmts(&mut self) -> Result<NodeIdx, IssueType>{
+    fn matches_stmts(&mut self) -> Result<NodeIdx, ParserIssue>{
         match self.peek(){
             Token::Val | Token::Var => self.parse_var(),
             Token::If     => self.parse_if(),
@@ -47,13 +50,14 @@ impl Parser{
             Token::Brk   => self.parse_break(),
             Token::Ctn   => self.parse_ctn(),
             Token::Print => self.parse_print(),
+            Token::Lbrace=> self.parse_scope(),
             Token::Rbrace=> Ok(NONE),
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }
     }
 
 
-    pub fn parse_var(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_var(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
 
 
@@ -75,8 +79,8 @@ impl Parser{
 
         self.matches_token(&Token::Eq)?;
 
-        let expr_idx = self.parse_expression(0.0)?;
-        let actually_ty = self.matches_type(&declared_ty)?;
+        let expr_idx = self.parse_expression()?;
+        let actually_ty = self.matches_type(&declared_ty, expr_idx)?;
 
 
         self.insert_var_type(var_name_key, actually_ty);
@@ -93,7 +97,7 @@ impl Parser{
     }
 
 
-    fn ident_branch(&mut self) -> Result<NodeIdx, IssueType>{
+    fn ident_branch(&mut self) -> Result<NodeIdx, ParserIssue>{
         match self.peek_next(){
             Token::Lparen => self.parse_func_call(),
             Token::Eq |Token::AddEq | Token::SubEq | Token::MulEq | Token::DivEq
@@ -102,7 +106,7 @@ impl Parser{
         }
     }
 
-    fn parse_var_update(&mut self) -> Result<NodeIdx, IssueType>{
+    fn parse_var_update(&mut self) -> Result<NodeIdx, ParserIssue>{
         let key = self.find_same_ident_key(self.current as Key);
 
         let ident_name_idx = self.push_leaf(Token::Ident, key)?;
@@ -111,9 +115,9 @@ impl Parser{
         let op_tok_key = self.current as Key;
         let op_tok = self.eat();
 
-        let expr_idx = self.parse_expression(0.0)?;
+        let expr_idx = self.parse_expression()?;
         let ident_type = self.look_var_type(&key);
-        self.matches_type(&ident_type.clone())?;
+        self.matches_type(&ident_type.clone(), expr_idx)?;
 
 
        self.matches_token(&Token::Scolon)?;

@@ -4,7 +4,6 @@ use crate::parser::tree::ast::NONE;
 use crate::parser::types::typ::Type;
 use inkwell::types::BasicMetadataTypeEnum;
 use inkwell::values::{BasicValueEnum, FunctionValue};
-
 impl<'ctx>Codegen<'ctx>{
     pub fn build_function(&mut self, func_idx : u32){
         let func_node = &self.parser.ast.nodes[func_idx as usize];
@@ -40,8 +39,6 @@ impl<'ctx>Codegen<'ctx>{
                     Type::bool => self.context.bool_type().into(),
                     Type::f64 => self.context.f64_type().into(),
                     Type::f32 => self.context.f32_type().into(),
-                    Type::String => self.context.ptr_type(inkwell::AddressSpace::default()).into(),
-
                     _ => unreachable!()
                 };
                 self.param_types.push(type_context);
@@ -63,11 +60,7 @@ impl<'ctx>Codegen<'ctx>{
             Type::f64 => self.context.f64_type().fn_type(&self.param_types, false),
             Type::bool => self.context.bool_type().fn_type(&self.param_types, false),
             Type::void => self.context.void_type().fn_type(&self.param_types, false),
-            Type::String => {
-                let i8_ptr_type = self.context.ptr_type(inkwell::AddressSpace::default());
-                i8_ptr_type.fn_type(&self.param_types, false)
-            },
-
+            
         };
 
         let func = self.module.add_function(name_str, fn_type, None);
@@ -88,6 +81,8 @@ impl<'ctx>Codegen<'ctx>{
 
         }
         self.functions.push(func);
+
+
     }
 
     pub fn compile_function(&mut self, func_idx : u32){
@@ -190,6 +185,7 @@ impl<'ctx>Codegen<'ctx>{
             self.builder.build_return(None).unwrap();
         }
 
+
     }
 
     pub fn build_call_stmt(&mut self ,start : Start, end : End){
@@ -214,6 +210,8 @@ impl<'ctx>Codegen<'ctx>{
 
                 self.call_param_types.push(val.into());
             }
+
+
         }
 
         let func = self.get_func_ptr(name_key);
@@ -223,8 +221,7 @@ impl<'ctx>Codegen<'ctx>{
         let name_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
         self.builder.build_call(func, &self.call_param_types, format!("function {name_str}").as_str()).unwrap();
         self.call_param_types.clear();
-
-
+        
     }
 
     pub fn get_func_ptr(&self, key : u32) -> FunctionValue<'ctx> {

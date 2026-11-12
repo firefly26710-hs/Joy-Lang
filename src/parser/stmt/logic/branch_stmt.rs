@@ -1,19 +1,22 @@
-use crate::lexer::diagnostic::source::issue::IssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::parser::types::typ::Type;
 
 impl Parser {
-    pub fn parse_if(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_if(&mut self) -> Result<NodeIdx, ParserIssue>{
        
         
         let b_recorder_start = self.stmt.branch_recorder.len();
-        self.record_branch_idx(b_recorder_start);
+        self.record_branch_idx(b_recorder_start)?;
 
+        dbg!(&self.stmt.branch_recorder);
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.branch_recorder.drain(..));
         let end = self.ast.edge_end();
+
+
 
         if !self.stmt.already_full_ret_in_if{
             self.match_counter_number();
@@ -22,18 +25,14 @@ impl Parser {
        Ok( self.push_node(Token::IfStmt, NONE, start, end))
     }
 
-    fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), IssueType>{
+    fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), ParserIssue>{
         match self.peek(){
             Token::If => {
-
-
                 self.eat();
-                let expr_idx = self.parse_expression(0.0)?;
-                self.matches_type(&Type::bool)?;
+                let expr_idx = self.parse_expression()?;
+                self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
-                self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts().unwrap();
-                self.matches_token(&Token::Rbrace)?;
+                let stmts_idx = self.parse_scope()?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{
@@ -48,14 +47,11 @@ impl Parser {
                     panic!("[Line {:?}] Expected 'elif' token, but found 'if'", self.current_line())
                 }
                 self.eat();
-                let expr_idx = self.parse_expression(0.0)?;
-                self.matches_type(&Type::bool)?;
+                let expr_idx = self.parse_expression()?;
+                self.matches_type(&Type::bool, expr_idx)?;
                 self.build_scope();
-                self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts().unwrap();
-                self.matches_token(&Token::Rbrace)?;
+                let stmts_idx = self.parse_scope()?;
                 self.destroy_scope();
-
                 if !self.stmt.already_full_ret_in_if{
                     self.check_has_ret_in_end(stmts_idx, false);
                 }
@@ -70,9 +66,7 @@ impl Parser {
 
                 self.eat();
                 self.build_scope();
-                self.matches_token(&Token::Lbrace)?;
-                let stmts_idx = self.parse_stmts().unwrap();
-                self.matches_token(&Token::Rbrace)?;
+                let stmts_idx = self.parse_scope()?;
                 self.destroy_scope();
 
                 if !self.stmt.already_full_ret_in_if{
@@ -87,11 +81,11 @@ impl Parser {
 
         match self.peek(){
             Token::Elif | Token::Else => self.record_branch_idx(b_recorder_start),
-            _ => return Ok(())
+            _ => Ok(())
         }
     }
 
-    pub fn parse_break(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_break(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.has_out_of_loop()?;
 
         self.eat();
@@ -101,7 +95,7 @@ impl Parser {
         self.push_leaf(Token::BrkStmt, NONE)
     }
 
-    pub fn parse_ctn(&mut self) -> Result<NodeIdx, IssueType>{
+    pub fn parse_ctn(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.has_out_of_loop()?;
 
         self.eat();
