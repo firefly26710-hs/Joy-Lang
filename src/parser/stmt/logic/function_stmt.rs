@@ -136,6 +136,7 @@ impl Parser{
 
                 let param_type = &self.table.var_types[start as usize..=end as usize][i];
                 let ty = &param_type.clone();
+                
                 self.matches_type(ty, expr_idx)?;
                 counter += 1;
                 self.stmt.func_call_recorder.push(expr_idx);

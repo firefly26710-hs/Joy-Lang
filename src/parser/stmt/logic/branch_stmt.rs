@@ -11,7 +11,6 @@ impl Parser {
         let b_recorder_start = self.stmt.branch_recorder.len();
         self.record_branch_idx(b_recorder_start)?;
 
-        dbg!(&self.stmt.branch_recorder);
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.branch_recorder.drain(..));
         let end = self.ast.edge_end();

@@ -283,7 +283,7 @@ impl Parser{
     pub fn out_of_this_stmt(&mut self){
         self.eat();
         while !is_stmt(self.peek()){
-            if matches!(self.peek(), Token::Rbrace) | matches!(self.peek(), Token::Scolon){
+            if matches!(self.peek(), Token::Rbrace | Token::Scolon){
                 self.eat();
                 break;
             }

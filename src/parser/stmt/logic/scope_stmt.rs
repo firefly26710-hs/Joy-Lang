@@ -1,6 +1,6 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
-use crate::parser::diagnostic::source::issue::ParserIssue;
+use crate::parser::diagnostic::source::issue::{ParserIssue, TokenIssue};
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::center::par::Parser;
 
@@ -17,12 +17,11 @@ impl Parser{
                     }
                 }
                 Err(_) => {
-                    if matches!(self.peek(), Token::EOF){
-                        break;
-                    }
+                    // if matches!(self.peek(), Token::EOF | Token::Fn){
+                    //     return Err(ParserIssue::Token(TokenIssue::UnclosedDelimiter));
+                    // }
                     self.stmt.func_recorder.push(67);
                     self.out_of_this_stmt();
-
                 }
             };
         }

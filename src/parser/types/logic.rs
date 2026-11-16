@@ -9,6 +9,7 @@ use crate::parser::types::typ::Type;
 impl Parser{
     pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, ParserIssue>{
         let expr_type = &self.parse_expr_type(expr_idx, expected_type)?;
+
         if matches!(expected_type, Type::void){
 
             if self.stmt.has_ident_or_func_in_expr {
@@ -29,7 +30,7 @@ impl Parser{
                     return Err(self.mismatch_type_issue(expr_idx, &expected_type, &expr_type))
                 }
 
-                if left_bigger_than_right(&expected_type, &expr_type){
+                if !left_bigger_equal_than_right(&expected_type, &expr_type){
                     Err(self.literal_out_of_range(expr_idx, &expected_type))
                 }else{
                     Ok(expr_type.clone())
