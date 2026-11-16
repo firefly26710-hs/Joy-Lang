@@ -1,4 +1,3 @@
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::ast::NodeIdx;
@@ -16,10 +15,9 @@ impl Parser{
         self.matches_token(&Token::Fn)?;
         let func_name_key = self.current as Key;
         let func_name_node_idx = self.get_tok_node_idx(&Token::Ident);
-        self.sign_func((self.current) as Key);
+        self.sign_func(self.current as Key);
         self.stmt.func_recorder.push(func_name_node_idx);
         self.matches_token(&Token::Ident)?;
-
 
         self.matches_token(&Token::Lparen)?;
 
@@ -54,11 +52,8 @@ impl Parser{
 
         self.matches_token(&Token::Rparen)?;
         self.matches_token(&Token::Eq)?;
-
-        let ret_type = {
-            self.matches_token(&Token::Type)?;
-            self.type_mapping((self.current - 1) as Key)
-        };
+        self.matches_token(&Token::Type)?;
+        let ret_type = self.type_mapping((self.current - 1) as Key);
 
         self.insert_func_type(func_name_key, param_start, param_end, ret_type.clone());
 
@@ -72,8 +67,8 @@ impl Parser{
 
         let end = self.ast.edge_end();
 
-        self.check_legal_ret_stmt_position(&ret_type, stmt_idx);
-       Ok( self.push_node(Token::FuncStmt, NONE, start, end))
+        self.not_ret_void_but_no_ret_stmt(&ret_type, stmt_idx, func_name_key)?;
+        Ok( self.push_node(Token::FuncStmt, NONE, start, end))
 
 
     }
@@ -82,23 +77,22 @@ impl Parser{
 
     pub fn parse_ret(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
-
-        let expr_idx = if matches!(self.last_ret_type(), Type::void){
-            NONE
-        }else if !matches!(self.last_ret_type(), Type::void) && self.is_expr(self.peek()){
-            let expr_idx = self.parse_expression()?;
-            self.matches_type(&self.last_ret_type().clone(), expr_idx)?;
-            expr_idx
-        }else {
-            panic!("[Line {:?}] Expected {:?} but found ()", self.current_line(), self.last_ret_type())
+        let expr_idx : Option<NodeIdx> = if self.is_expr(self.peek()){
+            Some(self.parse_expression()?)
+        }else{
+            None
         };
-
-
+        let ret_type = self.last_ret_type();
+        self.matches_ret_type(expr_idx, &ret_type.clone(), self.current)?;
         self.matches_token(&Token::Scolon)?;
 
         let start = self.ast.edge_start();
         self.ast.edges.push(NONE);
-        self.ast.edges.push(expr_idx);
+        if expr_idx != None{
+            self.ast.edges.push(expr_idx.unwrap())
+        }else{
+            self.ast.edges.push(NONE);
+        }
         let end = self.ast.edge_end();
 
        Ok( self.push_node(Token::RetStmt, NONE, start, end))
@@ -191,14 +185,19 @@ impl Parser{
 
     }
 
-    fn check_legal_ret_stmt_position(&self, ret_type : &Type, stmt_idx : NodeIdx){
+    fn not_ret_void_but_no_ret_stmt(
+        &mut self,
+        ret_type : &Type,
+        stmt_idx : NodeIdx,
+        func_name_key : Key
+    ) -> Result<(), ParserIssue>{
         if matches!(ret_type, Type::void){
-            return;
+            return Ok(());
         }
 
 
         if self.stmt.already_full_ret_in_if {
-            return;
+            return Ok(());
         }
 
         let stmt_edge = &self.ast.nodes[stmt_idx as usize].edge_span;
@@ -206,16 +205,16 @@ impl Parser{
         let end = stmt_edge.end as usize;
         let stmt_node_idx = *self.ast.edges[start..=end].last().unwrap();
         if stmt_node_idx == NONE{
-            panic!("Expected return {:?}",  ret_type );
+            return Err(self.no_return_void_but_no_return_issue(func_name_key, ret_type))
         }
-
         let stmt_tok = &self.ast.nodes[stmt_node_idx as usize].token;
 
         if matches!(stmt_tok, Token::RetStmt){
-            return;
+            Ok(())
         }else{
-            panic!("Expected return {:?}",  ret_type );
+            Err(self.no_return_void_but_no_return_issue(func_name_key, ret_type))
         }
+
 
     }
 

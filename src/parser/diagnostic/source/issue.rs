@@ -3,6 +3,7 @@ pub enum ParserIssue{
     Token(TokenIssue),
     Expr(ExprIssue),
     Scope(ScopeIssue),
+    Func(FunctionIssue)
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenIssue{
@@ -24,4 +25,11 @@ pub enum ScopeIssue{
     VariableNotInScope{ unknown_var_string: String},
     FunctionNotFound{ unknown_fn_string: String},
     OutOfLoop{kw : String},
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum FunctionIssue{
+    MismatchesRetTypeWithExpr {ret_type_string : String, actual_type_string : String},
+    MismatchesRetTypeWithOutExpr{ret_type_string : String},
+    NotRetVoidButNoReturn{ret_type_string : String}
 }

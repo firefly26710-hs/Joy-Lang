@@ -64,8 +64,8 @@ impl Lexer{
 
 
         println!("{file_name}:{line}:{col}: {error}: {info} ");
-        println!("    {left_correct_part}{wrong_part}{right_correct_part}");
-        println!("    {space}{yellow_notices}");
+        println!("{line}|    {left_correct_part}{wrong_part}{right_correct_part}");
+        println!("|    {space}{yellow_notices}");
 
 
 

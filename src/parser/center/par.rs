@@ -1,5 +1,4 @@
 use crate::lexer::center::lex::Lexer;
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::diagnostic::source::issue::ParserIssue;
@@ -46,19 +45,19 @@ impl Parser{
 
     pub fn build_tree(&mut self) -> Result<NodeIdx, ParserIssue>{
         while self.lexer.tokenizer.tokens[self.current] != Token::EOF{
-            let function_idx = self.parse_function()?;
+            let function_idx =  self.parse_function()?;
             self.stmt.programs.push(function_idx);
+           
         }
 
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.programs.drain(..));
         let end = self.ast.edge_end();
 
+       
         self.push_node(Token::Program, NONE, start, end);
 
-        if self.lexer.error.has_error{
-            self.output_parser_error();
-        }
+        
         Ok(0)
     }
 
@@ -105,8 +104,7 @@ impl Parser{
         &self.lexer.tokenizer.tokens[self.current + 1]
 
     }
-
-    #[inline(always)]
+    
     pub fn eat(&mut self) -> Token{
         let tok = self.lexer.tokenizer.tokens[self.current].clone();
         self.current += 1;

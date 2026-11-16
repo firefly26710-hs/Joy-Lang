@@ -1,7 +1,6 @@
 pub mod lexer;
 pub mod parser;
 pub mod llvm;
-
 use crate::llvm::codegen::Codegen;
 use crate::parser::center::par::Parser;
 use inkwell::context::Context;
@@ -26,7 +25,7 @@ fn main() -> Result<(), ParserIssue> {
 
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-   // lexer.print_output();
+   lexer.print_output();
     let mut parser = Parser::init(lexer);
     parser.build_tree()?;
     
@@ -50,13 +49,16 @@ fn main() -> Result<(), ParserIssue> {
 
 #[test]
 fn diag_test(){
-    let input = "fn main() = void{var x : i8 = 111111 > 1111;}
+    let input = "fn add() = i32{return 5}
     ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
     let _ = parser.build_tree();
+    if parser.lexer.error.has_error{
+        parser.output_parser_error();
+    }
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();

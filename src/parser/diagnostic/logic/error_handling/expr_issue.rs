@@ -248,7 +248,7 @@ impl Parser{
 
         let unary_op_string = match &self.lexer.tokenizer.tokens[unary_key] {
             Token::Sub => "-",
-            Token::CmpNot => "not",
+            Token::LogicNot => "not",
             _ => unreachable!()
         }.to_string();
         

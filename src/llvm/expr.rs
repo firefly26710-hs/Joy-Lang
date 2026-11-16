@@ -91,7 +91,7 @@ impl<'ctx>Codegen<'ctx>{
                                     },
                                     _ => unreachable!()
                                 },
-                                Token::CmpNot => match rhs{
+                                Token::LogicNot => match rhs{
                                     BasicValueEnum::IntValue(i_val) => {
                                         self.builder.build_not(i_val,"Not_Val").unwrap().into()
                                     }
@@ -124,10 +124,10 @@ impl<'ctx>Codegen<'ctx>{
                                         self.builder.build_int_add(l, r, "Int_Add").unwrap().into()
                                     },
                                     Token::Sub => {
-                                        self.builder.build_int_sub(l, r, "Int_Add").unwrap().into()
+                                        self.builder.build_int_sub(l, r, "Int_Sub").unwrap().into()
                                     },
                                     Token::Mul => {
-                                        self.builder.build_int_mul(l, r, "Int_Add").unwrap().into()
+                                        self.builder.build_int_mul(l, r, "Int_Mul").unwrap().into()
                                     },
                                     Token::Div    => {
                                         self.builder.build_int_signed_div(l, r, "Int_Div").unwrap().into()
@@ -170,6 +170,12 @@ impl<'ctx>Codegen<'ctx>{
                                             "Int_EqEq"
                                         ).unwrap().into()
                                     },
+                                    Token::LogicAnd => {
+                                        self.builder.build_and(l, r, "Bool_And").unwrap().into()
+                                    },
+                                    Token::LogicOr => {
+                                        self.builder.build_or(l, r, "Bool_Or").unwrap().into()
+                                    }
                                     _ => unreachable!()
                                 },
                                 (BasicValueEnum::FloatValue(l), BasicValueEnum::FloatValue(r)) => match tok{
@@ -298,6 +304,10 @@ pub fn is_comparison_op(tok : &Token) -> bool{
 }
 
 pub fn is_binary_op(tok : &Token) -> bool{
-    matches!(tok, Token::CmpAnd | Token::CmpOr)
+    matches!(tok, Token::LogicAnd | Token::LogicOr)
+}
+
+pub fn is_expr(tok : &Token) -> bool{
+    matches!(tok, Token::Int| Token::Float | Token::True | Token::False | Token::Sub)
 }
     

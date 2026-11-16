@@ -9,7 +9,6 @@ use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
-
         self.matches_token(&Token::Lbrace)?;
         let start_idx = self.stmt.func_recorder.len();
         while self.peek() != &Token::EOF{

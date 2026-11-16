@@ -8,14 +8,10 @@ use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn matches_type(&mut self, expected_type : &Type, expr_idx : u32) -> Result<Type, ParserIssue>{
-        self.stmt.already_has_comparison_op = false;
-        self.stmt.unary_sub_counter = 0;
         let expr_type = &self.parse_expr_type(expr_idx, expected_type)?;
-
-
         if matches!(expected_type, Type::void){
 
-            if self.stmt.has_ident_in_expr{
+            if self.stmt.has_ident_or_func_in_expr {
                 Ok(expr_type.clone())
             }else{
                 match expr_type{
@@ -28,7 +24,7 @@ impl Parser{
                 }
             }
         }else{
-            if self.stmt.has_ident_in_expr{
+            if self.stmt.has_ident_or_func_in_expr {
                 if !is_two_types_in_same_set(expected_type, expr_type){
                     return Err(self.mismatch_type_issue(expr_idx, &expected_type, &expr_type))
                 }
@@ -52,15 +48,46 @@ impl Parser{
         }
 
     }
-    
 
-    pub fn parse_expr_type(&mut self, expr_idx : u32, expected_type : &Type) -> Result<Type, ParserIssue> {
+    pub fn parse_expr_type(&mut self, expr_idx : NodeIdx, expected_type : &Type) -> Result<Type, ParserIssue>{
+        self.stmt.already_has_comparison_op = false;
+        self.stmt.unary_sub_counter = 0;
+        self.get_expr_type(expr_idx, expected_type)
+    }
+
+    pub fn matches_ret_type(&mut self, expr_idx : Option<NodeIdx>, ret_type : &Type, tok_pos : usize) -> Result<(), ParserIssue>{
+
+        match expr_idx{
+            Some(idx) => {
+                if matches!(ret_type, Type::void){
+                    let expr_type = self.parse_expr_type(idx, ret_type)?;
+                    Err(self.mismatch_ret_type_with_expr_issue(idx, ret_type, &expr_type))
+                }else{
+                    Ok(())
+                }
+            },
+            None => {
+                if !matches!(ret_type, Type::void){
+                    Err(self.mismatch_ret_type_without_expr_issue(tok_pos, ret_type))
+                }else{
+                    Ok(())
+                }
+            }
+        }
+    }
+
+    fn get_expr_type(&mut self, expr_idx : u32, expected_type : &Type) -> Result<Type, ParserIssue> {
         let node = &self.ast.nodes[expr_idx as usize];
         let tok = &node.token;
         let key = node.key;
         let edge_span = &node.edge_span;
         let left_span = edge_span.start;
         let right_span = edge_span.end;
+        if tok == &Token::CallStmt{
+            let name_node_idx = self.ast.edges[left_span as usize..=right_span as usize][0];
+            let key = self.ast.nodes[name_node_idx as usize].key;
+            return Ok(self.parse_func_call_type(key)?)
+        }
         match(left_span, right_span){
             (NONE, NONE) => match tok{
                 Token::Int => Ok(self.parse_int_type(key, expected_type, expr_idx)?),
@@ -89,7 +116,7 @@ impl Parser{
 
                         }
 
-                        Token::CmpNot  => {
+                        Token::LogicNot => {
                             let expr_type = self.parse_expr_type(rhs, expected_type)?;
                             if expr_type != Type::bool{
                                 return Err(self.mismatch_expr_type_in_unary_issue(key, rhs, expr_type));
@@ -189,7 +216,7 @@ impl Parser{
                 }
             }
         }else{
-            if self.stmt.unary_sub_counter & 1 == 0{
+            if self.stmt.unary_sub_counter % 2  == 0{
                 let expected_type = if expected_type == &Type::void{
                     &Type::i32
                 }else{
@@ -252,8 +279,13 @@ impl Parser{
     }
 
     fn parse_ident_type(&mut self, key : Key) -> Result<Type, ParserIssue>{
-        self.stmt.has_ident_in_expr = true;
+        self.stmt.has_ident_or_func_in_expr = true;
         Ok(self.look_var_type(&key).clone())
+    }
+
+    fn parse_func_call_type(&mut self, key: Key) -> Result<Type, ParserIssue>{
+        self.stmt.has_ident_or_func_in_expr = true;
+        Ok(self.look_ret_type(key).clone())
     }
 
     fn is_ident(&self ,idx : u32) -> bool{
@@ -278,6 +310,8 @@ pub fn is_two_types_in_same_set(type_a : &Type, type_b : &Type) -> bool{
 
     //float type set
     }else if a_num > 10 && a_num < 20 && b_num > 10 && b_num < 20{
+        true
+    }else if a_num == 0 && b_num == 0 {
         true
     }else{
         false

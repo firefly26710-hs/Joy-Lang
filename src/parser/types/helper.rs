@@ -56,7 +56,8 @@ impl Parser{
 
 
     pub fn look_ret_type(&self, key : u32 ) -> &Type{
-
+        dbg!(&self.table.func_keys);
+        dbg!(key);
         for i in 0.. self.table.func_keys.len(){
             if self.table.func_keys[i] == key{
                 return &self.table.ret_types[i];

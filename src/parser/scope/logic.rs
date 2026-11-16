@@ -8,7 +8,7 @@ impl Parser {
                 return *key;
             }
         }
-        
+
         input_key
     }
 

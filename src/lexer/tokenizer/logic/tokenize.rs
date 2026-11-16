@@ -203,13 +203,13 @@ impl Lexer{
                 self.collect_tokenizer_data(Token::Else);
             }
             "not"      => {
-                self.collect_tokenizer_data(Token::CmpNot);
+                self.collect_tokenizer_data(Token::LogicNot);
             }
             "and"      => {
-                self.collect_tokenizer_data(Token::CmpAnd);
+                self.collect_tokenizer_data(Token::LogicAnd);
             }
             "or"       => {
-                self.collect_tokenizer_data(Token::CmpOr);
+                self.collect_tokenizer_data(Token::LogicOr);
             }
             "fn"       => {
                 self.collect_tokenizer_data(Token::Fn);

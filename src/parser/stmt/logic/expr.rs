@@ -51,7 +51,7 @@ impl Parser{
                 self.matches_token(&Token::Rparen)?;
                 Ok(expr_idx)
             }
-            Token::CmpNot => {
+            Token::LogicNot => {
                 let key = self.current as Key;
                 self.eat();
                 self.matches_token(&Token::Lparen)?;
@@ -61,15 +61,15 @@ impl Parser{
                 self.ast.edges.push(NONE);
                 self.ast.edges.push(expr_idx);
                 let end = self.ast.edge_end();
-                Ok(self.push_node(Token::CmpNot, key, start, end))
+                Ok(self.push_node(Token::LogicNot, key, start, end))
             }
             Token::Ident =>{
                 if self.is_func_call(self.peek_next()){
                     self.expr_func_call()
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
-                    self.eat();
                     self.var_not_in_scope(ident_key)?;
+                    self.eat();
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }
@@ -124,12 +124,12 @@ impl Parser{
             || peek == &Token::True
             || peek == &Token::Sub
             || peek == &Token::Lparen
-            || peek == &Token::CmpNot
+            || peek == &Token::LogicNot
     }
 
     fn infix_binding_power(&self, op : &Token) -> (f32, f32){
         match op{
-            Token::CmpAnd | Token::CmpOr     => (0.1, 0.2),
+            Token::LogicAnd | Token::LogicOr => (0.1, 0.2),
             Token::EqEq   | Token::NotEq     => (0.3, 0.3),
             Token::Grt    | Token::Les       => (0.5, 0.6),
             Token::GrtEq  | Token::LesEq     => (0.7, 0.8),
@@ -170,7 +170,7 @@ fn is_bool_op(tok : &Token) -> bool{
 
 fn is_compare_op(tok : &Token) -> bool{
     match tok{
-        Token::CmpAnd | Token::CmpOr => true,
+        Token::LogicAnd | Token::LogicOr => true,
         _ => false
     }
 }

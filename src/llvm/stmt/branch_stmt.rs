@@ -29,10 +29,10 @@ impl<'ctx>Codegen<'ctx>{
                 let cur_cond_bb = self.cod_blocks[i];
 
 
-                let curr_expr_idx = self.get_edge_slice(start, end)[i << 1];
-                let curr_stmt_idx = self.get_edge_slice(start, end)[(i << 1) + 1];
-                let prev_expr_idx = self.get_edge_slice(start, end)[(i - 1) << 1];
-                let prev_stmt_idx = self.get_edge_slice(start, end)[((i - 1) << 1) + 1];
+                let curr_expr_idx = self.get_edge_slice(start, end)[i * 2];
+                let curr_stmt_idx = self.get_edge_slice(start, end)[i * 2 + 1];
+                let prev_expr_idx = self.get_edge_slice(start, end)[(i - 1) * 2];
+                let prev_stmt_idx = self.get_edge_slice(start, end)[((i - 1) * 2) + 1];
 
 
                 let is_else = curr_expr_idx == 4294967295;
@@ -72,8 +72,8 @@ impl<'ctx>Codegen<'ctx>{
                 }
             }
 
-            let last_expr_idx = self.get_edge_slice(start, end)[(branch_num - 1) << 1];
-            let last_stmt_idx = self.get_edge_slice(start, end)[((branch_num - 1) << 1) + 1];
+            let last_expr_idx = self.get_edge_slice(start, end)[(branch_num - 1) * 2];
+            let last_stmt_idx = self.get_edge_slice(start, end)[((branch_num - 1) * 2) + 1];
 
             if last_expr_idx != 4294967295 {
                 let prev_cond_bb = *self.cod_blocks.last().unwrap();
