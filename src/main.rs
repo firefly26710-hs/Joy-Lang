@@ -7,6 +7,7 @@ use inkwell::context::Context;
 use std::env;
 use std::fs::File;
 use std::io::Read;
+use inkwell::OptimizationLevel;
 use crate::lexer::center::lex::Lexer;
 use crate::parser::diagnostic::source::issue::ParserIssue;
 
@@ -25,7 +26,7 @@ fn main() -> Result<(), ParserIssue> {
 
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-   lexer.print_output();
+  // lexer.print_output();
     let mut parser = Parser::init(lexer);
     parser.build_tree()?;
     
@@ -34,14 +35,14 @@ fn main() -> Result<(), ParserIssue> {
     llvm.compile();
 
 
-    // let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
-    //
-    // unsafe {
-    //     let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
-    //         engine.get_function("main").unwrap();
-    //
-    //     main_fn.call();
-    // }
+     // let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
+     //
+     // unsafe {
+     //     let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
+     //         engine.get_function("main").unwrap();
+     //
+     //     main_fn.call();
+     // }
 
     Ok(())
 

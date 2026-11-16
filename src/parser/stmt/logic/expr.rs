@@ -1,11 +1,9 @@
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
-use crate::parser::types::typ::Type;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> Result<NodeIdx, ParserIssue>{

@@ -1,7 +1,5 @@
-use inkwell::llvm_sys::lto::thinlto_codegen_set_final_cache_size_relative_to_available_space;
-use crate::parser::tree::ast::{NodeIdx, NONE};
+use crate::parser::tree::ast::{NodeIdx};
 use crate::parser::tree::node::Key;
-use crate::parser::types::typ::Type;
 
 const RECORDER_SIZE : usize = 256;
 
