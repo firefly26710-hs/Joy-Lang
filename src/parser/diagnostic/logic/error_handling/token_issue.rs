@@ -52,7 +52,7 @@ impl Parser{
             &self.lexer.tokenizer.intervals[wrong_tok_key - 1]
         } else{
             &self.lexer.tokenizer.intervals[wrong_tok_key]
-        };;
+        };
         let start =interval.start as usize;
         let end = interval.end as usize;
 

@@ -1,4 +1,3 @@
-use crate::lexer::diagnostic::source::data::{SpanLength, SpanStart};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::lexer::center::lex::Lexer;
 

@@ -1,4 +1,3 @@
-use crate::lexer::diagnostic::source::issue::LexerIssueType;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
