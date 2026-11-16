@@ -35,14 +35,14 @@ fn main() -> Result<(), ParserIssue> {
     llvm.compile();
 
 
-     // let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
-     //
-     // unsafe {
-     //     let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
-     //         engine.get_function("main").unwrap();
-     //
-     //     main_fn.call();
-     // }
+     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
+     
+     unsafe {
+         let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
+             engine.get_function("main").unwrap();
+     
+         main_fn.call();
+     }
 
     Ok(())
 
