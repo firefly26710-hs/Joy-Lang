@@ -11,8 +11,6 @@ impl Parser{
 
     pub fn parse_var(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
-
-
         //var name
         let var_name_key = self.current as Key;
         let var_name_idx = self.get_tok_node_idx(&Token::Ident);

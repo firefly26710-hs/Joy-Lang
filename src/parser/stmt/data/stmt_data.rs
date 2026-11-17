@@ -10,9 +10,10 @@ pub struct Stmt{
     pub loop_recorder : Vec<NodeIdx>,
     pub func_call_recorder : Vec<NodeIdx>,
     pub scope_recorder     : Vec<NodeIdx>,
+    pub binary_op_checker  : Vec<bool>,
     
 
-    pub expr_start_key : u32,
+    pub expr_start_key : u32, 
     pub already_has_comparison_op: bool,
     pub has_ident_or_func_in_expr: bool,
     pub unary_sub_counter: u16,
@@ -34,6 +35,7 @@ impl Stmt{
             loop_recorder   : Vec::with_capacity(RECORDER_SIZE),
             func_call_recorder : Vec::with_capacity(RECORDER_SIZE),
             scope_recorder : Vec::with_capacity(RECORDER_SIZE),
+            binary_op_checker : Vec::with_capacity(64),
 
             expr_start_key : 0,
             already_has_comparison_op: false,

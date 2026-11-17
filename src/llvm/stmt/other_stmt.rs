@@ -19,12 +19,10 @@ impl<'ctx> Codegen<'ctx>{
             let stmt_node_idx = self.get_edge_slice(edges_start, edges_end)[i];
             if stmt_node_idx == NONE{break};
             let stmt_node = self.get_node(stmt_node_idx);
-
             let tok = &stmt_node.token;
             let idxs = &stmt_node.edge_span;
             let start = idxs.start ;
             let end = idxs.end ;
-
             match tok{
                 Token::LetStmt => self.build_var_stmt(start, end),
                 Token::Eq|Token::AddEq | Token::SubEq | Token::MulEq | Token::DivEq|
@@ -54,7 +52,6 @@ impl<'ctx> Codegen<'ctx>{
         let expr_idx = edges[1] as usize;
         let expr = self.build_expr(expr_idx, &declared_type);
 
-
         //get variable name
         let str_interval = &self.parser.lexer.tokenizer.intervals[name_key as usize];
         let str_s = str_interval.start as usize;
@@ -66,7 +63,7 @@ impl<'ctx> Codegen<'ctx>{
         let var_type : BasicTypeEnum<'ctx> = match expr{
             BasicValueEnum::IntValue(v) => v.get_type().into(),
             BasicValueEnum::FloatValue(v) => v.get_type().into(),
-            BasicValueEnum::PointerValue(v) => v.get_type().into(),
+            //BasicValueEnum::PointerValue(v) => v.get_type().into(),
             _ => unreachable!()
         };
 
@@ -74,7 +71,7 @@ impl<'ctx> Codegen<'ctx>{
         //build alloc
         let alloc = self.builder.build_alloca(var_type, name_str).unwrap();
         self.builder.build_store(alloc, expr).unwrap();
-
+        dbg!(alloc);
         self.variables.push(alloc);
 
     }
@@ -174,6 +171,8 @@ impl<'ctx> Codegen<'ctx>{
 
 
     pub fn get_var_ptr(&self, input_key : Key) -> PointerValue<'ctx>{
+        dbg!(&self.parser.table.var_keys);
+        dbg!(&self.variables);
         for (i, key) in self.parser.table.var_keys.iter().enumerate(){
             if input_key == *key{
                 return self.variables[i];

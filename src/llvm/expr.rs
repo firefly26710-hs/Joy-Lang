@@ -1,4 +1,3 @@
-use std::env::var;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::tree::ast::{NONE};
@@ -17,7 +16,7 @@ impl<'ctx>Codegen<'ctx>{
         let end = idxs.end;
 
         if matches!(tok, Token::CallStmt){
-           return self.build_expr_call(start , end)
+           return self.build_expr_call(start, end)
         }
 
         match(start, end){
@@ -57,7 +56,10 @@ impl<'ctx>Codegen<'ctx>{
                         _ => panic!("Expected Type{:?}", var_type)
                     };
 
+
                     self.builder.build_load(basic_ty, alloc, name_str).unwrap()
+
+
                 },
 
                     Token::True => {
@@ -97,23 +99,15 @@ impl<'ctx>Codegen<'ctx>{
                         },
                         (_, _) => {
                             let idxs = self.get_edge_slice(start, end);
-                            let idxs = self.get_edge_slice(start, end);
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;
-                            let lhs_node = &self.parser.ast.nodes[lhs_idx];
 
-                            let operand_ty = if is_comparison_op(&tok){
-                                match lhs_node.token{
-                                    Token::Int => &Type::i128,
-                                    Token::Float => &Type::f64,
-                                    _ => unreachable!()
-                                }
-                            }else{
-                                ty
-                            };
+                           
 
-                            let lhs = self.build_expr(lhs_idx, &operand_ty);
-                            let rhs = self.build_expr(rhs_idx, &operand_ty);
+
+
+                            let lhs = self.build_expr(lhs_idx, &ty);
+                            let rhs = self.build_expr(rhs_idx, &ty);
 
                             match(lhs, rhs){
 

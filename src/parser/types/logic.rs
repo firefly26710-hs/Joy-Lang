@@ -105,10 +105,14 @@ impl Parser{
                 match (left_idx, right_idx){
                     (NONE, rhs) => match tok{
                         Token::Sub => {
-                            if self.stmt.unary_sub_counter == 0{ self.stmt.first_unary_expr_idx = expr_idx; }
+                            if self.stmt.unary_sub_counter == 0{
+                                self.stmt.first_unary_expr_idx = expr_idx;
+                            }
                             self.stmt.unary_sub_counter += 1;
                             let expr_type = self.parse_expr_type(rhs, expected_type)?;
-                            self.stmt.unary_sub_counter  -= 1;
+                            if self.stmt.unary_sub_counter != 0 {
+                                self.stmt.unary_sub_counter -= 1;
+                            }
                             if expr_type == Type::bool{
                                 return Err(self.mismatch_expr_type_in_unary_issue(key, rhs,Type::bool));
                             }
@@ -130,8 +134,15 @@ impl Parser{
                     (lhs, rhs) =>{
                         let tok = tok.clone();
 
-                        let l_ty = self.parse_expr_type(lhs, expected_type)?;
-                        let r_ty = self.parse_expr_type(rhs, expected_type)?;
+                        let operand_expected = if is_comparison_op(&tok) {
+                            &Type::void
+                        } else {
+                            expected_type
+                        };
+
+                        let l_ty = self.parse_expr_type(lhs, operand_expected)?;
+                        let r_ty = self.parse_expr_type(rhs, operand_expected)?;
+
 
                         if is_binary_op(&tok){
                             if l_ty != Type::bool{ return Err(self.mismatch_binary_op_type(lhs, l_ty)) }
@@ -141,9 +152,9 @@ impl Parser{
                         if is_comparison_op(&tok) && self.stmt.already_has_comparison_op{
                             return Err(self.comparison_op_chained_issue(key));
                         }
-                        if is_comparison_op(&tok){
-                            self.stmt.already_has_comparison_op = true;
-                        }
+                         if is_comparison_op(&tok){
+                             self.stmt.already_has_comparison_op = true;
+                         }
                         
                         
                         
@@ -151,7 +162,7 @@ impl Parser{
                             return Err(self.mismatches_expression_type(&l_ty, &r_ty, rhs as usize));
                         }
 
-                        
+
 
                         if self.is_ident(lhs) && left_bigger_than_right(&r_ty, &l_ty){
                             Err(self.literal_out_of_range(lhs, expected_type))

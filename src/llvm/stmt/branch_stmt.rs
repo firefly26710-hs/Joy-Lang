@@ -114,13 +114,5 @@ impl<'ctx>Codegen<'ctx>{
 
     }
 
-    pub fn build_brk_stmt(&mut self){
-        let exit_bb = self.brk_goto_block.pop().unwrap();
-        self.builder.build_unconditional_branch(exit_bb).unwrap();
-    }
-    pub fn build_ctn_stmt(&mut self){
-        let bb = self.ctn_goto_block.pop().unwrap();
-        self.builder.build_unconditional_branch(bb).unwrap();
-
-    }
+    
 }

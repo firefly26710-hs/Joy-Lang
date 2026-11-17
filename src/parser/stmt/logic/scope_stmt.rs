@@ -1,16 +1,20 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::lexer::tokenizer::source::token::Token;
-use crate::parser::diagnostic::source::issue::{ParserIssue, TokenIssue};
+use crate::parser::diagnostic::source::issue::{ParserIssue};
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::center::par::Parser;
 
 impl Parser{
     pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
+        let current_scope_len = self.stmt.scope_recorder.len();
         self.matches_token(&Token::Lbrace)?;
-        while !matches!(self.peek(), Token::EOF | Token::Rbrace | Token::Fn){
+        while !matches!(self.peek(), Token::EOF | Token::Fn){
             match self.matches_stmts(){
                 Ok(stmt_idx) => {
                     self.stmt.scope_recorder.push(stmt_idx);
+                    if self.peek() == Token::Rbrace{
+                        break;
+                    }
                 }
                 Err(_) => {
                     self.stmt.scope_recorder.push(67);
@@ -19,9 +23,8 @@ impl Parser{
             };
         }
         self.unclosed_delimiter()?;
-
         let edge_start : Start = self.ast.edge_start();
-        self.ast.edges.extend(self.stmt.scope_recorder.drain(..));
+        self.ast.edges.extend(self.stmt.scope_recorder.drain(current_scope_len..));
         let edge_end : End = self.ast.edge_end();
 
         Ok( self.push_node(Token::BlockStmt, NONE, edge_start, edge_end))

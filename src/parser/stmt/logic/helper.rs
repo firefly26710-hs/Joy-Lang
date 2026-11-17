@@ -8,10 +8,11 @@ impl Parser{
     pub fn matches_token(&mut self, expected_tok : &Token) -> Result<(), ParserIssue>{
         let current_tok = self.peek().clone();
         let current_key = self.current as Key;
-        if current_tok == Token::Lbrace{
-            self.lexer.error.lbrace_stack.push(current_key);
-        }
+        
         if current_tok == *expected_tok{
+            if current_tok == Token::Lbrace{
+                self.lexer.error.lbrace_stack.push(current_key);
+            }
             self.eat();
             Ok(())
         }else{

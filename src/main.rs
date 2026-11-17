@@ -53,12 +53,11 @@ fn main() -> Result<(), ParserIssue> {
 #[test]
 fn diag_test(){
     let input = "
-    fn add() = void{
-        while 1 == 1{}
-    }
     fn main() = void{
         var x = 5;
-        while 1==1{}
+        while x + 1 < 5{
+            continue;
+        }
     }
 
     ".to_string();
@@ -70,6 +69,7 @@ fn diag_test(){
     if parser.lexer.error.has_error{
         parser.output_parser_error();
     }
+   // parser.print_node();
     let context = Context::create();
     let mut llvm = Codegen::init(&context, parser);
     llvm.compile();

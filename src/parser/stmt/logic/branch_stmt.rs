@@ -6,7 +6,6 @@ use crate::parser::types::typ::Type;
 
 impl Parser {
     pub fn parse_if(&mut self) -> Result<NodeIdx, ParserIssue>{
-       
         
         let b_recorder_start = self.stmt.branch_recorder.len();
         self.record_branch_idx(b_recorder_start)?;
@@ -14,9 +13,7 @@ impl Parser {
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.branch_recorder.drain(..));
         let end = self.ast.edge_end();
-
-
-
+        
         if !self.stmt.already_full_ret_in_if{
             self.match_counter_number();
         }
