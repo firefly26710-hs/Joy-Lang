@@ -53,6 +53,9 @@ fn main() -> Result<(), ParserIssue> {
 #[test]
 fn diag_test(){
     let input = "
+    fn add() = void{
+        while 1 == 1{}
+    }
     fn main() = void{
         var x = 5;
         while 1==1{}

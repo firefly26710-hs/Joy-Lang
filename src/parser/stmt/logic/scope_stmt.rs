@@ -7,7 +7,7 @@ use crate::parser::center::par::Parser;
 impl Parser{
     pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.matches_token(&Token::Lbrace)?;
-        while !matches!(self.peek(), Token::EOF | Token::Rbrace){
+        while !matches!(self.peek(), Token::EOF | Token::Rbrace | Token::Fn){
             match self.matches_stmts(){
                 Ok(stmt_idx) => {
                     self.stmt.scope_recorder.push(stmt_idx);
