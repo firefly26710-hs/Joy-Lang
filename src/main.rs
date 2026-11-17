@@ -24,7 +24,7 @@ fn main() -> Result<(), ParserIssue> {
     file.read_to_string(&mut input).expect("Failed Read to String");
     input.push_str("\n\0\0\0");
 
-    let mut lexer = Lexer::init(input, "main.joy".to_string());
+    let mut lexer = Lexer::init(input, args[1].to_string());
     lexer.tokenize();
   // lexer.print_output();
     let mut parser = Parser::init(lexer);
@@ -37,7 +37,7 @@ fn main() -> Result<(), ParserIssue> {
     llvm.compile();
 
 
-     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::Aggressive).unwrap();
+     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::None).unwrap();
 
       unsafe {
           let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
