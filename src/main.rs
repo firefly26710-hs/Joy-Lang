@@ -55,7 +55,9 @@ fn diag_test(){
     let input = "
     fn main() = void{
         var x = 5;
+        while 1==1{}
     }
+
     ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());

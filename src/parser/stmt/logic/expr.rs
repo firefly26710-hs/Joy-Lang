@@ -77,7 +77,7 @@ impl Parser{
 
         loop{
             let op_tok = match self.peek(){
-                non_expr_tok if !is_expr(&non_expr_tok) => break,
+                non_expr_tok if !is_op(&non_expr_tok) => break,
                 _ => self.peek()
             };
 
@@ -128,9 +128,7 @@ fn is_func_call(peek : &Token) -> bool {
     matches!(peek, &Token::Lparen)
 }
 
-pub fn is_expr(peek : &Token) -> bool{
-    is_expr_val(peek) || is_op(peek)
-}
+
 pub fn is_expr_val(peek : &Token) -> bool{
     peek == &Token::Int
         || peek == &Token::Float
