@@ -7,28 +7,21 @@ use crate::parser::center::par::Parser;
 impl Parser{
     pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.matches_token(&Token::Lbrace)?;
-        let start_idx = self.stmt.func_recorder.len();
-        while self.peek() != &Token::EOF{
+        while !matches!(self.peek(), Token::EOF | Token::Rbrace){
             match self.matches_stmts(){
                 Ok(stmt_idx) => {
-                    self.stmt.func_recorder.push(stmt_idx);
-                    if matches!(self.peek(), Token::Rbrace){
-                        break
-                    }
+                    self.stmt.scope_recorder.push(stmt_idx);
                 }
                 Err(_) => {
-                    // if matches!(self.peek(), Token::EOF | Token::Fn){
-                    //     return Err(ParserIssue::Token(TokenIssue::UnclosedDelimiter));
-                    // }
-                    self.stmt.func_recorder.push(67);
+                    self.stmt.scope_recorder.push(67);
                     self.out_of_this_stmt();
                 }
             };
         }
-        self.unclosed_delimiter(&Token::Rbrace)?;
+        self.unclosed_delimiter()?;
 
         let edge_start : Start = self.ast.edge_start();
-        self.ast.edges.extend(self.stmt.func_recorder.drain(start_idx..));
+        self.ast.edges.extend(self.stmt.scope_recorder.drain(..));
         let edge_end : End = self.ast.edge_end();
 
         Ok( self.push_node(Token::BlockStmt, NONE, edge_start, edge_end))

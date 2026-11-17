@@ -11,7 +11,21 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="" />
+    <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/source/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/source/data.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/expr_issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/expr_issue.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/token_issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/token_issue.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/expr.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/function_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/function_stmt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/helper.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/scope_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/scope_stmt.rs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -206,7 +220,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/llvm/expr.rs</url>
-          <line>6</line>
+          <line>7</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
@@ -226,6 +240,11 @@
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/lexer/tokenizer/source/data.rs</url>
           <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/llvm/expr.rs</url>
+          <line>73</line>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

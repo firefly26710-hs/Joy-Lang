@@ -1,16 +1,49 @@
+use crate::parser::diagnostic::source::issue::{ParserIssue};
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
 
 impl Parser{
-    pub fn peek(&self) -> &Token {
-        &self.lexer.tokenizer.tokens[self.current]
+    pub fn matches_token(&mut self, expected_tok : &Token) -> Result<(), ParserIssue>{
+        let current_tok = self.peek().clone();
+        let current_key = self.current as Key;
+        if current_tok == Token::Lbrace{
+            self.lexer.error.lbrace_stack.push(current_key);
+        }
+        if current_tok == *expected_tok{
+            self.eat();
+            Ok(())
+        }else{
+            Err(self.unexpected_token_issue(&expected_tok))
+        }
+    }
+
+    pub fn unclosed_delimiter(&mut self) -> Result<(), ParserIssue>{
+        let current_tok = self.peek();
+        if self.lexer.error.lbrace_stack.is_empty() {
+            Ok(())
+        }else{
+            if current_tok == Token::Rbrace{
+                self.eat();
+                self.lexer.error.lbrace_stack.pop();
+                Ok(())
+            }else{
+                Err(self.unclosed_delimiter_token_issue(
+                    *self.lexer.error.lbrace_stack.last().unwrap()
+                ))
+            }
+        }
+    }
+
+
+    pub fn peek(&self) -> Token {
+        self.lexer.tokenizer.tokens[self.current].clone()
 
     }
 
-    pub fn peek_next(&self) -> &Token{
-        &self.lexer.tokenizer.tokens[self.current + 1]
+    pub fn peek_next(&self) -> Token{
+        self.lexer.tokenizer.tokens[self.current + 1].clone()
 
     }
 

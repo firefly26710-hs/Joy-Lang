@@ -53,19 +53,9 @@ fn main() -> Result<(), ParserIssue> {
 #[test]
 fn diag_test(){
     let input = "
-    fn fib(x : i32) i32{
-        if x < 2{
-            return x;
-        }
-
-        return fib(x - 2) + fib(x - 1);
-    }
-
     fn main() = void{
-        print(i32, fib(5));
+        var x = 5;
     }
-
-
     ".to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());

@@ -62,7 +62,7 @@ impl Parser{
                 Ok(self.push_node(Token::LogicNot, key, start, end))
             }
             Token::Ident =>{
-                if self.is_func_call(self.peek_next()){
+                if is_func_call(&self.peek_next()){
                     self.expr_func_call()
                 }else {
                     let ident_key = self.find_same_ident_key(self.current as Key);
@@ -77,12 +77,8 @@ impl Parser{
 
         loop{
             let op_tok = match self.peek(){
-                Token::EOF | Token::Scolon |Token::Lbrace|
-                Token::Rparen | Token::Comma | Token::Arrow |
-                Token::Vertical| Token::Rbracket | Token::Rbrace |
-                Token::Range=> break,
-
-                _true => self.peek()
+                non_expr_tok if !is_expr(&non_expr_tok) => break,
+                _ => self.peek()
             };
 
             let (l_bp, r_bp) = self.infix_binding_power(&op_tok);
@@ -110,21 +106,6 @@ impl Parser{
     }
 
 
-
-    fn is_func_call(&self, peek : &Token) -> bool {
-        matches!(peek, &Token::Lparen)
-    }
-
-    pub fn is_expr(&self, peek : &Token) -> bool{
-        peek == &Token::Int
-            || peek == &Token::Float
-            || peek == &Token::Ident
-            || peek == &Token::True
-            || peek == &Token::Sub
-            || peek == &Token::Lparen
-            || peek == &Token::LogicNot
-    }
-
     fn infix_binding_power(&self, op : &Token) -> (f32, f32){
         match op{
             Token::LogicAnd | Token::LogicOr => (0.1, 0.2),
@@ -140,7 +121,27 @@ impl Parser{
 
 
 
+
 }
+
+fn is_func_call(peek : &Token) -> bool {
+    matches!(peek, &Token::Lparen)
+}
+
+pub fn is_expr(peek : &Token) -> bool{
+    is_expr_val(peek) || is_op(peek)
+}
+pub fn is_expr_val(peek : &Token) -> bool{
+    peek == &Token::Int
+        || peek == &Token::Float
+        || peek == &Token::Ident
+        || peek == &Token::True
+        || peek == &Token::Sub
+        || peek == &Token::Lparen
+        || peek == &Token::LogicNot
+}
+
+
 
 pub fn is_op(tok : &Token) -> bool{
     is_regular_op(tok) || is_bool_op(tok) || is_compare_op(tok)

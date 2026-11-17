@@ -1,3 +1,4 @@
+use std::env::var;
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::tree::ast::{NONE};
@@ -28,16 +29,10 @@ impl<'ctx>Codegen<'ctx>{
                     let int_ty = self.int_type_mapping(&ty);
                     let var_str = &self.parser.lexer.tokenizer.input[str_s..str_e];
 
-                    if ty == &Type::i128{
-                        let integer : u128 = var_str.parse().unwrap();
+                    let integer : u128 = var_str.parse().unwrap();
+                    let two_parts = [integer as u64, (integer >> 64) as u64];
+                    int_ty.const_int_arbitrary_precision(&two_parts).into()
 
-                        let two_u64 = [integer as u64, (integer >> 64) as u64];
-                        int_ty.const_int_arbitrary_precision(&two_u64).into()
-
-                    }else{
-                        let integer : u64 = var_str.parse().unwrap();
-                        int_ty.const_int(integer, true).into()
-                    }
                 }
                 Token::Float => {
                     let str_interval = &self.parser.lexer.tokenizer.intervals[key as usize];
@@ -102,20 +97,23 @@ impl<'ctx>Codegen<'ctx>{
                         },
                         (_, _) => {
                             let idxs = self.get_edge_slice(start, end);
+                            let idxs = self.get_edge_slice(start, end);
                             let lhs_idx = idxs[0] as usize;
                             let rhs_idx = idxs[1] as usize;
+                            let lhs_node = &self.parser.ast.nodes[lhs_idx];
 
-                            let lhs = if is_comparison_op(&tok){
-                                self.build_expr(lhs_idx, &Type::i32)
+                            let operand_ty = if is_comparison_op(&tok){
+                                match lhs_node.token{
+                                    Token::Int => &Type::i128,
+                                    Token::Float => &Type::f64,
+                                    _ => unreachable!()
+                                }
                             }else{
-                                self.build_expr(lhs_idx, ty)
+                                ty
                             };
 
-                            let rhs = if is_comparison_op(&tok){
-                                self.build_expr(rhs_idx, &Type::i32)
-                            }else{
-                                self.build_expr(rhs_idx, ty)
-                            };
+                            let lhs = self.build_expr(lhs_idx, &operand_ty);
+                            let rhs = self.build_expr(rhs_idx, &operand_ty);
 
                             match(lhs, rhs){
 
@@ -170,6 +168,13 @@ impl<'ctx>Codegen<'ctx>{
                                             "Int_EqEq"
                                         ).unwrap().into()
                                     },
+                                    Token::NotEq => {
+                                        self.builder.build_int_compare(
+                                            IntPredicate::NE,
+                                            l, r,
+                                            "Int_NEq"
+                                        ).unwrap().into()
+                                    }
                                     Token::LogicAnd => {
                                         self.builder.build_and(l, r, "Bool_And").unwrap().into()
                                     },
@@ -180,54 +185,61 @@ impl<'ctx>Codegen<'ctx>{
                                 },
                                 (BasicValueEnum::FloatValue(l), BasicValueEnum::FloatValue(r)) => match tok{
                                     Token::Add =>{
-                                        self.builder.build_float_add(l, r, "Flt_Add").unwrap().into()
+                                        self.builder.build_float_add(l, r, "Float_Add").unwrap().into()
                                     },
                                     Token::Sub =>{
-                                        self.builder.build_float_sub(l, r, "Flt_Sub").unwrap().into()
+                                        self.builder.build_float_sub(l, r, "Float_Sub").unwrap().into()
                                     },
                                     Token::Mul    =>{
-                                        self.builder.build_float_mul(l, r, "Flt_Mul").unwrap().into()
+                                        self.builder.build_float_mul(l, r, "Float_Mul").unwrap().into()
                                     },
                                     Token::Div    => {
-                                        self.builder.build_float_div(l, r, "Flt_Div").unwrap().into()
+                                        self.builder.build_float_div(l, r, "Float_Div").unwrap().into()
                                     },
                                     Token::Mod    => {
-                                        self.builder.build_float_rem(l, r,"Flt_Mod").unwrap().into()                                    },
+                                        self.builder.build_float_rem(l, r,"Float_Mod").unwrap().into()                                    },
                                     Token::Les    => {
                                         self.builder.build_float_compare(
                                             FloatPredicate::OLT,
                                             l, r,
-                                            "Flt_Lesser"
+                                            "Float_Lesser"
                                         ).unwrap().into()
                                     },
                                     Token::Grt => {
                                         self.builder.build_float_compare(
                                             FloatPredicate::OGT,
                                             l, r,
-                                            "Flt_Greater"
+                                            "Float_Greater"
                                         ).unwrap().into()
                                     },
                                     Token::LesEq => {
                                         self.builder.build_float_compare(
                                             FloatPredicate::OLE,
                                             l, r,
-                                            "Flt_LesEq"
+                                            "Float_LesEq"
                                         ).unwrap().into()
                                     },
                                     Token::GrtEq => {
                                         self.builder.build_float_compare(
                                             FloatPredicate::OGE,
                                             l, r,
-                                            "FLOAT_GrtEq"
+                                            "Float_GrtEq"
                                         ).unwrap().into()
                                     },
                                     Token::EqEq => {
                                         self.builder.build_float_compare(
                                             FloatPredicate::OEQ,
                                             l, r,
-                                            "FLOAT_EqEq"
+                                            "Float_EqEq"
                                         ).unwrap().into()
                                     },
+                                    Token::NotEq => {
+                                        self.builder.build_float_compare(
+                                            FloatPredicate::ONE,
+                                            l, r,
+                                            "Floar_NEq"
+                                        ).unwrap().into()
+                                    }
                                     _ => unreachable!()
                                 },
                                 _  => unreachable!()
@@ -285,6 +297,7 @@ impl<'ctx>Codegen<'ctx>{
             Type::i32 =>  self.context.i32_type(),
             Type::i64 =>  self.context.i64_type(),
             Type::i128 => self.context.i128_type(),
+            Type::bool => self.context.bool_type(),
             _ => unreachable!()
         }
     }
@@ -293,7 +306,7 @@ impl<'ctx>Codegen<'ctx>{
         match ty{
             Type::f32 => self.context.f32_type().into(),
             Type::f64 => self.context.f64_type().into(),
-            _ => unreachable!()
+            _ => panic!("Expected Type in Float : {:?}", ty),
         }
     }
 

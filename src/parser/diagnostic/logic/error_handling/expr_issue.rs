@@ -282,12 +282,11 @@ impl Parser{
 
     pub fn out_of_this_stmt(&mut self){
         self.eat();
-        while !is_stmt(self.peek()){
-            if matches!(self.peek(), Token::Rbrace | Token::Scolon){
+        while !is_stmt(&self.peek()){
+            if matches!(self.peek(), Token::Rbrace){
                 self.eat();
                 break;
             }
-
             self.eat();
         }
 
@@ -300,8 +299,8 @@ impl Parser{
 fn is_stmt(tok : &Token) -> bool{
     matches!(tok,
         Token::EOF|
-        Token::Rbrace|
         Token::Val|
+        Token::Rbrace|
         Token::Var |
         Token::If  |
         Token::Elif|

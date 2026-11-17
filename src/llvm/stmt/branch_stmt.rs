@@ -42,7 +42,7 @@ impl<'ctx>Codegen<'ctx>{
                     self.builder.position_at_end(prev_cond_bb);
 
                     let prev_cond_val = self
-                        .build_expr(prev_expr_idx as usize, &Type::i32)
+                        .build_expr(prev_expr_idx as usize, &Type::bool)
                         .into_int_value();
                     self.builder.build_conditional_branch(prev_cond_val, prev_body_bb, cur_cond_bb).unwrap();
 
@@ -54,7 +54,7 @@ impl<'ctx>Codegen<'ctx>{
                     //prev cond
                     self.builder.position_at_end(prev_cond_bb);
                     let prev_cond_val = self
-                        .build_expr(prev_expr_idx as usize, &Type::i32)
+                        .build_expr(prev_expr_idx as usize, &Type::bool)
                         .into_int_value();
                     self.builder.build_conditional_branch(prev_cond_val, prev_body_bb, cur_cond_bb).unwrap();
 
@@ -82,7 +82,7 @@ impl<'ctx>Codegen<'ctx>{
                 //prev cond
                 self.builder.position_at_end(prev_cond_bb);
                 let cond_val = self
-                    .build_expr(last_expr_idx as usize, &Type::i32)
+                    .build_expr(last_expr_idx as usize, &Type::bool)
                     .into_int_value();
 
                 self.builder.build_conditional_branch(cond_val, prev_body_bb, end_bb).unwrap();
@@ -100,7 +100,7 @@ impl<'ctx>Codegen<'ctx>{
             let stmt_idx = self.get_edge_slice(start, end)[1];
             self.builder.position_at_end(if_cond);
             let cond_val = self
-                .build_expr(expr_idx as usize, &Type::i32)
+                .build_expr(expr_idx as usize, &Type::bool)
                 .into_int_value();
 
             self.builder.build_conditional_branch(cond_val, if_body, end_bb).unwrap();

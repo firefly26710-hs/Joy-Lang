@@ -5,6 +5,7 @@ use crate::parser::tree::node::Key;
 
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
+use crate::parser::stmt::logic::expr::is_expr_val;
 use crate::parser::types::typ::Type;
 
 impl Parser{
@@ -21,7 +22,7 @@ impl Parser{
 
         self.matches_token(&Token::Lparen)?;
 
-        let has_declared_arg = self.peek() == &Token::Ident;
+        let has_declared_arg = self.peek() == Token::Ident;
         let param_start = if has_declared_arg{ self.params_start() }else{NONE};
 
         if has_declared_arg{
@@ -77,7 +78,7 @@ impl Parser{
 
     pub fn parse_ret(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
-        let expr_idx : Option<NodeIdx> = if self.is_expr(self.peek()){
+        let expr_idx : Option<NodeIdx> = if is_expr_val(&self.peek()){
             Some(self.parse_expression()?)
         }else{
             None

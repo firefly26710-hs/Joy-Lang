@@ -3,35 +3,10 @@ use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
+use crate::parser::tree::node::Key;
 
 impl Parser{
-    pub fn matches_token(&mut self, expected_tok : &Token) -> Result<(), ParserIssue>{
-        let current_tok = self.peek();
-        if current_tok == &Token::EOF{
-            //dummy value
-            return Err(ParserIssue::Token(TokenIssue::UnclosedDelimiter))
-        }
-        if current_tok == expected_tok{
-            self.eat();
-            Ok(())
-        }else{
-            Err(self.unexpected_token_issue(&expected_tok))
-        }
-    }
-
-    pub fn unclosed_delimiter(&mut self, expected_tok : &Token) -> Result<(), ParserIssue>{
-        let current_tok = self.peek();
-        if current_tok == &Token::EOF{
-            //dummy value
-            return Err(ParserIssue::Token(TokenIssue::UnclosedDelimiter))
-        }
-        if current_tok == expected_tok{
-            self.eat();
-            Ok(())
-        }else{
-            Err(self.unclosed_delimiter_token_issue())
-        }
-    }
+   
 
     pub fn unexpected_token_issue(
         &mut self,
@@ -74,23 +49,15 @@ impl Parser{
         issue
     }
 
-    pub fn unclosed_delimiter_token_issue(&mut self) -> ParserIssue {
+    pub fn unclosed_delimiter_token_issue(&mut self, wrong_start_key : Key) -> ParserIssue {
         self.lexer.error.has_error = true;
+        
 
-        let wrong_tok_key = self.current;
-
-        let span_id = if wrong_tok_key >= self.lexer.error.span_ids.len(){
-            self.lexer.error.span_ids[wrong_tok_key - 1] as usize
-        }else{
-            self.lexer.error.span_ids[wrong_tok_key] as usize
-        };
+        let span_id = self.lexer.error.span_ids[wrong_start_key as usize] as usize;
         let line = span_id + 1;
-
-        let interval = if wrong_tok_key >= self.lexer.tokenizer.intervals.len(){
-            &self.lexer.tokenizer.intervals[wrong_tok_key - 1]
-        } else{
-            &self.lexer.tokenizer.intervals[wrong_tok_key]
-        };
+        
+        let interval = &self.lexer.tokenizer.intervals[wrong_start_key as usize];
+        
         let start =interval.start as usize;
         let end = interval.end as usize;
 

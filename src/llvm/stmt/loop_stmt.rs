@@ -101,7 +101,7 @@ impl<'ctx>Codegen<'ctx>{
         //while.cond
         self.builder.build_unconditional_branch(cond_bb).unwrap();
         self.builder.position_at_end(cond_bb);
-        let cond_val = self.build_expr(cond_idx as usize, &Type::i32).into_int_value();
+        let cond_val = self.build_expr(cond_idx as usize, &Type::bool).into_int_value();
         self.builder.build_conditional_branch(cond_val, body_bb, end_bb).unwrap();
 
         //while.body

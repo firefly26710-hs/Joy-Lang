@@ -14,6 +14,7 @@ pub struct Error{
     pub file_name   : String,
     pub spans       : Vec<(SpanStart, SpanLength)>,
     pub span_ids    : Vec<u32>,
+	pub lbrace_stack : Vec<u32>,
 	pub span_start: u32,
 	pub span_id     : u32,
 	pub line        : u32,
@@ -26,6 +27,7 @@ impl Error{
 		Self{
 			lex_msg_data: Vec::with_capacity(alloc_size),
 			par_msg_data : Vec::with_capacity(alloc_size),
+			lbrace_stack : Vec::with_capacity(64),
 	    	file_name,
 	    	spans   : Vec::with_capacity(alloc_size),
 	    	span_ids: Vec::with_capacity(alloc_size),
