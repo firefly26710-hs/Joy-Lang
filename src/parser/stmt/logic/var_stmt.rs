@@ -12,7 +12,7 @@ impl Parser{
         self.eat();
         //var name
         let var_name_key = self.current as Key;
-        let var_name_idx = self.get_tok_node_idx(&Token::Ident);
+        let var_name_idx = self.push_leaf(Token::Ident, self.current as Key)?;
 
 
         self.matches_token(&Token::Ident)?;

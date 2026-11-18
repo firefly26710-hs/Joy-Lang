@@ -11,8 +11,7 @@ impl Parser{
     pub fn parse_function(&mut self) -> Result<NodeIdx, ParserIssue>{
 
         self.matches_token(&Token::Fn)?;
-        let func_name_key = self.current as Key;
-        let func_name_node_idx = self.get_tok_node_idx(&Token::Ident);
+        let func_name_node_idx = self.push_leaf(Token::Ident, self.current as Key)?;
         self.stmt.func_recorder.push(func_name_node_idx);
         self.matches_token(&Token::Ident)?;
 
@@ -22,14 +21,13 @@ impl Parser{
 
         if has_declared_arg{
             loop{
-                let arg_name_key = self.current as Key;
-                let arg_idx =self.get_tok_node_idx(&Token::Ident);
-
+                let arg_idx =self.push_leaf(Token::Ident, self.current as Key)?;
                 self.matches_token(&Token::Ident)?;
                 self.matches_token(&Token::Colon)?;
+                let type_idx = self.push_leaf(Token::Type, self.current as Key)?;
                 self.matches_token(&Token::Type)?;
                 self.stmt.func_recorder.push(arg_idx);
-
+                self.stmt.func_recorder.push(type_idx);
 
                 match self.peek(){
                     Token::Rparen => break,
@@ -130,7 +128,7 @@ impl Parser{
         self.eat();
 
        self.matches_token(&Token::Lparen)?;
-        let type_idx = self.get_tok_node_idx(&Token::Type);
+        let type_idx = self.push_leaf(Token::Type, self.current as Key)?;
         self.matches_token(&Token::Type)?;
 
         self.matches_token(&Token::Comma)?;

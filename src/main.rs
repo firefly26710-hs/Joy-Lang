@@ -55,7 +55,7 @@ fn main() -> Result<(), ParserIssue> {
 fn diag_test(){
     let input = "
     fn main() = void{
-        var x = 5
+        var x = 5;
         while x == 1{}
     }
 
@@ -68,7 +68,7 @@ fn diag_test(){
     if parser.error.has_error{
         parser.output_parser_error();
     }
-    
+    parser.print_node();
     
    // parser.print_node();
    //  let context = Context::create();

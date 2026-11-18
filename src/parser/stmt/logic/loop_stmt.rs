@@ -2,10 +2,12 @@ use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NONE, NodeIdx};
+use crate::parser::tree::node::Key;
+
 impl Parser{
     pub fn parse_for(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
-        let loop_ident_idx = self.get_tok_node_idx(&Token::Ident);
+        let loop_ident_idx = self.push_leaf(Token::Ident, self.current as Key)?;
         self.matches_token(&Token::Ident)?;
 
         self.matches_token(&Token::In)?;
