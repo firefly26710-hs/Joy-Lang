@@ -1,4 +1,4 @@
-enum  ScopeKind{
+pub enum ScopeKind{
     Var,
     Func,
     If,

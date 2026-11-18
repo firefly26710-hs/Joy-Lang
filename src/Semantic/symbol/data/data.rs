@@ -1,7 +1,9 @@
+use crate::Semantic::symbol::data::ty::Type;
 use crate::lexer::tokenizer::source::interval::Interval;
 use crate::parser::tree::node::Key;
-use crate::Semantic::symbol::ty::Type;
 
+const VAR_PART_ALLOC_SIZE: usize = 256;
+const FUNC_PART_ALLOC_SIZE : usize = 128;
 pub struct Symbol{
     pub var_keys      : Vec<Key>,
     pub var_types     : Vec<Type>,
@@ -11,5 +13,13 @@ pub struct Symbol{
 }
 
 impl Symbol{
-    
+    pub fn init() -> Self{
+        Self{
+            var_keys    : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
+            var_types   : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
+            func_keys   : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+            param_idxs  : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+            ret_types   : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+        }
+    }
 }
