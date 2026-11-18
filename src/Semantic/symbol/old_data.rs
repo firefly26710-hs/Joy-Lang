@@ -1,13 +1,15 @@
 use crate::lexer::tokenizer::source::interval::Interval;
+use crate::parser::tree::node::Key;
 use crate::parser::types::typ::Type;
+use crate::Semantic::symbol::ty::Type;
+
 const VAR_PART_ALLOC_SIZE: usize = 256;
 const FUNC_PART_ALLOC_SIZE : usize = 128;
 
-type KeyId = u32;
 pub struct Table{
-    pub var_keys      : Vec<KeyId>,
+    pub var_keys      : Vec<Key>,
     pub var_types     : Vec<Type>,
-    pub func_keys     : Vec<KeyId>,
+    pub func_keys     : Vec<Key>,
     pub param_idxs    : Vec<Interval>,
     pub ret_types     : Vec<Type>,
     pub var_key_start : usize

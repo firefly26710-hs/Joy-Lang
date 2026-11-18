@@ -1,1 +1,2 @@
-pub mod scopetype;
+pub mod scopestruct;
+pub mod scopekind;

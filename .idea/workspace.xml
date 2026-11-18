@@ -12,53 +12,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Semantic/center/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Semantic/center/sema.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Semantic/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Semantic/scope/data/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Semantic/scope/logic/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Semantic/scope/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Semantic/types/Type.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lexer/diagnostic/source/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lexer/diagnostic/source/data.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/codegen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/codegen.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/branch_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/func_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/loop_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/other_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/other_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/center/par.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/center/par.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/expr_issue.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/func_issue.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/helper.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/mod.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/scope_issue.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/error_handling/token_issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/logic/issue.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/logic/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/logic/output.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/logic/output.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/diagnostic/source/issue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/diagnostic/source/issue.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/scope/data.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/scope/helper.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/scope/logic.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/scope/mod.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/branch_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/function_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/function_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/helper.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/loop_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/scope_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/scope_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/var_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/var_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/tree/logic.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/tree/logic.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/types/data.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/types/helper.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/logic.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/types/logic.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/types/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/typ.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/types/typ.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Semantic/symbol/Type.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Semantic/symbol/data/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Semantic/symbol/logic/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/center/sema.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/center/sema.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/scope/data/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/scope/data/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/scope/data/scopetype.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/scope/data/scopestruct.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/types/Type.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/scope/data/scopekind.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/types/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/symbol/old_data.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/types/helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/symbol/helper.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/types/logic.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/symbol/old_logic.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/types/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/symbol/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Semantic/types/typ.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Semantic/symbol/typ.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,6 +86,8 @@
     "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/stmt.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/par/node.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/llvm/stmt.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/Semantic/symbol/data/mod.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/Semantic/symbol/logic/mod.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/Semantic/types/Type.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lex/lexer/mod.rs": "true",
     "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/center/lex.rs": "true",
@@ -267,7 +235,7 @@
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/Semantic/types/data.rs</url>
+          <url>file://$PROJECT_DIR$/src/Semantic/symbol/old_data.rs</url>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
