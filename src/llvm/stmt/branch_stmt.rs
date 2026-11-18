@@ -1,6 +1,5 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::parser::types::typ::Type;
 
 impl<'ctx>Codegen<'ctx>{
     pub fn build_if_stmt(&mut self ,start: Start, end : End){

@@ -1,14 +1,8 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParserIssue{
-    Token(TokenIssue),
-    Expr(ExprIssue),
-    Scope(ScopeIssue),
-    Func(FunctionIssue)
-}
-#[derive(Debug, Clone, PartialEq)]
-pub enum TokenIssue{
     UnExpectedToken{wrong_string : String, correct_string : String},
     UnclosedDelimiter,
+    UnExpectedExpr{wrong_string : String}
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum ExprIssue{

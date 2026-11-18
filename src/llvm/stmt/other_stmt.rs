@@ -2,7 +2,6 @@ use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
-use crate::parser::types::typ::Type;
 use inkwell::types::BasicTypeEnum;
 use inkwell::values::{BasicValueEnum, PointerValue};
 use crate::lexer::tokenizer::source::token::Token;

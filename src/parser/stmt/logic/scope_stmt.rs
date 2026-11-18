@@ -12,13 +12,15 @@ impl Parser{
             match self.matches_stmts(){
                 Ok(stmt_idx) => {
                     self.stmt.scope_recorder.push(stmt_idx);
-                    if self.peek() == Token::Rbrace{
+                    if self.peek() == &Token::Rbrace{
                         break;
                     }
                 }
                 Err(_) => {
                     self.stmt.scope_recorder.push(67);
-                    self.out_of_this_stmt();
+                    while !is_stmt(self.peek()){
+                        self.eat();
+                    }
                 }
             };
         }
@@ -46,4 +48,15 @@ impl Parser{
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }
     }
+}
+fn is_stmt(peek : &Token) -> bool{
+    matches!(peek,
+        Token::Var|
+        Token::If |
+        Token::For|
+        Token::While|
+        Token::Ident|
+        Token::Elif|
+        Token::Else
+    )
 }

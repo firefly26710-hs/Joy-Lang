@@ -1,5 +1,8 @@
-use crate::lexer::diagnostic::source::msg_data::{LexerMsgData};
+use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 use crate::parser::diagnostic::source::msg_data::ParserMsgData;
+
+//use crate::lexer::diagnostic::source::msg_data::{LexerMsgData};
+//use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 pub type SpanStart = usize;
 pub type SpanLength = usize;
 pub type ColStart = u32;

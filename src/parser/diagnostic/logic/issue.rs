@@ -1,4 +1,3 @@
-use crate::parser::diagnostic::source::issue::TokenIssue;
 use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::center::par::Parser;
@@ -12,31 +11,31 @@ impl Parser{
         &mut self,
         correct_token : &Token,
     ) -> ParserIssue {
-        self.lexer.error.has_error = true;
+        self.error.has_error = true;
 
         let wrong_tok_key = self.current;
 
-        let span_id = if wrong_tok_key >= self.lexer.error.span_ids.len(){
-            self.lexer.error.span_ids[wrong_tok_key - 1] as usize
+        let span_id = if wrong_tok_key >= self.error.span_ids.len(){
+            self.error.span_ids[wrong_tok_key - 1] as usize
         }else{
-            self.lexer.error.span_ids[wrong_tok_key] as usize
+            self.error.span_ids[wrong_tok_key] as usize
         };
         let line = span_id + 1;
 
-        let interval = if wrong_tok_key >= self.lexer.tokenizer.intervals.len(){
-            &self.lexer.tokenizer.intervals[wrong_tok_key - 1]
+        let interval = if wrong_tok_key >= self.intervals.len(){
+            &self.intervals[wrong_tok_key - 1]
         } else{
-            &self.lexer.tokenizer.intervals[wrong_tok_key]
+            &self.intervals[wrong_tok_key]
         };
         let start =interval.start as usize;
         let end = interval.end as usize;
 
-        let wrong_string = self.lexer.tokenizer.input[start..end].to_string();
+        let wrong_string = self.input[start..end].to_string();
         let correct_string = from_tok_to_string(correct_token).to_string();
 
-        let issue = ParserIssue::Token(TokenIssue::UnExpectedToken {wrong_string, correct_string});
+        let issue = ParserIssue::UnExpectedToken {wrong_string, correct_string};
 
-        self.lexer.error.par_msg_data.push(
+        self.error.par_msg_data.push(
             ParserMsgData::new(
                 issue.clone(),
                 line,
@@ -49,21 +48,48 @@ impl Parser{
         issue
     }
 
+    pub fn unexpected_expression_issue(&mut self) -> ParserIssue{
+        self.error.has_error = true;
+        let wrong_tok_key = self.current;
+        let span_id = self.error.span_ids[wrong_tok_key] as usize;
+        let line = span_id + 1;
+
+        let interval = &self.intervals[wrong_tok_key];
+
+        let start =interval.start as usize;
+        let end = interval.end as usize;
+
+        let wrong_string = self.input[start..end].to_string();
+        let issue = ParserIssue::UnExpectedExpr {wrong_string};
+
+        self.error.par_msg_data.push({
+            ParserMsgData::new(
+                issue.clone(),
+                line,
+                start,
+                end,
+                span_id
+            )
+        });
+
+        issue
+    }
+
     pub fn unclosed_delimiter_token_issue(&mut self, wrong_start_key : Key) -> ParserIssue {
-        self.lexer.error.has_error = true;
+        self.error.has_error = true;
         
 
-        let span_id = self.lexer.error.span_ids[wrong_start_key as usize] as usize;
+        let span_id = self.error.span_ids[wrong_start_key as usize] as usize;
         let line = span_id + 1;
         
-        let interval = &self.lexer.tokenizer.intervals[wrong_start_key as usize];
+        let interval = &self.intervals[wrong_start_key as usize];
         
         let start =interval.start as usize;
         let end = interval.end as usize;
 
-        let issue = ParserIssue::Token(TokenIssue::UnclosedDelimiter);
+        let issue = ParserIssue::UnclosedDelimiter;
 
-        self.lexer.error.par_msg_data.push(
+        self.error.par_msg_data.push(
             ParserMsgData::new(
                 issue.clone(),
                 line,

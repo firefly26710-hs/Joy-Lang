@@ -43,10 +43,10 @@ impl Parser{
 
             let key = node.key;
             if key == NONE{continue}
-            let interval = &self.lexer.tokenizer.intervals[key as usize];
+            let interval = &self.intervals[key as usize];
             let start = interval.start as usize;
             let end   = interval.end   as usize;
-            println!("String : {:?}\n", &self.lexer.tokenizer.input[start..end]);
+            println!("String : {:?}\n", &self.input[start..end]);
         }
     }
 

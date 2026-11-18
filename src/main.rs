@@ -1,7 +1,8 @@
 pub mod lexer;
 pub mod parser;
-pub mod llvm;
-use crate::llvm::codegen::Codegen;
+
+pub mod Semantic;
+//use crate::llvm::codegen::Codegen;
 use crate::parser::center::par::Parser;
 use inkwell::context::Context;
 use std::env;
@@ -29,22 +30,22 @@ fn main() -> Result<(), ParserIssue> {
   // lexer.print_output();
     let mut parser = Parser::init(lexer);
     let _ = parser.build_tree();
-    if parser.lexer.error.has_error{
+    if parser.error.has_error{
         parser.output_parser_error();
     }
     let context = Context::create();
-    let mut llvm = Codegen::init(&context, parser);
-    llvm.compile();
-
-
-     let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::None).unwrap();
-
-      unsafe {
-          let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
-              engine.get_function("main").unwrap();
-
-          main_fn.call();
-      }
+    //let mut llvm = Codegen::init(&context, parser);
+    // llvm.compile();
+    //
+    //
+    // let engine = llvm.module.create_jit_execution_engine(OptimizationLevel::None).unwrap();
+    //
+    // unsafe {
+    //     let main_fn: inkwell::execution_engine::JitFunction<unsafe extern "C" fn()> =
+    //         engine.get_function("main").unwrap();
+    //
+    //     main_fn.call();
+    // }
 
     Ok(())
 
@@ -54,10 +55,8 @@ fn main() -> Result<(), ParserIssue> {
 fn diag_test(){
     let input = "
     fn main() = void{
-        var x = 5;
-        while x + 1 < 5{
-            continue;
-        }
+        var x = 5
+        while x == 1{}
     }
 
     ".to_string();
@@ -66,14 +65,16 @@ fn diag_test(){
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
     let _ = parser.build_tree();
-    if parser.lexer.error.has_error{
+    if parser.error.has_error{
         parser.output_parser_error();
     }
+    
+    
    // parser.print_node();
-    let context = Context::create();
-    let mut llvm = Codegen::init(&context, parser);
-    llvm.compile();
-    llvm.module.print_to_stderr();
+   //  let context = Context::create();
+   //  let mut llvm = Codegen::init(&context, parser);
+   //  llvm.compile();
+   //  llvm.module.print_to_stderr();
 
 
 

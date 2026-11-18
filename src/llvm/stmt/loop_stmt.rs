@@ -1,6 +1,5 @@
 use crate::lexer::tokenizer::source::interval::{End, Start};
 use crate::llvm::codegen::Codegen;
-use crate::parser::types::typ::Type;
 use inkwell::values::BasicValueEnum;
 
 impl<'ctx>Codegen<'ctx>{

@@ -7,7 +7,6 @@ use crate::parser::tree::node::Key;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> Result<NodeIdx, ParserIssue>{
-        self.stmt.expr_start_key = self.current as Key;
 
         self.expr(0.0)
     }
@@ -65,8 +64,7 @@ impl Parser{
                 if is_func_call(&self.peek_next()){
                     self.expr_func_call()
                 }else {
-                    let ident_key = self.find_same_ident_key(self.current as Key);
-                    self.var_not_in_scope(ident_key)?;
+                    let ident_key = self.current as Key;
                     self.eat();
                     self.push_leaf(Token::Ident, ident_key)
                 }
