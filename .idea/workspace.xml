@@ -12,19 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a.joy" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/expr.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/expr.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llvm/stmt/stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/llvm/stmt/other_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/data/stmt_data.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/branch_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/branch_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/helper.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/helper.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/loop_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/loop_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/scope_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/scope_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/stmt/logic/var_stmt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/stmt/logic/var_stmt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser/types/logic.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/logic.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser/types/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/data.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
