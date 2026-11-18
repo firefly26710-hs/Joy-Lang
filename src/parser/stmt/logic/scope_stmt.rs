@@ -29,7 +29,7 @@ impl Parser{
         self.ast.edges.extend(self.stmt.scope_recorder.drain(current_scope_len..));
         let edge_end : End = self.ast.edge_end();
 
-        Ok( self.push_node(Token::BlockStmt, NONE, edge_start, edge_end))
+        Ok( self.push_node(Token::Scope, NONE, edge_start, edge_end))
     }
 
     fn matches_stmts(&mut self) -> Result<NodeIdx, ParserIssue>{

@@ -40,6 +40,9 @@ impl Parser{
 
         self.matches_token(&Token::Rparen)?;
         self.matches_token(&Token::Eq)?;
+        
+        let ret_type_idx = self.push_leaf(Token::Type, self.current as Key)?;
+        self.stmt.func_recorder.push(ret_type_idx);
         self.matches_token(&Token::Type)?;
 
 

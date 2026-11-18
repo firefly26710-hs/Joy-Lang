@@ -59,7 +59,7 @@ pub enum Token{
     Brk,
     Ctn,
 
-    LetStmt,
+    VarStmt,
     IfStmt,
     ForStmt,
     WhileStmt,
@@ -67,10 +67,9 @@ pub enum Token{
     CtnStmt,
     FuncStmt,
     RetStmt,
-    BlockStmt,
     CallStmt,
     PrintStmt,
-    
+    Scope,
     
     Program,
     Print,

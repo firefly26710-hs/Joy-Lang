@@ -35,7 +35,7 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         let edge_end = self.ast.edge_end();
 
-        Ok(self.push_node(Token::LetStmt, NONE, edge_start, edge_end))
+        Ok(self.push_node(Token::VarStmt, NONE, edge_start, edge_end))
     }
 
 

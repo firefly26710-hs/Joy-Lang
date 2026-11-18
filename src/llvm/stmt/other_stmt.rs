@@ -62,7 +62,6 @@ impl<'ctx> Codegen<'ctx>{
         let var_type : BasicTypeEnum<'ctx> = match expr{
             BasicValueEnum::IntValue(v) => v.get_type().into(),
             BasicValueEnum::FloatValue(v) => v.get_type().into(),
-            //BasicValueEnum::PointerValue(v) => v.get_type().into(),
             _ => unreachable!()
         };
 

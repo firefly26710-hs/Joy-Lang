@@ -1,2 +1,2 @@
-pub mod scopestruct;
-pub mod scopekind;
+pub mod scope_data;
+pub mod scope_kind;

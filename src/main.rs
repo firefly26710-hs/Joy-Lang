@@ -55,9 +55,8 @@ fn main() -> Result<(), ParserIssue> {
 #[test]
 fn diag_test() {
     let input = "
-    fn main() = void{
+    fn main(a : i32) = void{
         var x = 5;
-        while x == 1{}
     }
 
     "
@@ -70,9 +69,9 @@ fn diag_test() {
     if parser.error.has_error {
         parser.output_parser_error();
     }
-    parser.print_node();
+     parser.print_node();
 
-    let semantic = Semantic::init(parser);
+    let mut semantic = Semantic::init(parser);
     semantic.analyze_tree();
     // parser.print_node();
     //  let context = Context::create();

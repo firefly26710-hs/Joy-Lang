@@ -1,12 +1,18 @@
-use crate::parser::tree::ast::NodeIdx;
-use crate::parser::tree::node::Node;
-use crate::semantic::center::sema::Semantic;
+use crate::lexer::tokenizer::source::token::Token;
+use crate::semantic::scope::data::scope_kind::ScopeKind;
 
-impl Semantic{
-    pub fn get_edges(&self, node : &Node) -> &[NodeIdx]{
-        let span = &node.edge_span;
-        let start = span.start as usize;
-        let end = span.end as usize;
-        &self.edges[start..=end]
+pub fn get_scope_notice(tok : &Token) -> ScopeKind{
+    match tok{
+        Token::VarStmt => ScopeKind::Var,
+        Token::IfStmt  => ScopeKind::If,
+        Token::ForStmt => ScopeKind::For,
+        Token::WhileStmt=>ScopeKind::While,
+        Token::RetStmt  => ScopeKind::Ret,
+        Token::CtnStmt  => ScopeKind::Ctn,
+        Token::BrkStmt  => ScopeKind::Brk,
+        Token::CallStmt => ScopeKind::Ctn,
+        Token::Fn       => ScopeKind::Fn,
+        Token::PrintStmt=> ScopeKind::Print,
+        _ => unreachable!()
     }
 }
