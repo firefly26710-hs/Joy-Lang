@@ -1,39 +1,41 @@
 pub mod lexer;
 pub mod parser;
+pub mod semantic;
 
-pub mod Semantic;
 //use crate::llvm::codegen::Codegen;
+use crate::lexer::center::lex::Lexer;
 use crate::parser::center::par::Parser;
+use crate::parser::diagnostic::source::issue::ParserIssue;
+use crate::semantic::center::sema::Semantic;
+use inkwell::OptimizationLevel;
 use inkwell::context::Context;
 use std::env;
 use std::fs::File;
 use std::io::Read;
-use inkwell::OptimizationLevel;
-use crate::lexer::center::lex::Lexer;
-use crate::parser::diagnostic::source::issue::ParserIssue;
 
 fn main() -> Result<(), ParserIssue> {
-    let args : Vec<String> = env::args().collect();
-    if args.len() < 2{
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
         panic!("No file in {:?}", args[0]);
     }
 
-    
-    let mut file =File::open(&args[1]).expect("Can't find file");
+    let mut file = File::open(&args[1]).expect("Can't find file");
     let file_size = file.metadata().map(|m| m.len() as usize).unwrap_or(0);
     let mut input = String::with_capacity(file_size + 3);
-    file.read_to_string(&mut input).expect("Failed Read to String");
+    file.read_to_string(&mut input)
+        .expect("Failed Read to String");
     input.push_str("\n\0\0\0");
 
     let mut lexer = Lexer::init(input, args[1].to_string());
     lexer.tokenize();
-  // lexer.print_output();
+    // lexer.print_output();
     let mut parser = Parser::init(lexer);
     let _ = parser.build_tree();
-    if parser.error.has_error{
+    if parser.error.has_error {
         parser.output_parser_error();
     }
-    let context = Context::create();
+    let semantic = Semantic::init(parser);
+    // let context = Context::create();
     //let mut llvm = Codegen::init(&context, parser);
     // llvm.compile();
     //
@@ -48,38 +50,33 @@ fn main() -> Result<(), ParserIssue> {
     // }
 
     Ok(())
-
 }
 
 #[test]
-fn diag_test(){
+fn diag_test() {
     let input = "
     fn main() = void{
         var x = 5;
         while x == 1{}
     }
 
-    ".to_string();
+    "
+    .to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
     let _ = parser.build_tree();
-    if parser.error.has_error{
+    if parser.error.has_error {
         parser.output_parser_error();
     }
     parser.print_node();
-    
-   // parser.print_node();
-   //  let context = Context::create();
-   //  let mut llvm = Codegen::init(&context, parser);
-   //  llvm.compile();
-   //  llvm.module.print_to_stderr();
 
-
-
-
-
-
+    let semantic = Semantic::init(parser);
+    semantic.analyze_tree();
+    // parser.print_node();
+    //  let context = Context::create();
+    //  let mut llvm = Codegen::init(&context, parser);
+    //  llvm.compile();
+    //  llvm.module.print_to_stderr();
 }
-

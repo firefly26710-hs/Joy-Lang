@@ -1,4 +1,4 @@
-use crate::Semantic::symbol::data::ty::Type;
+use crate::semantic::symbol::data::ty::Type;
 use crate::lexer::tokenizer::source::interval::Interval;
 use crate::parser::tree::node::Key;
 
