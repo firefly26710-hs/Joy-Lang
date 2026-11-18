@@ -83,7 +83,6 @@ impl Parser{
 
 fn from_tok_to_string(tok : &Token) -> &str{
     match tok{
-        Token::Val => "val",
         Token::Var => "var",
         Token::For => "for",
         Token::While => "while",
