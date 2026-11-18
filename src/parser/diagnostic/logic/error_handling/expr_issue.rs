@@ -299,7 +299,6 @@ impl Parser{
 fn is_stmt(tok : &Token) -> bool{
     matches!(tok,
         Token::EOF|
-        Token::Val|
         Token::Rbrace|
         Token::Var |
         Token::If  |

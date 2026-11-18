@@ -171,9 +171,6 @@ impl Lexer{
         while is_alphanumeric(self.peek()) {self.eat();}
         let slice = &self.tokenizer.input[self.tokenizer.start as usize..self.tokenizer.current as usize];
         match slice{
-            "val"      => {
-                self.collect_tokenizer_data(Token::Val);
-            }
             "var"      => {
                 self.collect_tokenizer_data(Token::Var);
             },

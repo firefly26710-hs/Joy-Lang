@@ -44,7 +44,6 @@ pub enum Token{
     
 
     //keyword
-    Val,
     Var,
     Fn,
     For,
