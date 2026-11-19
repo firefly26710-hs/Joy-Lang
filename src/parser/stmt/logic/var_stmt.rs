@@ -1,4 +1,5 @@
 use crate::lexer::tokenizer::source::token::Token;
+use crate::lexer::tokenizer::source::token::Token::UpdateKw;
 use crate::parser::center::par::Parser;
 use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::tree::ast::{NONE, NodeIdx};
@@ -11,17 +12,19 @@ impl Parser{
     pub fn parse_var(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
         //var name
-        let var_name_key = self.current as Key;
         let var_name_idx = self.push_leaf(Token::Ident, self.current as Key)?;
 
 
         self.matches_token(&Token::Ident)?;
 
         //type
-        if !matches!(self.peek(), Token::Eq){
+        let var_type_idx = if !matches!(self.peek(), Token::Eq){
             self.matches_token(&Token::Colon)?;
             self.matches_token(&Token::Type)?;
-        }
+             self.push_leaf(Token::Type, (self.current - 1) as Key)?
+        }else{
+            self.push_leaf(Token::Type, NONE)?
+        };
 
         self.matches_token(&Token::Eq)?;
 
@@ -32,10 +35,11 @@ impl Parser{
 
         let edge_start = self.ast.edge_start();
         self.ast.edges.push(var_name_idx);
+        self.ast.edges.push(var_type_idx);
         self.ast.edges.push(expr_idx);
         let edge_end = self.ast.edge_end();
 
-        Ok(self.push_node(Token::VarStmt, NONE, edge_start, edge_end))
+        Ok(self.push_node(Token::VarKw, NONE, edge_start, edge_end))
     }
 
 
@@ -52,9 +56,10 @@ impl Parser{
 
         let ident_name_idx = self.push_leaf(Token::Ident, self.current as Key)?;
         self.matches_token(&Token::Ident)?;
-
-        let op_tok_key = self.current as Key;
-        let op_tok = self.eat();
+        
+        let op_tok =self.eat();
+        let op_idx = 
+            self.push_leaf(op_tok, (self.current - 1) as Key)?;
 
         let expr_idx = self.parse_expression()?;
 
@@ -62,11 +67,12 @@ impl Parser{
 
         let start = self.ast.edge_start();
         self.ast.edges.push(ident_name_idx);
+        self.ast.edges.push(op_idx);
         self.ast.edges.push(expr_idx);
         let end = self.ast.edge_end();
 
 
-       Ok( self.push_node(op_tok, op_tok_key, start, end))
+       Ok( self.push_node(UpdateKw, NONE, start, end))
     }
 
 

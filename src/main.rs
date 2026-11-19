@@ -56,7 +56,7 @@ fn main() -> Result<(), ParserIssue> {
 fn diag_test() {
     let input = "
     fn main(a : i32) = void{
-        var x = 5;
+        var x : i8  = 3.5 + 1 ;
     }
 
     "
@@ -69,7 +69,7 @@ fn diag_test() {
     if parser.error.has_error {
         parser.output_parser_error();
     }
-     parser.print_node();
+    // parser.print_node();
 
     let mut semantic = Semantic::init(parser);
     semantic.analyze_tree();

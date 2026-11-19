@@ -1,10 +1,12 @@
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::semantic::center::sema::Semantic;
+use crate::semantic::control_flow::data::stmt_kind::StmtKind;
+use crate::semantic::diagnostic::data::issue::TypeIssue;
 use crate::semantic::scope::data::scope_kind::ScopeKind;
 
 impl Semantic{
-    pub fn analyze_function(&mut self, func_idx : NodeIdx){
+    pub fn analyze_function(&mut self, func_idx : NodeIdx) -> Result<(), TypeIssue>{
         let node = &self.nodes[func_idx as usize];
         let span = &node.edge_span;
         let start = span.start as usize;
@@ -27,7 +29,8 @@ impl Semantic{
                 let arg_key = self.nodes[1 + 2 * i].key;
                 let arg_type_key = self.nodes[2 + 2 * i].key;
                 let ty = self.type_mapping(arg_type_key);
-                self.symbol_insert_variable(arg_key, ty, ScopeKind::Fn);
+                self.symbol_insert_variable(
+                    arg_key, ty, ScopeKind::Fn, name_key);
             }
             self.cur_depth -= 1;
         }
@@ -44,6 +47,7 @@ impl Semantic{
             name_key, interval, self.type_mapping(ret_type_key)
         );
 
-        self.analyze_scope(scope_idx, &ScopeKind::Fn);
+        self.analyze_scope(scope_idx)?;
+        Ok(())
     }
 }

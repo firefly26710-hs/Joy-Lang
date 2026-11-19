@@ -55,7 +55,7 @@ impl Parser{
 
         let end = self.ast.edge_end();
 
-        Ok( self.push_node(Token::FuncStmt, NONE, start, end))
+        Ok( self.push_node(Token::FuncKw, NONE, start, end))
 
 
     }
@@ -80,7 +80,7 @@ impl Parser{
         }
         let end = self.ast.edge_end();
 
-       Ok( self.push_node(Token::RetStmt, NONE, start, end))
+       Ok( self.push_node(Token::RetKw, NONE, start, end))
     }
 
     pub fn parse_func_call(&mut self) -> Result<NodeIdx, ParserIssue>{
@@ -123,7 +123,7 @@ impl Parser{
         self.ast.edges.extend(self.stmt.func_call_recorder.drain(..));
         let end = self.ast.edge_end();
 
-        Ok(self.push_node(Token::CallStmt, NONE, start, end))
+        Ok(self.push_node(Token::CallKw, NONE, start, end))
     }
 
 
@@ -145,7 +145,7 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         let edges_end = self.ast.edge_end();
 
-        Ok(self.push_node(Token::PrintStmt, NONE, edges_start, edges_end))
+        Ok(self.push_node(Token::PrintKw, NONE, edges_start, edges_end))
 
 
     }

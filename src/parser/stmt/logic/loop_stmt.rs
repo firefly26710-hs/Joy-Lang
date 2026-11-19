@@ -34,7 +34,7 @@ impl Parser{
         self.ast.edges.push(step_number_idx);
         self.ast.edges.push(block_idx);
         let end = self.ast.edge_end();
-        Ok(self.push_node(Token::ForStmt, NONE, start, end))
+        Ok(self.push_node(Token::ForKw, NONE, start, end))
     }
 
     pub fn parse_while(&mut self) -> Result<NodeIdx, ParserIssue>{
@@ -47,7 +47,7 @@ impl Parser{
         self.ast.edges.push(expr_idx);
         self.ast.edges.push(stmts_idx);
         let end = self.ast.edge_end();
-        Ok(self.push_node(Token::WhileStmt, NONE, start, end))
+        Ok(self.push_node(Token::WhileKw, NONE, start, end))
     }
 
 

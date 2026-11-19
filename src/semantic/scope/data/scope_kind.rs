@@ -1,14 +1,9 @@
 pub enum ScopeKind{
-    Var,
-    If,
-    For,
-    While,
-    Brk,
-    Ctn,
     Fn,
-    Ret,
-    Call,
-    Print,
+    Local,
+    Global,
+    Struct,
+    Enum
     
 
 

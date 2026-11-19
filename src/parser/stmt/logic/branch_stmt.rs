@@ -13,7 +13,7 @@ impl Parser {
         self.ast.edges.extend(self.stmt.branch_recorder.drain(..));
         let end = self.ast.edge_end();
 
-       Ok( self.push_node(Token::IfStmt, NONE, start, end))
+       Ok( self.push_node(Token::IfKw, NONE, start, end))
     }
 
     fn record_branch_idx(&mut self, b_recorder_start : usize) -> Result<(), ParserIssue>{
@@ -65,7 +65,7 @@ impl Parser {
 
         self.matches_token(&Token::Scolon)?;
 
-        self.push_leaf(Token::BrkStmt, NONE)
+        self.push_leaf(Token::BrkKw, NONE)
     }
 
     pub fn parse_ctn(&mut self) -> Result<NodeIdx, ParserIssue>{
@@ -74,7 +74,7 @@ impl Parser {
 
         self.matches_token(&Token::Scolon)?;
 
-        self.push_leaf(Token::CtnStmt, NONE)
+        self.push_leaf(Token::CtnKw, NONE)
 
     }
 

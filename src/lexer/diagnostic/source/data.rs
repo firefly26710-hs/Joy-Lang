@@ -1,5 +1,6 @@
 use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 use crate::parser::diagnostic::source::msg_data::ParserMsgData;
+use crate::semantic::diagnostic::data::type_msg_data::TypeMsgData;
 
 //use crate::lexer::diagnostic::source::msg_data::{LexerMsgData};
 //use crate::parser::diagnostic::source::msg_data::ParserMsgData;
@@ -14,6 +15,8 @@ pub type ColEnd = u32;
 pub struct Error{
 	pub lex_msg_data : Vec<LexerMsgData>,
 	pub par_msg_data : Vec<ParserMsgData>,
+	pub type_msg_data: Vec<TypeMsgData>,
+	
     pub file_name   : String,
     pub spans       : Vec<(SpanStart, SpanLength)>,
     pub span_ids    : Vec<u32>,
@@ -30,6 +33,7 @@ impl Error{
 		Self{
 			lex_msg_data: Vec::with_capacity(alloc_size),
 			par_msg_data : Vec::with_capacity(alloc_size),
+			type_msg_data: Vec::with_capacity(alloc_size),
 			lbrace_stack : Vec::with_capacity(64),
 	    	file_name,
 	    	spans   : Vec::with_capacity(alloc_size),

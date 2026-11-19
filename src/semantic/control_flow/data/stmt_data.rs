@@ -1,0 +1,17 @@
+use crate::semantic::control_flow::data::stmt_kind::StmtKind;
+
+#[derive(Debug, Clone, PartialEq)]
+
+pub struct StmtData{
+    kind : StmtKind,
+    depth: u8
+}
+
+impl StmtData{
+    pub fn new(kind: StmtKind, depth : u8) -> Self{
+        Self{
+            kind,
+            depth
+        }
+    }
+}
