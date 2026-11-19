@@ -10,12 +10,7 @@ pub struct Stmt{
     pub loop_recorder : Vec<NodeIdx>,
     pub func_call_recorder : Vec<NodeIdx>,
     pub scope_recorder     : Vec<NodeIdx>,
-
-    
-
-
-
-
+    pub lbrace_stack : Vec<u32>,
 }
 
 impl Stmt{
@@ -27,13 +22,16 @@ impl Stmt{
             loop_recorder   : Vec::with_capacity(RECORDER_SIZE),
             func_call_recorder : Vec::with_capacity(RECORDER_SIZE),
             scope_recorder : Vec::with_capacity(RECORDER_SIZE),
-
-
-
+            lbrace_stack : Vec::with_capacity(64)
 
         }
+    }
 
-
-
+    pub fn recorder_init(&mut self){
+        self.func_recorder.clear();
+        self.branch_recorder.clear();
+        self.loop_recorder.clear();
+        self.func_call_recorder.clear();
+        self.scope_recorder.clear();
     }
 }

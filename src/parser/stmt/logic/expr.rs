@@ -69,7 +69,7 @@ impl Parser{
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }
-            _ => Err(self.unexpected_expression_issue())
+            _ => Err(self.unexpected_expression_issue(self.current))
         };
 
 

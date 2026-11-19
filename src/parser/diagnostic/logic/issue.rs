@@ -10,10 +10,10 @@ impl Parser{
     pub fn unexpected_token_issue(
         &mut self,
         correct_token : &Token,
+        wrong_tok_key : usize,
     ) -> ParserIssue {
         self.error.has_error = true;
 
-        let wrong_tok_key = self.current;
 
         let span_id = if wrong_tok_key >= self.error.span_ids.len(){
             self.error.span_ids[wrong_tok_key - 1] as usize
@@ -48,9 +48,8 @@ impl Parser{
         issue
     }
 
-    pub fn unexpected_expression_issue(&mut self) -> ParserIssue{
+    pub fn unexpected_expression_issue(&mut self, wrong_tok_key : usize) -> ParserIssue{
         self.error.has_error = true;
-        let wrong_tok_key = self.current;
         let span_id = self.error.span_ids[wrong_tok_key] as usize;
         let line = span_id + 1;
 

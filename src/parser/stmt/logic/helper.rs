@@ -9,27 +9,27 @@ impl Parser{
         
         if current_tok == *expected_tok{
             if current_tok == Token::Lbrace{
-                self.error.lbrace_stack.push(current_key);
+                self.stmt.lbrace_stack.push(current_key);
             }
             self.eat();
             Ok(())
         }else{
-            Err(self.unexpected_token_issue(&expected_tok))
+            Err(self.unexpected_token_issue(&expected_tok, self.current))
         }
     }
 
     pub fn unclosed_delimiter(&mut self) -> Result<(), ParserIssue>{
         let current_tok = self.peek();
-        if self.error.lbrace_stack.is_empty() {
+        if self.stmt.lbrace_stack.is_empty() {
             Ok(())
         }else{
             if current_tok == &Token::Rbrace{
                 self.eat();
-                self.error.lbrace_stack.pop();
+                self.stmt.lbrace_stack.pop();
                 Ok(())
             }else{
                 Err(self.unclosed_delimiter_token_issue(
-                    *self.error.lbrace_stack.last().unwrap()
+                    *self.stmt.lbrace_stack.last().unwrap()
                 ))
             }
         }

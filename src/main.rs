@@ -13,7 +13,7 @@ use std::env;
 use std::fs::File;
 use std::io::Read;
 
-fn main() -> Result<(), ParserIssue> {
+fn main(){
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         panic!("No file in {:?}", args[0]);
@@ -30,10 +30,8 @@ fn main() -> Result<(), ParserIssue> {
     lexer.tokenize();
     // lexer.print_output();
     let mut parser = Parser::init(lexer);
-    let _ = parser.build_tree();
-    if parser.error.has_error {
-        parser.output_parser_error();
-    }
+     parser.build_tree();
+
     let semantic = Semantic::init(parser);
     // let context = Context::create();
     //let mut llvm = Codegen::init(&context, parser);
@@ -49,14 +47,17 @@ fn main() -> Result<(), ParserIssue> {
     //     main_fn.call();
     // }
 
-    Ok(())
 }
 
 #[test]
 fn diag_test() {
     let input = "
     fn main(a : i32) = void{
-        var x : i8  = 3.5 + 1 ;
+        var x = ;
+        while {}
+    }
+    fn add() = void{
+        var y 1;
     }
 
     "
@@ -65,10 +66,8 @@ fn diag_test() {
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
-    let _ = parser.build_tree();
-    if parser.error.has_error {
-        parser.output_parser_error();
-    }
+     parser.build_tree();
+
     // parser.print_node();
 
     let mut semantic = Semantic::init(parser);

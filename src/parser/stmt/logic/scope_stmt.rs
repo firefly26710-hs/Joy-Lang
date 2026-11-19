@@ -8,17 +8,18 @@ impl Parser{
     pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
         let current_scope_len = self.stmt.scope_recorder.len();
         self.matches_token(&Token::Lbrace)?;
-        while !matches!(self.peek(), Token::EOF | Token::Fn){
+        'outer : while !matches!(self.peek(), Token::Rbrace){
             match self.matches_stmts(){
                 Ok(stmt_idx) => {
                     self.stmt.scope_recorder.push(stmt_idx);
-                    if self.peek() == &Token::Rbrace{
-                        break;
-                    }
+
                 }
                 Err(_) => {
-                    self.stmt.scope_recorder.push(67);
-                    while !is_stmt(self.peek()){
+                    self.peek();
+                    while !is_stmt(self.peek()) {
+                        if matches!(self.peek(), Token::EOF | Token::Fn){
+                            break 'outer
+                        }
                         self.eat();
                     }
                 }

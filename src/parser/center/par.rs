@@ -34,22 +34,34 @@ impl Parser{
         }
     }
 
-    pub fn build_tree(&mut self) -> Result<(), ParserIssue>{
+    pub fn build_tree(&mut self){
         while self.tokens[self.current] != Token::EOF{
-            let function_idx =  self.parse_function()?;
-            self.stmt.programs.push(function_idx);
+              match self.parse_function(){
+                Ok(function_idx) =>  self.stmt.programs.push(function_idx),
+                Err(_) => {
+                    self.stmt.recorder_init();
+                    while self.peek() != &Token::EOF{
+                        if self.peek() == &Token::Fn{
+                            break;
+                        }
+                        self.eat();
+                    }
+                }
+            };
+
            
         }
 
         let start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.programs.drain(..));
         let end = self.ast.edge_end();
-
+        if self.error.has_error {
+            self.output_parser_error();
+        }
        
         self.push_node(Token::Program, NONE, start, end);
 
-        Ok(())
-        
+
     }
 
     
