@@ -7,7 +7,7 @@ use crate::parser::tree::node::Key;
 
 impl Parser{
     pub fn parse_expression(&mut self) -> Result<NodeIdx, ParserIssue>{
-
+        self.stmt.comparison_op_counter = 0;
         self.expr(0.0)
     }
     fn expr(&mut self, min_bp : f32) -> Result<NodeIdx, ParserIssue>{
@@ -46,6 +46,7 @@ impl Parser{
                 self.eat();
                 let expr_idx = self.expr(0.0)?;
                 self.matches_token(&Token::Rparen)?;
+                self.stmt.comparison_op_counter = 0;
                 Ok(expr_idx)
             }
             Token::LogicNot => {
@@ -54,6 +55,7 @@ impl Parser{
                 self.matches_token(&Token::Lparen)?;
                 let expr_idx = self.expr(0.0)?;
                 self.matches_token(&Token::Rparen)?;
+                self.stmt.comparison_op_counter = 0;
                 let start = self.ast.edge_start();
                 self.ast.edges.push(NONE);
                 self.ast.edges.push(expr_idx);
@@ -69,7 +71,7 @@ impl Parser{
                     self.push_leaf(Token::Ident, ident_key)
                 }
             }
-            _ => Err(self.unexpected_expression_issue(self.current))
+            _ => Err(self.error_unexpected_expression(self.current))
         };
 
 
@@ -79,16 +81,21 @@ impl Parser{
                 _ => self.peek()
             };
 
+
             let (l_bp, r_bp) = self.infix_binding_power(&op_tok);
 
             if l_bp < min_bp{
                 break;
             }
 
-
             let op_key = self.current as Key;
             let op_tok = self.eat();
 
+            if is_binary_op(&op_tok){ self.stmt.comparison_op_counter = 0; }
+            if is_comparison_op(&op_tok){self.stmt.comparison_op_counter += 1;}
+            if self.stmt.comparison_op_counter > 1{
+                return Err(self.error_comparison_op_chained(op_key))
+            }
             let rhs_idx = self.expr(r_bp);
 
             let start : Start = self.ast.edges.len() as Start;
@@ -140,7 +147,7 @@ pub fn is_expr_val(peek : &Token) -> bool{
 
 
 pub fn is_op(tok : &Token) -> bool{
-    is_regular_op(tok) || is_bool_op(tok) || is_compare_op(tok)
+    is_regular_op(tok) || is_comparison_op(tok) || is_binary_op(tok)
 }
 
 fn is_regular_op(tok : &Token) -> bool{
@@ -153,7 +160,7 @@ fn is_regular_op(tok : &Token) -> bool{
     }
 }
 
-fn is_bool_op(tok : &Token) -> bool{
+fn is_comparison_op(tok : &Token) -> bool{
     match tok{
         Token::Les | Token::LesEq |
         Token::Grt | Token::GrtEq |
@@ -163,7 +170,7 @@ fn is_bool_op(tok : &Token) -> bool{
 }
 
 
-fn is_compare_op(tok : &Token) -> bool{
+fn is_binary_op(tok : &Token) -> bool{
     match tok{
         Token::LogicAnd | Token::LogicOr => true,
         _ => false

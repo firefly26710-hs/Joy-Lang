@@ -1,22 +1,29 @@
+use std::str::from_utf8_unchecked;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::node::Key;
 use crate::semantic::center::sema::Semantic;
+use crate::semantic::diagnostic::logic::error_handling::type_issue::from_type_to_string;
 use crate::semantic::scope::data::scope_data::ScopeData;
-use crate::semantic::scope::data::scope_kind::ScopeKind;
+use crate::semantic::scope::data::scope_kind::{from_scope_kind_to_string, ScopeKind};
 use crate::semantic::symbol::data::ty::Type;
 
 impl Semantic{
+    pub fn assign_function(&mut self, func_key : Key){
+        self.f_symbol.func_keys.push(func_key);
+    }
     pub fn symbol_insert_function(
         &mut self,
         func_key : Key,
         param_interval : Interval,
         ret_type       : Type
     ){
-        self.f_symbol.func_keys.push(func_key);
-        self.f_symbol.param_intervals.push(param_interval);
-        self.f_symbol.ret_types.push(ret_type);
-
+        for i in 0..self.f_symbol.func_keys.len(){
+            if self.f_symbol.func_keys[i] == func_key{
+                self.f_symbol.param_intervals[i] = param_interval.clone();
+                self.f_symbol.ret_types[i] = ret_type.clone();
+            }
+        }
     }
 
     pub fn symbol_insert_variable(
@@ -28,7 +35,7 @@ impl Semantic{
     ){
         self.v_symbol.var_keys.push(var_key);
         self.v_symbol.var_types.push(var_ty);
-        self.v_symbol.var_scope.push(
+        self.v_symbol.var_scopes.push(
             ScopeData::new(scope_kind, self.cur_depth)
         );
 
@@ -68,6 +75,34 @@ impl Semantic{
             "void"=> Type::void,
             _ => unreachable!()
         }
+    }
+
+    pub fn print_variable_symbol(&self){
+        println!("=========================Variable Symbol=========================");
+        println!("Variable Name   | Scope Name   |   Type    | Depth   | ScopeKind ");
+        for (i, _)in self.v_symbol.var_keys.iter().enumerate(){
+            let scope_name_interval = &self.v_symbol.scope_name_intervals[i];
+            let name_start = scope_name_interval.start;
+            let name_end = scope_name_interval.end;
+            let scope_name = if name_start == NONE && name_end == NONE{
+                "No Name"
+            }else{
+                let bytes = &self.v_symbol.name_buf[name_start as usize..=name_end as usize];
+                str::from_utf8(bytes).unwrap()
+            };
+
+            let var_name_interval = &self.intervals[self.v_symbol.var_keys[i] as usize];
+            let name_start =  var_name_interval.start as usize;
+            let name_end = var_name_interval.end as usize;
+            let var_name = &self.input[name_start..name_end];
+            let var_type = from_type_to_string(&self.v_symbol.var_types[i]);
+            let scope_data = &self.v_symbol.var_scopes[i];
+            let depth = scope_data.depth;
+            let scope_kind = from_scope_kind_to_string(&scope_data.kind);
+            println!("{:>8}{:>19}{:>12}{:>8}{:>15}",var_name,scope_name,var_type, depth,scope_kind);
+
+        }
+        println!("=================================================================");
     }
 }
 

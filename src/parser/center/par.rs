@@ -12,7 +12,6 @@ pub struct Parser{
     pub intervals : Vec<Interval>,
     pub tokens : Vec<Token>,
     pub stmt  : Stmt,
-
     pub current : usize,
 
     pub error: Error

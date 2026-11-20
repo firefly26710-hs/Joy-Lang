@@ -3,20 +3,24 @@ use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::diagnostic::source::issue::{ParserIssue};
 use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::center::par::Parser;
+use crate::parser::tree::node::Key;
 
 impl Parser{
     pub fn parse_scope(&mut self) -> Result<NodeIdx, ParserIssue>{
         let current_scope_len = self.stmt.scope_recorder.len();
         self.matches_token(&Token::Lbrace)?;
-        'outer : while !matches!(self.peek(), Token::Rbrace){
+         'outer : while !matches!(self.peek(), Token::Rbrace){
             match self.matches_stmts(){
                 Ok(stmt_idx) => {
                     self.stmt.scope_recorder.push(stmt_idx);
-
                 }
                 Err(_) => {
                     self.peek();
                     while !is_stmt(self.peek()) {
+                        if matches!(self.peek(), Token::Lbrace){ self.stmt.lbrace_stack.push(self.current as u32) }
+                        if matches!(self.peek(), Token::Rbrace) && !self.stmt.lbrace_stack.is_empty(){
+                            self.stmt.lbrace_stack.pop();
+                        }
                         if matches!(self.peek(), Token::EOF | Token::Fn){
                             break 'outer
                         }
@@ -25,7 +29,10 @@ impl Parser{
                 }
             };
         }
-        self.unclosed_delimiter()?;
+        if self.peek() == &Token::Rbrace{
+            self.stmt.scope_recorder.push(NONE);
+        }
+       self.unclosed_delimiter()?;
         let edge_start : Start = self.ast.edge_start();
         self.ast.edges.extend(self.stmt.scope_recorder.drain(current_scope_len..));
         let edge_end : End = self.ast.edge_end();
@@ -45,7 +52,8 @@ impl Parser{
             Token::Ctn   => self.parse_ctn(),
             Token::Print => self.parse_print(),
             Token::Lbrace=> self.parse_scope(),
-            Token::Rbrace=> Ok(NONE),
+            Token::Fn    => self.parse_function(),
+            Token::EOF => Err(ParserIssue::UnclosedDelimiter),
             _ => panic!("[Line {:?}] Find not exist statement {:?}", self.current_line(), self.peek())
         }
     }

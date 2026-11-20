@@ -6,5 +6,5 @@ pub enum TypeState{
     Stable(Type),
     Integer(Key, bool),
     Float(Key),
-    Bool(Key)
+    OmegaBool(Key),
 }

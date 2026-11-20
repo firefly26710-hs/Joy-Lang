@@ -3,7 +3,7 @@ use crate::lexer::tokenizer::source::interval::Interval;
 use crate::parser::center::par::Parser;
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Node;
-use crate::semantic::control_flow::data::ControlFlow::Flow;
+use crate::semantic::control_flow::data::control_flow::Flow;
 use crate::semantic::symbol::data::function_symbol::FunctionSymbol;
 use crate::semantic::symbol::data::variable_symbol::VariableSymbol;
 

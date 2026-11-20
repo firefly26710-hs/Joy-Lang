@@ -300,7 +300,7 @@ impl Semantic{
 
 
 
-fn from_type_to_string(ty : &Type) -> String{
+pub fn from_type_to_string(ty : &Type) -> String{
     match ty{
         Type::i8   => "i8",
         Type::i16  => "i16",

@@ -2,7 +2,8 @@
 pub enum ParserIssue{
     UnExpectedToken{wrong_string : String, correct_string : String},
     UnclosedDelimiter,
-    UnExpectedExpr{wrong_string : String}
+    UnExpectedExpr{wrong_string : String},
+    ComparisonOpChained
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum ExprIssue{

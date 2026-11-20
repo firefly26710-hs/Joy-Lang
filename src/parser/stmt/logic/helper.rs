@@ -14,7 +14,7 @@ impl Parser{
             self.eat();
             Ok(())
         }else{
-            Err(self.unexpected_token_issue(&expected_tok, self.current))
+            Err(self.error_unexpected_token(&expected_tok, self.current))
         }
     }
 
@@ -28,7 +28,7 @@ impl Parser{
                 self.stmt.lbrace_stack.pop();
                 Ok(())
             }else{
-                Err(self.unclosed_delimiter_token_issue(
+                Err(self.error_unclosed_delimiter_token(
                     *self.stmt.lbrace_stack.last().unwrap()
                 ))
             }

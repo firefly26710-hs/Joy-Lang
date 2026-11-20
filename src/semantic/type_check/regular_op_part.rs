@@ -32,7 +32,7 @@ impl Semantic {
                 let r_type = self.parse_flt_type(*r_key);
                 Err(self.error_between_literal_and_literal(*r_key, &l_type, &r_type))
             },
-            (TypeState::Integer(l_key, is_neg), TypeState::Bool(r_key)) => {
+            (TypeState::Integer(l_key, is_neg), TypeState::OmegaBool(r_key)) => {
                 let l_type = if *is_neg{self.parse_int_type(*l_key)}
                 else{self.parse_neg_type(*l_key)};
                 let r_type = Type::bool;
@@ -71,7 +71,7 @@ impl Semantic {
                 else{self.parse_int_type(*r_key)};
                 Err(self.error_between_literal_and_literal(*r_key, &l_type, &r_type))
             },
-            (TypeState::Float(l_key), TypeState::Bool(r_key)) => {
+            (TypeState::Float(l_key), TypeState::OmegaBool(r_key)) => {
                 let l_type = self.parse_flt_type(*l_key);
                 let r_type = Type::bool;
                 Err(self.error_between_op_literal(op_key, *r_key, l_type, r_type))
@@ -91,23 +91,23 @@ impl Semantic {
                 }
             },
 
-            (TypeState::Bool(l_key), TypeState::Integer(r_key, is_neg)) => {
+            (TypeState::OmegaBool(l_key), TypeState::Integer(r_key, is_neg)) => {
                 let l_type = Type::bool;
                 let r_type = if *is_neg{self.parse_neg_type(*r_key)}
                 else{self.parse_int_type(*r_key)};
                 Err(self.error_between_op_literal(op_key, *l_key, r_type, l_type))
             },
-            (TypeState::Bool(l_key), TypeState::Float(r_key)) => {
+            (TypeState::OmegaBool(l_key), TypeState::Float(r_key)) => {
                 let l_type = Type::bool;
                 let r_type = self.parse_flt_type(*r_key);
                 Err(self.error_between_op_literal(op_key, *l_key, r_type, l_type))
             }
-            (TypeState::Bool(_), TypeState::Bool(_)) => {
+            (TypeState::OmegaBool(_), TypeState::OmegaBool(_)) => {
                 let l_type = Type::bool;
                 let r_type = Type::bool;
                 Err(self.error_between_op_literal_literal(op_key, expr_idx, l_type, r_type ))
             }
-            (TypeState::Bool(_), TypeState::Stable(ty)) => {
+            (TypeState::OmegaBool(_), TypeState::Stable(ty)) => {
                 let l_ty = &Type::bool;
                 let r_ty = ty;
                 todo!()
@@ -153,7 +153,7 @@ impl Semantic {
                     panic!("literal out of range {:?} ", l_ty)
                 }
             },
-            (TypeState::Stable(l_ty), TypeState::Bool(r_key)) => {
+            (TypeState::Stable(l_ty), TypeState::OmegaBool(r_key)) => {
                 todo!()
             }
 

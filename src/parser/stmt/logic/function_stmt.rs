@@ -52,7 +52,6 @@ impl Parser{
         let start = self.ast.edge_start();
         self.stmt.func_recorder.push(stmt_idx);
         self.ast.edges.extend(self.stmt.func_recorder.drain(..));
-
         let end = self.ast.edge_end();
 
         Ok( self.push_node(Token::FuncKw, NONE, start, end))

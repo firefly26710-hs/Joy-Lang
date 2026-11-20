@@ -1,9 +1,9 @@
-use crate::lexer::tokenizer::source::token::Token;
 use crate::semantic::scope::data::scope_kind::ScopeKind;
+#[derive(Debug, Clone, PartialEq)]
 
 pub struct ScopeData {
-    kind   : ScopeKind,
-    depth  : u8
+    pub kind   : ScopeKind,
+    pub depth  : u8
 }
 
 impl ScopeData {

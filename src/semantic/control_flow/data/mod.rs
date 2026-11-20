@@ -1,3 +1,3 @@
 pub mod stmt_data;
 pub mod stmt_kind;
-pub mod ControlFlow;
+pub mod control_flow;

@@ -7,8 +7,6 @@ use crate::parser::tree::node::Key;
 
 impl Parser{
     
-
-
     pub fn parse_var(&mut self) -> Result<NodeIdx, ParserIssue>{
         self.eat();
         //var name

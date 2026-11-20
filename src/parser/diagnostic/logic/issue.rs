@@ -7,7 +7,7 @@ use crate::parser::tree::node::Key;
 impl Parser{
    
 
-    pub fn unexpected_token_issue(
+    pub fn error_unexpected_token(
         &mut self,
         correct_token : &Token,
         wrong_tok_key : usize,
@@ -48,7 +48,7 @@ impl Parser{
         issue
     }
 
-    pub fn unexpected_expression_issue(&mut self, wrong_tok_key : usize) -> ParserIssue{
+    pub fn error_unexpected_expression(&mut self, wrong_tok_key : usize) -> ParserIssue{
         self.error.has_error = true;
         let span_id = self.error.span_ids[wrong_tok_key] as usize;
         let line = span_id + 1;
@@ -74,14 +74,21 @@ impl Parser{
         issue
     }
 
-    pub fn unclosed_delimiter_token_issue(&mut self, wrong_start_key : Key) -> ParserIssue {
+    pub fn error_unclosed_delimiter_token(&mut self, wrong_start_key : Key) -> ParserIssue {
         self.error.has_error = true;
         
-
-        let span_id = self.error.span_ids[wrong_start_key as usize] as usize;
+        let span_id =  if wrong_start_key as usize == self.error.span_ids.len(){
+            self.error.span_ids[(wrong_start_key - 1) as usize] as usize
+        }else{
+            self.error.span_ids[wrong_start_key as usize] as usize
+        };
         let line = span_id + 1;
         
-        let interval = &self.intervals[wrong_start_key as usize];
+        let interval = if wrong_start_key as usize == self.intervals.len(){
+            &self.intervals[(wrong_start_key - 1) as usize]
+        }else{
+            &self.intervals[wrong_start_key  as usize]
+        };
         
         let start =interval.start as usize;
         let end = interval.end as usize;
@@ -97,6 +104,31 @@ impl Parser{
                 span_id
             )
         );
+
+        issue
+    }
+
+    pub fn error_comparison_op_chained(&mut self, op_key : Key) -> ParserIssue{
+        self.error.has_error = true;
+        let span_id = self.error.span_ids[op_key as usize] as usize;
+        let line = span_id + 1;
+
+        let interval = &self.intervals[op_key as usize];
+
+        let start =interval.start as usize;
+        let end = interval.end as usize;
+
+        let issue = ParserIssue::ComparisonOpChained;
+
+        self.error.par_msg_data.push({
+            ParserMsgData::new(
+                issue.clone(),
+                line,
+                start,
+                end,
+                span_id
+            )
+        });
 
         issue
     }

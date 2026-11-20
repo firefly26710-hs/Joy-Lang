@@ -9,8 +9,8 @@ pub enum StmtKind{
     CtnStmt,
     BrkStmt,
     FuncStmt,
-    BlockStmt,
     CallStmt,
-    PrintStmt
+    PrintStmt,
+    UpdateStmt
 
 }

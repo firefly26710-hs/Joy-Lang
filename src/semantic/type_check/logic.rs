@@ -25,7 +25,7 @@ impl Semantic{
                         _ => unreachable!()
                     }
                 },
-                TypeState::Bool(_) => Ok(Type::bool),
+                TypeState::OmegaBool(_) => Ok(Type::bool),
                 TypeState::Stable(ty) => {
                     Ok(ty)
                 }
@@ -56,7 +56,7 @@ impl Semantic{
                         Err(self.error_mismatch_type_with_expression(expr_idx, declared_type, expr_type))
                     }
                 },
-                TypeState::Bool(key) => {
+                TypeState::OmegaBool(key) => {
                     if declared_type == &Type::bool{
                         Ok(Type::bool)
                     }else{
@@ -89,7 +89,7 @@ impl Semantic{
             (NONE, NONE) => match tok{
                 Token::Int                  => Ok(TypeState::Integer(key, false)),
                 Token::Float                => Ok(TypeState::Float(key)),
-                Token::True | Token::False  => Ok(TypeState::Bool(key)),
+                Token::True | Token::False  => Ok(TypeState::OmegaBool(key)),
                 Token::Ident => todo!(),
                 _ => unreachable!()
             },
@@ -112,7 +112,7 @@ impl Semantic{
                                     TypeState::Float(val_key) => {
                                         Ok(TypeState::Float(val_key))
                                     },
-                                    TypeState::Bool(_) => {
+                                    TypeState::OmegaBool(_) => {
                                         Err(self.error_unary_mismatch_type(key, r_idx, Type::bool))
                                     },
                                     TypeState::Stable(ty) => {
@@ -132,8 +132,8 @@ impl Semantic{
                                         let flt_type = self.parse_flt_type(val_key);
                                         Err(self.error_unary_mismatch_type(key, r_idx, flt_type))
                                     },
-                                    TypeState::Bool(_) => {
-                                        Ok(TypeState::Bool(key))
+                                    TypeState::OmegaBool(_) => {
+                                        Ok(TypeState::OmegaBool(key))
                                     },
                                     TypeState::Stable(ty) => {
                                         todo!()

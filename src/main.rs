@@ -52,13 +52,11 @@ fn main(){
 #[test]
 fn diag_test() {
     let input = "
-    fn main(a : i32) = void{
-        var x = 1 > 1 and 1.5;
-    }
-    fn add() = void{
+    fn main(x : f64, y : i128) = void{
+        for i in 0..1 | 1{
 
+        }
     }
-
     "
     .to_string();
     let input = input + "\n\0\0\0";
@@ -66,12 +64,9 @@ fn diag_test() {
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
      parser.build_tree();
-    parser.print_node();
-
-    // parser.print_node();
-
     let mut semantic = Semantic::init(parser);
-    semantic.analyze_tree();
+    semantic.collect_symbol_and_scope_info();
+    semantic.print_variable_symbol();
     // parser.print_node();
     //  let context = Context::create();
     //  let mut llvm = Codegen::init(&context, parser);

@@ -29,7 +29,7 @@ impl Semantic{
                 let r_type = self.parse_flt_type(*r_key);
                 Err(self.error_between_op_literal_literal(op_key, expr_idx, l_type, r_type))
             },
-            (TypeState::Integer(l_key, is_neg),  TypeState::Bool(_)) => {
+            (TypeState::Integer(l_key, is_neg),  TypeState::OmegaBool(_)) => {
                 let l_type = if *is_neg{self.parse_int_type(*l_key)}
                 else{self.parse_neg_type(*l_key)};
                 let r_type = Type::bool;
@@ -50,7 +50,7 @@ impl Semantic{
                 else{self.parse_int_type(*r_key)};
                 Err(self.error_between_op_literal_literal(op_key, expr_idx, l_type, r_type))
             },
-            (TypeState::Float(l_key),  TypeState::Bool(_)) => {
+            (TypeState::Float(l_key),  TypeState::OmegaBool(_)) => {
                 let l_type = self.parse_flt_type(*l_key);
                 let r_type = Type::bool;
                 Err(self.error_mismatch_type_between_literal_literal(*l_key, &l_type, &r_type))
@@ -71,21 +71,21 @@ impl Semantic{
                 // }
             },
 
-            ( TypeState::Bool(_), TypeState::Integer(r_key, is_neg)) => {
+            ( TypeState::OmegaBool(_), TypeState::Integer(r_key, is_neg)) => {
                 let l_type = Type::bool;
                 let r_type = if *is_neg{self.parse_neg_type(*r_key)}
                 else{self.parse_int_type(*r_key)};
                 Err(self.error_mismatch_type_between_literal_literal(*r_key, &l_type, &r_type))
             },
-            ( TypeState::Bool(_), TypeState::Float(r_key)) => {
+            ( TypeState::OmegaBool(_), TypeState::Float(r_key)) => {
                 let l_type = Type::bool;
                 let r_type = self.parse_flt_type(*r_key);
                 Err(self.error_mismatch_type_between_literal_literal(*r_key, &l_type, &r_type))
             }
-            (TypeState::Bool(_),  TypeState::Bool(_)) => {
-                Ok(TypeState::Bool(op_key))
+            (TypeState::OmegaBool(_),  TypeState::OmegaBool(_)) => {
+                Ok(TypeState::OmegaBool(op_key))
             }
-            ( TypeState::Bool(l_key), TypeState::Stable(r_type)) => {
+            ( TypeState::OmegaBool(l_key), TypeState::Stable(r_type)) => {
                 todo!()
             }
 
@@ -109,7 +109,7 @@ impl Semantic{
                     return Err(self.error_mismatch_type_between_literal_literal(*r_key, &l_ty, &r_ty));
                 }
 
-                Ok(TypeState::Bool(op_key))
+                Ok(TypeState::OmegaBool(op_key))
             }
             (TypeState::Stable(ty), TypeState::Float(r_key)) => {
                 let l_ty = ty;
@@ -118,9 +118,9 @@ impl Semantic{
                     return Err(self.error_between_literal_and_literal(*r_key, &l_ty, r_ty));
                 }
 
-                Ok(TypeState::Bool(op_key))
+                Ok(TypeState::OmegaBool(op_key))
             },
-            (TypeState::Stable(ty), TypeState::Bool(r_key)) => {
+            (TypeState::Stable(ty), TypeState::OmegaBool(r_key)) => {
                 todo!()
             },
         }

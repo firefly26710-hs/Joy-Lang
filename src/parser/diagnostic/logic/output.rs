@@ -66,6 +66,10 @@ impl Parser{
             ParserIssue::UnExpectedExpr {wrong_string } => {
                 format!("expected expression, find {:?}", wrong_string)
             }
+            
+            ParserIssue::ComparisonOpChained => {
+                "comparison operators cannot be chained".to_string()
+            }
 
 
         };
