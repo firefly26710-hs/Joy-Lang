@@ -55,18 +55,52 @@ impl Semantic{
         let yellow_notices = no_color_notices.yellow();
 
         let info = match issue{
-            TypeIssue::DifferenceConstLiteral {
-                left_literal_type, right_literal_type} => {
+            TypeIssue::MismatchBetweenLiteralLiteral {
+                left_literal_type, right_literal_type
+            } => {
                 format!("cannot use {right_literal_type} after {left_literal_type}")
             },
+            TypeIssue::MismatchBetweenOpLiteral {
+                op_string, correct_literal_type, error_literal_type
+            } => {
+                match op_string.as_str(){
+                    "+" => {
+                        format!("cannot add {correct_literal_type} to {error_literal_type}")
+                    }
+                    "-" => {
+                        format!("cannot subtract {correct_literal_type} to {error_literal_type}")
+                    }
+                    "*" => {
+                        format!("cannot multiply {correct_literal_type} to {error_literal_type}")
+                    }
+                    "/" => {
+                        format!("cannot add {correct_literal_type} to {error_literal_type}")
+                    }
+                    ">" | ">=" | "<" | "<=" | "==" => {
+                        format!("cannot compare {correct_literal_type} with {error_literal_type}")
+                    }
+                    _ => unreachable!()
+                }.to_string()
+
+            },
+            TypeIssue::MismatchBetweenOpAndTwoLiterals {op_string, left_literal_type, right_literal_type } => {
+                format!("cannot '{op_string}' with {left_literal_type} and {right_literal_type}")
+            }
             TypeIssue::LiteralOutOfRange {expected_type_string} => {
                 format!("literal out of range for {expected_type_string}")
             },
             TypeIssue::MismatchType {
                 expected_type, actual_type} => {
-                format!("expected {expected_type}, but found {actual_type}")
+                format!("expected {expected_type}, found {actual_type}")
             },
-            _ => todo!()
+            TypeIssue::UnaryMismatchType {unary_op, right_type} => {
+                match unary_op.as_str(){
+                    "-"   => format!("cannot apply unary operator 'subtract' to the type {right_type}"),
+                    "not" => format!("cannot apply unary operator 'not' to the type {right_type}"),
+                    _ => unreachable!()
+                }
+            }
+
 
         };
 

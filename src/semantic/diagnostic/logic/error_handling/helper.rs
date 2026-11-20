@@ -41,5 +41,21 @@ impl Semantic{
 
     }
 
+    pub fn from_op_to_string(&self, op_key : Key) -> String{
+        let interval = &self.intervals[op_key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+        let str = &self.input[start..end];
+        match str{
+            "+" => "add",
+            "-" => "subtract",
+            "*" => "multiply",
+            "/" => "divide",
+            "and" => "logic and",
+            "or"  => "logic or",
+            _ => unreachable!()
+        }.to_string()
+    }
+
 
 }

@@ -15,7 +15,7 @@ impl Semantic{
         let last = edges.len() - 1;
         let scope_idx = edges[last];
         let name_key = self.nodes[edges[0] as usize].key;
-        let ret_type_key = self.nodes[edges[last - 2] as usize].key;
+        let ret_type_key = self.nodes[edges[last - 1] as usize].key;
         let has_param = edges.len() > 3;
 
 

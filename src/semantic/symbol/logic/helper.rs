@@ -1,6 +1,4 @@
-use std::ops::Deref;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
-use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::tree::ast::NONE;
 use crate::parser::tree::node::Key;
 use crate::semantic::center::sema::Semantic;

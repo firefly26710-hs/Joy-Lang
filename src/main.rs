@@ -5,7 +5,6 @@ pub mod semantic;
 //use crate::llvm::codegen::Codegen;
 use crate::lexer::center::lex::Lexer;
 use crate::parser::center::par::Parser;
-use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::semantic::center::sema::Semantic;
 use inkwell::OptimizationLevel;
 use inkwell::context::Context;
@@ -32,6 +31,7 @@ fn main(){
     let mut parser = Parser::init(lexer);
      parser.build_tree();
 
+
     let semantic = Semantic::init(parser);
     // let context = Context::create();
     //let mut llvm = Codegen::init(&context, parser);
@@ -53,11 +53,10 @@ fn main(){
 fn diag_test() {
     let input = "
     fn main(a : i32) = void{
-        var x = ;
-        while {}
+        var x = 1 > 1 and 1.5;
     }
     fn add() = void{
-        var y 1;
+
     }
 
     "
@@ -67,6 +66,7 @@ fn diag_test() {
     lexer.tokenize();
     let mut parser = Parser::init(lexer);
      parser.build_tree();
+    parser.print_node();
 
     // parser.print_node();
 
