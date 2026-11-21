@@ -1,3 +1,4 @@
+use crate::lexer::tokenizer::source::token::Token;
 use crate::semantic::center::sema::Semantic;
 
 impl Semantic{
@@ -9,6 +10,7 @@ impl Semantic{
         let len = self.edges[start..=end].len();
         for i in 0..len{
             self.assign_function(self.edges[start..=end][i]);
+            self.collect_data(&Token::Fn,self.edges[start..=end][i], self.cur_depth );
             self.function_flow(self.edges[start..=end][i]);
         }
 

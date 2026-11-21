@@ -17,7 +17,7 @@ impl VariableSymbol {
         Self{
             var_keys                 : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
             var_types                : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
-            var_scopes: Vec::with_capacity(VAR_PART_ALLOC_SIZE),
+            var_scopes               : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
             scope_name_intervals     : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
             name_buf                 : Vec::with_capacity(2048)
         }

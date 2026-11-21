@@ -17,7 +17,7 @@ impl Semantic{
             if kw_idx == NONE {
                 return;
             }
-            self.collect_data(&self.nodes[kw_idx as usize].token.clone(), kw_idx);
+            self.collect_data(&self.nodes[kw_idx as usize].token.clone(), kw_idx, self.cur_depth);
             let stmt_tok = &self.nodes[kw_idx as usize].token.clone();
             match stmt_tok{
                 Token::VarKw   => continue,
@@ -33,7 +33,8 @@ impl Semantic{
                 //Token::Fn      => todo!(),
                 _ => unreachable!()
             }
+            self.cur_depth -= 1;
         }
-        self.cur_depth -= 1;
+
     }
 }

@@ -54,8 +54,10 @@ fn diag_test() {
     let input = "
     fn main(x : f64, y : i128) = void{
         for i in 0..1 | 1{
-
+            var x = 5;
+            var y = 1;
         }
+        while true{continue;continue;}
     }
     "
     .to_string();
@@ -67,6 +69,7 @@ fn diag_test() {
     let mut semantic = Semantic::init(parser);
     semantic.collect_symbol_and_scope_info();
     semantic.print_variable_symbol();
+    semantic.print_control_flow();
     // parser.print_node();
     //  let context = Context::create();
     //  let mut llvm = Codegen::init(&context, parser);

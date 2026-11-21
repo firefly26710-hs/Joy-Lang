@@ -3,8 +3,8 @@ use crate::semantic::control_flow::data::stmt_kind::StmtKind;
 #[derive(Debug, Clone, PartialEq)]
 
 pub struct StmtData{
-    kind : StmtKind,
-    depth: u8
+    pub kind : StmtKind,
+    pub depth: u8
 }
 
 impl StmtData{
