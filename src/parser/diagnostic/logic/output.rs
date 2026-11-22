@@ -76,8 +76,8 @@ impl Parser{
 
 
         println!("{file_name}:{line}:{col}: {error}: {info} ");
-        println!("    {line}|  {left_correct_part}{wrong_part}{right_correct_part}");
-        println!("     |  {space}{yellow_notices}");
+        println!("{:>5}|   {left_correct_part}{wrong_part}{right_correct_part}", line);
+        println!("{:>5}|   {space}{yellow_notices}", " ");
 
 
 

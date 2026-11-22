@@ -51,13 +51,8 @@ fn main(){
 
 #[test]
 fn diag_test() {
-    let input = "
-    fn main(x : f64, y : i128) = void{
-        for i in 0..1 | 1{
-            var x = 5;
-            var y = 1;
-        }
-        while true{continue;continue;}
+    let input = "fn main (x : f64, y : i128 = void{
+
     }
     "
     .to_string();

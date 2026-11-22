@@ -33,6 +33,9 @@ impl AST{
     }
     
     pub fn edge_end(&self) -> End{
+        if self.edges.len() == 0{
+            return 0;
+        }
         (self.edges.len() - 1) as End
     }
 
