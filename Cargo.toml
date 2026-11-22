@@ -8,3 +8,6 @@ inkwell = { version = "0.10.0", features = ["llvm22-1"] }
 criterion = "0.8.2"
 colored = "3.1.1"
 
+[[bench]]
+name = "telemetry_bench"
+harness = false
