@@ -32,11 +32,9 @@ fn bench_joyc(c : &mut Criterion){
         let fact = factorial(5);
 
         let total = 0;
-        for i in [1 -> 10 | 1]{
+        for i in 1..10 | 1{
             break;
         }
-
-        return;
     }
     ".to_string();
 

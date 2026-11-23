@@ -5,7 +5,8 @@ use crate::semantic::control_flow::data::stmt_data::StmtData;
 use crate::semantic::control_flow::data::stmt_kind::{from_stmt_kind_to_string, StmtKind};
 
 impl Semantic{
-    pub fn collect_data(&mut self, kw_tok : &Token, kw_idx : NodeIdx, depth : u8){
+    pub fn collect_stmt_data(&mut self, kw_tok : &Token, kw_idx : NodeIdx, depth : u8){
+        dbg!(kw_tok);
         let stmt_kind = kw_to_stmt_ty(kw_tok);
         let new_stmt_data = StmtData::new(stmt_kind, depth);
         self.flow.stmt_datas.push(new_stmt_data);
@@ -36,7 +37,7 @@ fn kw_to_stmt_ty(kw_tok : &Token) -> StmtKind{
         Token::RetKw   => StmtKind::RetStmt,
         Token::CtnKw   => StmtKind::CtnStmt,
         Token::BrkKw   => StmtKind::BrkStmt,
-        Token::Fn      => StmtKind::FuncStmt,
+        Token::FuncKw  => StmtKind::FuncStmt,
         Token::CallKw  => StmtKind::CallStmt,
         Token::PrintKw => StmtKind::PrintStmt,
         Token::UpdateKw=> StmtKind::UpdateStmt,

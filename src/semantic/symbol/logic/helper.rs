@@ -9,8 +9,14 @@ use crate::semantic::scope::data::scope_kind::{from_scope_kind_to_string, ScopeK
 use crate::semantic::symbol::data::ty::Type;
 
 impl Semantic{
-    pub fn assign_function(&mut self, func_key : Key){
-        self.f_symbol.func_keys.push(func_key);
+    pub fn assign_function(&mut self, func_idx: Key){
+        let node = &self.nodes[func_idx as usize];
+        let span = &node.edge_span;
+        let start = span.start as usize;
+        let end = span.end as usize;
+        let name_node = self.edges[start..=end][0];
+        let name_key = self.nodes[name_node as usize].key;
+        self.f_symbol.func_keys.push(name_key);
     }
     pub fn symbol_insert_function(
         &mut self,
