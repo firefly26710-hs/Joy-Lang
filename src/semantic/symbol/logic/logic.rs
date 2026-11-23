@@ -34,10 +34,12 @@ impl Semantic{
         panic!("No find this function");
     }
 
-    pub fn look_up_var_type(&self, var_key : Key) -> TypeState{
+    pub fn look_up_var_type(&self, var_key : Key, var_depth : u8) -> TypeState{
+        dbg!(var_key);
         let len = self.v_symbol.var_keys.len();
-        for i in len..0{
-            if self.matches_str(var_key, self.v_symbol.var_keys[i]){
+        for i in (0..len).rev(){
+            let cur_depth = self.v_symbol.var_scopes[i].depth;
+            if self.matches_str(var_key, self.v_symbol.var_keys[i]) && var_depth == cur_depth{
                 let ty = &self.v_symbol.var_types[i];
                 return TypeState::Stable(ty.clone())
             }

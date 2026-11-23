@@ -6,8 +6,8 @@ use crate::semantic::type_check::data::type_state::TypeState;
 use crate::semantic::type_check::helper::{is_in_same_set, weight};
 
 impl Semantic {
-    pub fn type_check(&mut self, declared_type: &Type, expr_idx: NodeIdx) -> Type{
-        let expr_type_state = self.get_expr_type_state(expr_idx);
+    pub fn type_check(&mut self, declared_type: &Type, expr_idx: NodeIdx, depth : u8) -> Type{
+        let expr_type_state = self.get_expr_type_state(expr_idx, depth);
         if matches!(declared_type, Type::void){
             match expr_type_state{
                 TypeState::Integer(key, is_neg) => {
@@ -88,7 +88,7 @@ impl Semantic {
             }
         }
     }
-    fn get_expr_type_state(&mut self, expr_idx : NodeIdx) -> TypeState{
+    fn get_expr_type_state(&mut self, expr_idx : NodeIdx, var_depth : u8) -> TypeState{
         let node = &self.nodes[expr_idx as usize];
         let tok = &node.token;
         let key = node.key;
@@ -101,7 +101,7 @@ impl Semantic {
                 Token::Int                  => TypeState::Integer(key, false),
                 Token::Float                => TypeState::Float(key),
                 Token::True | Token::False  => TypeState::Bool(key),
-                Token::Ident                => self.look_up_var_type(key),
+                Token::Ident                => self.look_up_var_type(key, var_depth),
                 _ => unreachable!()
             },
             (l_span, r_span) => {
@@ -112,7 +112,7 @@ impl Semantic {
                     (NONE, r_idx) => {
                         match tok{
                             Token::Sub => {
-                                let r_state = self.get_expr_type_state(r_idx);
+                                let r_state = self.get_expr_type_state(r_idx, var_depth);
                                 match r_state{
                                     TypeState::Integer(val_key, is_reg) => {
                                         match is_reg{
@@ -137,7 +137,7 @@ impl Semantic {
                                 }
                             },
                             Token::LogicNot => {
-                                let r_state = self.get_expr_type_state(r_idx);
+                                let r_state = self.get_expr_type_state(r_idx, var_depth);
                                 match r_state{
                                     TypeState::Integer(val_key, is_reg) => {
                                         let int_type = self.parse_int_type(val_key, is_reg);
@@ -166,19 +166,22 @@ impl Semantic {
                     (l_idx, r_idx) => {
                         match tok{
                             Token::Add | Token::Sub | Token::Mul | Token::Div => {
-                                let l_state = self.get_expr_type_state(l_idx);
-                                let r_state = self.get_expr_type_state(r_idx);
+
+                                let l_state = self.get_expr_type_state(l_idx, var_depth);
+                                let r_state = self.get_expr_type_state(r_idx, var_depth);
+                                dbg!(&l_state);
+                                dbg!(&r_state);
                                 self.check_regular_op_matches(&l_state, &r_state, expr_idx, key)
                             },
                             Token::Grt| Token::GrtEq | Token::Les | Token::LesEq|
                             Token::EqEq | Token::NotEq => {
-                                let l_state = self.get_expr_type_state(l_idx);
-                                let r_state = self.get_expr_type_state(r_idx);
+                                let l_state = self.get_expr_type_state(l_idx, var_depth);
+                                let r_state = self.get_expr_type_state(r_idx, var_depth);
                                 self.check_comparison_op_matches(&l_state, &r_state, expr_idx, key)
                             },
                             Token::LogicAnd | Token::LogicOr => {
-                                let l_state = self.get_expr_type_state(l_idx);
-                                let r_state = self.get_expr_type_state(r_idx);
+                                let l_state = self.get_expr_type_state(l_idx, var_depth);
+                                let r_state = self.get_expr_type_state(r_idx, var_depth);
                                 self.check_binary_op_matches(&l_state, &r_state, expr_idx, key)
                             },
                             _ => unreachable!()

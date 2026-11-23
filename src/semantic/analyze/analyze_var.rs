@@ -25,7 +25,7 @@ impl Semantic{
         };
 
         //type_check
-       let actual_ty =  self.type_check(declared_ty, edges[2]);
+       let actual_ty =  self.type_check(declared_ty, edges[2], depth);
        self.symbol_insert_variable(var_name_key, actual_ty, ScopeKind::Local, NONE, depth);
     }
 

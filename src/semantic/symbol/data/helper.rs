@@ -12,7 +12,6 @@ impl Semantic{
         let start_b = interval_b.start as usize;
         let end_b =interval_b.end as usize;
         let str_b = &self.input[start_b..end_b];
-        
         str_a == str_b
         
     }

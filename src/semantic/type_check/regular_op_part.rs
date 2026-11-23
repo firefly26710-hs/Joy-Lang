@@ -136,6 +136,7 @@ impl Semantic {
             (TypeState::Stable(ty), TypeState::Integer(r_key, is_neg)) => {
 
                 let l_ty = ty;
+               
                 let r_ty = &self.parse_int_type(*r_key, *is_neg);
                 if !is_in_same_set(l_ty, r_ty) {
                     self.error_between_literal_and_literal(*r_key, &l_ty, &r_ty);
