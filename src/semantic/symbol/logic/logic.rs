@@ -1,15 +1,17 @@
-use std::str::from_utf8_unchecked;
 use crate::lexer::tokenizer::source::interval::{End, Interval, Start};
-use crate::parser::tree::ast::NONE;
+use crate::parser::tree::ast::{NodeIdx, NONE};
 use crate::parser::tree::node::Key;
 use crate::semantic::center::sema::Semantic;
 use crate::semantic::diagnostic::logic::error_handling::type_issue::from_type_to_string;
 use crate::semantic::scope::data::scope_data::ScopeData;
 use crate::semantic::scope::data::scope_kind::{from_scope_kind_to_string, ScopeKind};
 use crate::semantic::symbol::data::ty::Type;
+use crate::semantic::type_check::data::type_state::TypeState;
 
 impl Semantic{
-    pub fn assign_function(&mut self, func_idx: Key){
+
+
+    pub fn assign_function(&mut self, func_idx: NodeIdx){
         let node = &self.nodes[func_idx as usize];
         let span = &node.edge_span;
         let start = span.start as usize;
@@ -21,15 +23,27 @@ impl Semantic{
     pub fn symbol_insert_function(
         &mut self,
         func_key : Key,
-        param_interval : Interval,
-        ret_type       : Type
+        ret_type : Type
     ){
         for i in 0..self.f_symbol.func_keys.len(){
             if self.f_symbol.func_keys[i] == func_key{
-                self.f_symbol.param_intervals[i] = param_interval.clone();
-                self.f_symbol.ret_types[i] = ret_type.clone();
+                self.f_symbol.ret_types.push(ret_type.clone());
+                return;
             }
         }
+        panic!("No find this function");
+    }
+
+    pub fn look_up_var_type(&self, var_key : Key) -> TypeState{
+        let len = self.v_symbol.var_keys.len();
+        for i in len..0{
+            if self.matches_str(var_key, self.v_symbol.var_keys[i]){
+                let ty = &self.v_symbol.var_types[i];
+                return TypeState::Stable(ty.clone())
+            }
+        }
+        
+        TypeState::Phi(var_key)
     }
 
     pub fn symbol_insert_variable(
@@ -37,16 +51,23 @@ impl Semantic{
         var_key : Key,
         var_ty : Type,
         scope_kind : ScopeKind,
-        scope_kind_name_key : Key
+        scope_name_key: Key,
+        cur_depth     : u8
     ){
+        let len = self.v_symbol.var_keys.len();
+        for i in 0..len{
+            if self.matches_str(var_key, self.v_symbol.var_keys[i]){
+                panic!("Duplicate variable name");
+            }
+        }
         self.v_symbol.var_keys.push(var_key);
         self.v_symbol.var_types.push(var_ty);
         self.v_symbol.var_scopes.push(
-            ScopeData::new(scope_kind, self.cur_depth)
+            ScopeData::new(scope_kind, cur_depth)
         );
 
-        let name_interval = if scope_kind_name_key != NONE {
-            let interval = &self.intervals[scope_kind_name_key as usize];
+        let name_interval = if scope_name_key != NONE {
+            let interval = &self.intervals[scope_name_key as usize];
             let start = interval.start as usize;
             let end = interval.end as usize;
             let bytes = self.input[start..end].as_bytes();

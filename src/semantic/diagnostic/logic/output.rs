@@ -5,7 +5,7 @@ use crate::semantic::diagnostic::data::issue::TypeIssue;
 use crate::semantic::diagnostic::data::type_msg_data::TypeMsgData;
 
 impl Semantic{
-    pub fn output_type_error(&self){
+    pub fn output_semantic_error(&self){
         for msg_data in &self.error.type_msg_data {
             let data = msg_data;
             self.build_message(data);

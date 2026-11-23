@@ -1,9 +1,19 @@
+use crate::semantic::type_check::data::type_state::TypeState;
 use crate::parser::tree::node::Key;
 use crate::semantic::symbol::data::ty::Type;
 use crate::semantic::center::sema::Semantic;
 
 impl Semantic{
-    pub fn parse_neg_type(&mut self, key : Key) -> Type{
+
+    pub fn look_var_type(var : Key) -> TypeState{
+        todo!()
+    }
+    
+    pub fn parse_int_type(&mut self, key : Key, is_neg : bool) -> Type{
+        if is_neg{self.parse_neg_type(key)}
+        else{self.parse_pos_type(key)}
+    }
+    fn parse_neg_type(&mut self, key : Key) -> Type{
         let interval = &self.intervals[key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;
@@ -23,7 +33,7 @@ impl Semantic{
             _ => unreachable!()
         }
     }
-    pub fn parse_int_type(&mut self, key : Key) -> Type{
+    fn parse_pos_type(&mut self, key : Key) -> Type{
         let interval = &self.intervals[key as usize];
         let start = interval.start as usize;
         let end = interval.end as usize;

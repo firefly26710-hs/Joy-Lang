@@ -23,8 +23,8 @@ impl Semantic{
             
             let stmt_token = &self.nodes[edges[i] as usize].token;
             match stmt_token{
-                Token::VarKw => self.analyze_var(edges[i])?,
-                Token::UpdateKw=> self.analyze_update(edges[i])?,
+                Token::VarKw => continue,
+                Token::UpdateKw=>continue,
                 Token::IfKw => todo!(),
                 Token::ForKw => todo!(),
                 Token::WhileKw => todo!(),

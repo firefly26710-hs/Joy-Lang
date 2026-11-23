@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type{
     i8,
@@ -11,5 +9,6 @@ pub enum Type{
     f64,
     bool,
     void,
+    phi
 }
 

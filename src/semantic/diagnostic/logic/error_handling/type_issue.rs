@@ -310,6 +310,7 @@ pub fn from_type_to_string(ty : &Type) -> String{
         Type::f32  => "f32",
         Type::f64  => "f64",
         Type::bool => "bool",
+        Type::phi  => "phi",
         _ => unreachable!()
     }.to_string()
 }
