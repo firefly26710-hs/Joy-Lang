@@ -1,8 +1,8 @@
+use crate::parser::tree::node::Key;
 use crate::lexer::center::lex::Lexer;
 use crate::lexer::diagnostic::source::data::Error;
 use crate::lexer::tokenizer::source::interval::Interval;
 use crate::lexer::tokenizer::source::token::Token;
-use crate::parser::diagnostic::source::issue::ParserIssue;
 use crate::parser::stmt::data::stmt_data::Stmt;
 use crate::parser::tree::ast::{AST, NONE};
 
@@ -13,7 +13,7 @@ pub struct Parser{
     pub tokens : Vec<Token>,
     pub stmt  : Stmt,
     pub current : usize,
-
+    pub curr_func_key : Key,
     pub error: Error
 
 }
@@ -28,7 +28,7 @@ impl Parser{
             ast   : AST::init(),
             stmt  : Stmt::init(),
             current : 0,
-
+            curr_func_key : 0,
             error : lexer.error
         }
     }

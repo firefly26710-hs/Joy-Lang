@@ -15,13 +15,5 @@ impl Semantic {
         }
     }
 
-    pub fn analyze_while(&mut self, kw_idx: usize, depth: u8) {
-        let node = &self.nodes[kw_idx];
-        let span = &node.edge_span;
-        let start = span.start as usize;
-        let end = span.end as usize;
-
-        let expr_idx = self.edges[start..=end][0];
-        self.type_check(&Type::bool, expr_idx, depth);
-    }
+   
 }

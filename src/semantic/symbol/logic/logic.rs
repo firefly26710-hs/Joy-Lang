@@ -18,7 +18,74 @@ impl Semantic{
         let end = span.end as usize;
         let name_node = self.edges[start..=end][0];
         let name_key = self.nodes[name_node as usize].key;
+        if !self.f_symbol.func_keys.is_empty(){
+            let len = self.f_symbol.func_keys.len();
+            for i in 0..len{
+                let cur_func_key = self.f_symbol.func_keys[i] as usize;
+                let name_interval = &self.intervals[name_key as usize];
+                let cur_name_interval = &self.intervals[cur_func_key];
+
+                let name_start = name_interval.start as usize;
+                let name_end = name_interval.end as usize;
+
+                let cur_name_start = cur_name_interval.start as usize;
+                let cur_name_end = cur_name_interval.end as usize;
+
+                let name_str = &self.input[name_start..name_end];
+                let cur_name_str = &self.input[cur_name_start..cur_name_end];
+                if name_str == cur_name_str{
+                    panic!("Duplicate Function Name");
+                }
+
+            }
+        }
+
         self.f_symbol.func_keys.push(name_key);
+    }
+
+    pub fn check_function_param_type(&mut self, name_key : Key, range : [usize; 2], depth : u8){
+        let name_interval = &self.intervals[name_key as usize];
+        let name_start = name_interval.start as usize;
+        let name_end = name_interval.end as usize;
+
+        let len = self.v_symbol.var_types.len();
+
+        let mut param_start = 0;
+        for i in 0..len{
+            let scope_kind = &self.v_symbol.var_scopes[i].kind;
+            if !matches!(scope_kind, ScopeKind::Fn)
+                || matches!(scope_kind, ScopeKind::Local | ScopeKind::Global){continue;}
+
+            let cur_func_interval = &self.v_symbol.scope_name_intervals[i];
+            let start = cur_func_interval.start as usize;
+            let end = cur_func_interval.end as usize;
+
+            let bytes = self.input[name_start..name_end].as_bytes();
+            let cur_bytes = &self.v_symbol.name_buf[start..=end];
+
+            if bytes == cur_bytes{
+                param_start = i;
+                break;
+            }
+        }
+
+        let expr_idxs = &self.edges[range[0]..=range[1]][1..];
+        let param_number = expr_idxs.len();
+        let mut param_count = 0;
+        for i in param_start..len{
+            if param_count == param_number{
+                panic!("Out of Param Number");
+            }
+            let scope_kind = &self.v_symbol.var_scopes[i].kind;
+            if !matches!(scope_kind, ScopeKind::Fn){break;}
+
+            let expr_idx = self.edges[range[0]..=range[1]][1 + i];
+            let param_type = &self.v_symbol.var_types[i].clone();
+            self.type_check(param_type, expr_idx, depth);
+            param_count += 1;
+        }
+
+
     }
     pub fn symbol_insert_function(
         &mut self,
@@ -35,7 +102,6 @@ impl Semantic{
     }
 
     pub fn look_up_var_type(&self, var_key : Key, var_depth : u8) -> TypeState{
-        dbg!(var_key);
         let len = self.v_symbol.var_keys.len();
         for i in (0..len).rev(){
             let cur_depth = self.v_symbol.var_scopes[i].depth;

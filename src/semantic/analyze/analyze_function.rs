@@ -32,7 +32,24 @@ impl Semantic{
             }
         }
 
+    }
 
+    pub fn analyze_call(&mut self, call_idx : usize, depth : u8){
+        let node = &self.nodes[call_idx];
+        let span = &node.edge_span;
+        let start = span.start as usize;
+        let end = span.end as usize;
+        let edge = &self.edges[start..=end];
+        let len = edge.len();
+        let has_param  = len > 1;
+
+        let name_node_idx = edge[0] as usize;
+        let name_key = self.nodes[name_node_idx].key;
+        
+        let range =  [start, end];
+        if has_param{
+            self.check_function_param_type(name_key, range, depth);
+        }
 
     }
 }

@@ -52,16 +52,18 @@ fn main(){
 #[test]
 fn diag_test() {
     let input = "
-    fn main(a : i128, b : f32) = void{
-        var x : i8 = 1;
-        var y : i32  = x + 1;
+    fn add(a : f64, b : i32) = i32{
+        return a + b;
+    }
+    fn main() = void{
+        
     }
     "
     .to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-    lexer.print_output();
+   // lexer.print_output();
     let mut parser = Parser::init(lexer);
      parser.build_tree();
     // parser.print_node();

@@ -8,7 +8,6 @@ use crate::semantic::type_check::helper::{is_in_same_set, weight};
 impl Semantic {
     pub fn type_check(&mut self, declared_type: &Type, expr_idx: NodeIdx, depth : u8) -> Type{
         let expr_type_state = self.get_expr_type_state(expr_idx, depth);
-        dbg!(&expr_type_state);
         if matches!(declared_type, Type::void){
             match expr_type_state{
                 TypeState::Integer(key, is_neg) => {

@@ -12,6 +12,7 @@ impl Parser{
 
         self.matches_token(&Token::Fn)?;
         let func_name_node_idx = self.push_leaf(Token::Ident, self.current as Key)?;
+        self.curr_func_key = self.current as Key;
         self.stmt.func_recorder.push(func_name_node_idx);
         self.matches_token(&Token::Ident)?;
 
@@ -71,7 +72,8 @@ impl Parser{
         self.matches_token(&Token::Scolon)?;
 
         let start = self.ast.edge_start();
-        self.ast.edges.push(NONE);
+
+        self.push_leaf(Token::Ident, self.curr_func_key)?;
         if expr_idx != None{
             self.ast.edges.push(expr_idx.unwrap())
         }else{

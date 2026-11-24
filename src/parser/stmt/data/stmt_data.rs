@@ -26,9 +26,6 @@ impl Stmt{
             scope_recorder : Vec::with_capacity(RECORDER_SIZE),
             lbrace_stack : Vec::with_capacity(32),
             comparison_op_counter: 0,
-
-
-
         }
     }
 
