@@ -1,10 +1,10 @@
 use crate::lexer::tokenizer::source::token::Token;
-use crate::parser::tree::ast::{NodeIdx, NONE};
+use crate::parser::tree::ast::{NONE, NodeIdx};
 use crate::semantic::center::sema::Semantic;
 use crate::semantic::diagnostic::data::issue::TypeIssue;
 
-impl Semantic{
-    pub fn analyze_scope(&mut self, scope_idx : NodeIdx) -> Result<(), TypeIssue>{
+impl Semantic {
+    pub fn analyze_scope(&mut self, scope_idx: NodeIdx) -> Result<(), TypeIssue> {
         self.cur_depth += 1;
 
         let node = &self.nodes[scope_idx as usize];
@@ -13,18 +13,16 @@ impl Semantic{
         let end = span.end as usize;
         let len = self.edges[start..=end].len();
 
-
-
-        for i in 0..len{
+        for i in 0..len {
             let edges = &self.edges[start..=end];
-            if edges[i] == NONE{
-                continue
+            if edges[i] == NONE {
+                continue;
             }
-            
+
             let stmt_token = &self.nodes[edges[i] as usize].token;
-            match stmt_token{
+            match stmt_token {
                 Token::VarKw => continue,
-                Token::UpdateKw=>continue,
+                Token::UpdateKw => continue,
                 Token::IfKw => todo!(),
                 Token::ForKw => todo!(),
                 Token::WhileKw => todo!(),
@@ -33,10 +31,9 @@ impl Semantic{
                 Token::RetKw => todo!(),
                 Token::CallKw => todo!(),
                 Token::PrintKw => todo!(),
-                Token::Scope     => self.analyze_scope(edges[i])?,
-                _ => unreachable!()
+                Token::Scope => self.analyze_scope(edges[i])?,
+                _ => unreachable!(),
             }
-
         }
         self.cur_depth -= 1;
         Ok(())
