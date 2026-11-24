@@ -86,7 +86,8 @@ impl Semantic {
                 }
 
                 if weight(l_ty) > weight(r_ty) {
-                    panic!("literal out of range {:?} ", l_ty)
+                    self.error_literal_out_of_range(expr_idx, l_ty);
+                    return TypeState::Phi(op_key);
                 }
 
                 TypeState::Stable(l_ty.clone())
