@@ -54,7 +54,7 @@ fn diag_test() {
     let input = "
     fn main(a : i128, b : f32) = void{
         var x : i8 = 1;
-        var y  = x + 1;
+        var y : i32  = x + 1;
     }
     "
     .to_string();

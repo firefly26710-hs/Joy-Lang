@@ -1,6 +1,6 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum TypeIssue{
-    MismatchBetweenLiteralLiteral { left_literal_type: String, right_literal_type: String},
+    MismatchBetweenIdentifierLiteral { left_literal_type: String, right_literal_type: String},
     MismatchBetweenOpLiteral {op_string : String, correct_literal_type : String, error_literal_type : String},
     MismatchBetweenOpAndTwoLiterals { op_string : String, left_literal_type: String, right_literal_type: String},
     LiteralOutOfRange{ expected_type_string: String},

@@ -55,11 +55,6 @@ impl Semantic{
         let yellow_notices = no_color_notices.yellow();
 
         let info = match issue{
-            TypeIssue::MismatchBetweenLiteralLiteral {
-                left_literal_type, right_literal_type
-            } => {
-                format!("cannot use {right_literal_type} after {left_literal_type}")
-            },
             TypeIssue::MismatchBetweenOpLiteral {
                 op_string, correct_literal_type, error_literal_type
             } => {
@@ -88,6 +83,11 @@ impl Semantic{
             }
             TypeIssue::LiteralOutOfRange {expected_type_string} => {
                 format!("literal out of range for {expected_type_string}")
+            },
+            TypeIssue::MismatchBetweenIdentifierLiteral {
+                left_literal_type, right_literal_type
+            } => {
+                format!("cannot use {right_literal_type} after {left_literal_type}")
             },
             TypeIssue::MismatchType {
                 expected_type, actual_type} => {

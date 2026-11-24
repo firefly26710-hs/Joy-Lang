@@ -81,38 +81,38 @@ impl Semantic{
     }
 
 
-    pub fn error_between_literal_and_literal(
-        &mut self,
-        error_literal_key: Key,
-        l_node_type      : &Type,
-        r_node_type      : &Type
-    ) -> TypeIssue {
-        self.error.has_error = true;
-
-        let span_id = self.error.span_ids[error_literal_key as usize] as usize;
-        let line = span_id + 1;
-
-        let interval = &self.intervals[error_literal_key as usize];
-        let start = interval.start as usize;
-        let end = interval.end as usize;
-
-        let left_literal_type = from_type_state_to_string(l_node_type).to_string();
-        let right_literal_type =  from_type_state_to_string(r_node_type).to_string();
-
-        let issue = TypeIssue::MismatchBetweenLiteralLiteral { left_literal_type, right_literal_type };
-
-        self.error.type_msg_data.push(
-            TypeMsgData::new(
-                issue.clone(),
-                line,
-                start,
-                end,
-                span_id
-            )
-        );
-
-        issue
-    }
+    // pub fn error_between_literal_and_literal(
+    //     &mut self,
+    //     error_literal_key: Key,
+    //     l_node_type      : &Type,
+    //     r_node_type      : &Type
+    // ) -> TypeIssue {
+    //     self.error.has_error = true;
+    // 
+    //     let span_id = self.error.span_ids[error_literal_key as usize] as usize;
+    //     let line = span_id + 1;
+    // 
+    //     let interval = &self.intervals[error_literal_key as usize];
+    //     let start = interval.start as usize;
+    //     let end = interval.end as usize;
+    // 
+    //     let left_literal_type = from_type_state_to_string(l_node_type).to_string();
+    //     let right_literal_type =  from_type_state_to_string(r_node_type).to_string();
+    // 
+    //     let issue = TypeIssue::MismatchBetweenLiteralLiteral { left_literal_type, right_literal_type };
+    // 
+    //     self.error.type_msg_data.push(
+    //         TypeMsgData::new(
+    //             issue.clone(),
+    //             line,
+    //             start,
+    //             end,
+    //             span_id
+    //         )
+    //     );
+    // 
+    //     issue
+    // }
     pub fn error_between_identifier_literal(
         &mut self,
         op_key: Key,
@@ -132,7 +132,7 @@ impl Semantic{
         let left_literal_type = from_type_state_to_string(l_node_type).to_string();
         let right_literal_type =  from_type_state_to_string(r_node_type).to_string();
 
-        let issue = TypeIssue::MismatchBetweenLiteralLiteral { left_literal_type,  right_literal_type };
+        let issue = TypeIssue::MismatchBetweenIdentifierLiteral { left_literal_type,  right_literal_type };
 
         self.error.type_msg_data.push(
             TypeMsgData::new(
