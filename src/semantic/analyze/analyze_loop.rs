@@ -34,7 +34,7 @@ impl Semantic {
         self.type_check(&Type::bool, expr_idx, depth);
     }
 
-    pub fn analyze_ctn(&self, stmt_data_idx : usize) {
+    pub fn analyze_ctn_or_brk(&mut self, stmt_data_idx : usize) {
         let ctn_stmt_data = &self.flow.stmt_datas[stmt_data_idx];
         let ctn_stmt_depth = ctn_stmt_data.depth;
 
@@ -49,23 +49,7 @@ impl Semantic {
 
         }
 
-        panic!("`continue` outside of a loop");
+        self.error_out_of_loop(self.flow.kw_idxs[stmt_data_idx]);
     }
-    pub fn analyze_brk(&self, stmt_data_idx : usize) {
-        let brk_stmt_data = &self.flow.stmt_datas[stmt_data_idx];
-        let brk_stmt_depth = brk_stmt_data.depth;
-
-        for i in (0..stmt_data_idx).rev(){
-            let cur_stmt_data = &self.flow.stmt_datas[i];
-            let cur_stmt_kind = &cur_stmt_data.kind;
-            let cur_stmt_depth = cur_stmt_data.depth;
-
-            if matches!(cur_stmt_kind, StmtKind::ForStmt | StmtKind::WhileStmt) && brk_stmt_depth > cur_stmt_depth{
-                return;
-            }
-
-        }
-
-        panic!("`break` outside of a loop");
-    }
+   
 }

@@ -15,12 +15,7 @@ pub enum ExprIssue{
     ComparisonOpChained,
     BinaryOpMismatches{expr_type_string : String}
 }
-#[derive(Debug, Clone, PartialEq)]
-pub enum ScopeIssue{
-    VariableNotInScope{ unknown_var_string: String},
-    FunctionNotFound{ unknown_fn_string: String},
-    OutOfLoop{kw : String},
-}
+
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum FunctionIssue{

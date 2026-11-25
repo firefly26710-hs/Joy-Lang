@@ -1,7 +1,7 @@
 use crate::parser::tree::ast::NodeIdx;
 use crate::parser::tree::node::Key;
 use crate::semantic::center::sema::Semantic;
-use crate::semantic::diagnostic::data::issue::TypeIssue;
+use crate::semantic::diagnostic::data::type_issue::TypeIssue;
 use crate::semantic::diagnostic::data::type_msg_data::TypeMsgData;
 use crate::semantic::symbol::data::ty::Type;
 
@@ -12,7 +12,7 @@ impl Semantic{
         expr_idx    : NodeIdx,
         l_node_type : Type,
         r_node_type : Type
-    ) -> TypeIssue{
+    ){
         let (start_tok_key, end_tok_key)  = self.get_min_and_max_key(expr_idx as usize);
 
         let span_id = self.error.span_ids[start_tok_key] as usize;
@@ -39,7 +39,6 @@ impl Semantic{
             )
         );
 
-        issue
 
     }
 
@@ -49,7 +48,7 @@ impl Semantic{
         error_literal_key   : Key,
         corr_literal_type   : Type,
         error_literal_type  : Type,
-    ) -> TypeIssue{
+    ){
 
         self.error.has_error = true;
 
@@ -77,48 +76,16 @@ impl Semantic{
             )
         );
 
-        issue
     }
 
 
-    // pub fn error_between_literal_and_literal(
-    //     &mut self,
-    //     error_literal_key: Key,
-    //     l_node_type      : &Type,
-    //     r_node_type      : &Type
-    // ) -> TypeIssue {
-    //     self.error.has_error = true;
-    // 
-    //     let span_id = self.error.span_ids[error_literal_key as usize] as usize;
-    //     let line = span_id + 1;
-    // 
-    //     let interval = &self.intervals[error_literal_key as usize];
-    //     let start = interval.start as usize;
-    //     let end = interval.end as usize;
-    // 
-    //     let left_literal_type = from_type_state_to_string(l_node_type).to_string();
-    //     let right_literal_type =  from_type_state_to_string(r_node_type).to_string();
-    // 
-    //     let issue = TypeIssue::MismatchBetweenLiteralLiteral { left_literal_type, right_literal_type };
-    // 
-    //     self.error.type_msg_data.push(
-    //         TypeMsgData::new(
-    //             issue.clone(),
-    //             line,
-    //             start,
-    //             end,
-    //             span_id
-    //         )
-    //     );
-    // 
-    //     issue
-    // }
+
     pub fn error_between_identifier_literal(
         &mut self,
         op_key: Key,
         l_node_type      : &Type,
         r_node_type      : &Type
-    ) -> TypeIssue {
+    ){
         self.error.has_error = true;
 
 
@@ -144,7 +111,6 @@ impl Semantic{
             )
         );
 
-        issue
     }
 
 
@@ -152,7 +118,7 @@ impl Semantic{
         &mut self,
         expr_idx : NodeIdx,
         expected_type : &Type,
-    ) -> TypeIssue {
+    ){
         self.error.has_error = true;
 
         let (start_tok_key, end_tok_key)  = self.get_min_and_max_key(expr_idx as usize);
@@ -180,7 +146,6 @@ impl Semantic{
             )
         );
 
-        issue
     }
 
     pub fn error_mismatch_type_between_literal_literal(
@@ -188,7 +153,7 @@ impl Semantic{
         error_literal_key    : Key,
         correct_literal_type : &Type,
         error_literal_type: &Type
-    ) -> TypeIssue{
+    ){
         self.error.has_error = true;
 
 
@@ -213,7 +178,6 @@ impl Semantic{
             )
         );
 
-        issue
 
     }
 
@@ -222,7 +186,7 @@ impl Semantic{
         expr_idx      : NodeIdx,
         declared_type : &Type,
         expr_type     : &Type,
-    ) -> TypeIssue{
+    ){
         self.error.has_error = true;
 
         let (start_tok_key, end_tok_key)  = self.get_min_and_max_key(expr_idx as usize);
@@ -251,7 +215,6 @@ impl Semantic{
             )
         );
 
-        issue
     }
 
     pub fn error_unary_mismatch_type(
@@ -259,7 +222,7 @@ impl Semantic{
         op_key : Key,
         error_expr_idx : NodeIdx,
         error_expr_type :Type
-    ) -> TypeIssue{
+    ){
         self.error.has_error = true;
 
         let (start_tok_key, end_tok_key)  = self.get_min_and_max_key(error_expr_idx as usize);
@@ -291,8 +254,7 @@ impl Semantic{
             )
         );
 
-        issue
-        
+
     }
 
 

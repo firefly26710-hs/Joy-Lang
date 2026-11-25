@@ -1,6 +1,5 @@
-use crate::semantic::diagnostic::data::issue::TypeIssue;
+use crate::semantic::diagnostic::data::type_issue::TypeIssue;
 #[derive(Debug, Clone, PartialEq)]
-
 pub struct TypeMsgData{
     pub issue       : TypeIssue,
     pub line        : usize,

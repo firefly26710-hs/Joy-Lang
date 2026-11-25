@@ -50,7 +50,27 @@ impl Parser{
         Ok(self.push_node(Token::WhileKw, NONE, start, end))
     }
 
+    pub fn parse_break(&mut self) -> Result<NodeIdx, ParserIssue>{
 
+        let brk_key = self.current as u32;
+
+        self.eat();
+
+        self.matches_token(&Token::Scolon)?;
+
+        self.push_leaf(Token::BrkKw, brk_key)
+    }
+
+    pub fn parse_ctn(&mut self) -> Result<NodeIdx, ParserIssue>{
+
+        let ctn_key = self.current as u32;
+        self.eat();
+
+        self.matches_token(&Token::Scolon)?;
+
+        self.push_leaf(Token::CtnKw, ctn_key)
+
+    }
 
     
     

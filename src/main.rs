@@ -52,11 +52,9 @@ fn main(){
 #[test]
 fn diag_test() {
     let input = "
-    fn add(a : f64, b : i32) = i32{
-        return a + b;
-    }
     fn main() = void{
-        
+        var x = y + 1;
+        return;
     }
     "
     .to_string();
@@ -66,7 +64,7 @@ fn diag_test() {
    // lexer.print_output();
     let mut parser = Parser::init(lexer);
      parser.build_tree();
-    // parser.print_node();
+    parser.print_node();
 
     let mut semantic = Semantic::init(parser);
     semantic.analyze();

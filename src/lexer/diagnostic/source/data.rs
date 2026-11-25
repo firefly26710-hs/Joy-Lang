@@ -1,9 +1,9 @@
 use crate::lexer::diagnostic::source::msg_data::LexerMsgData;
 use crate::parser::diagnostic::source::msg_data::ParserMsgData;
+use crate::semantic::diagnostic::data::func_msg_data::FuncMsgData;
+use crate::semantic::diagnostic::data::scope_msg_data::ScopeMsgData;
 use crate::semantic::diagnostic::data::type_msg_data::TypeMsgData;
 
-//use crate::lexer::diagnostic::source::msg_data::{LexerMsgData};
-//use crate::parser::diagnostic::source::msg_data::ParserMsgData;
 pub type SpanStart = usize;
 pub type SpanLength = usize;
 pub type ColStart = u32;
@@ -16,6 +16,8 @@ pub struct Error{
 	pub lex_msg_data : Vec<LexerMsgData>,
 	pub par_msg_data : Vec<ParserMsgData>,
 	pub type_msg_data: Vec<TypeMsgData>,
+	pub scope_msg_data: Vec<ScopeMsgData>,
+	pub func_msg_data : Vec<FuncMsgData>,
 	
     pub file_name   : String,
     pub spans       : Vec<(SpanStart, SpanLength)>,
@@ -30,9 +32,11 @@ impl Error{
     pub fn init(file_name : String, alloc_size: usize) -> Self{
 	
 		Self{
-			lex_msg_data: Vec::with_capacity(alloc_size),
-			par_msg_data : Vec::with_capacity(alloc_size),
-			type_msg_data: Vec::with_capacity(alloc_size),
+			lex_msg_data   : Vec::with_capacity(alloc_size),
+			par_msg_data   : Vec::with_capacity(alloc_size),
+			type_msg_data  : Vec::with_capacity(alloc_size),
+			scope_msg_data : Vec::with_capacity(alloc_size),
+			func_msg_data  : Vec::with_capacity(alloc_size),
 	    	file_name,
 	    	spans   : Vec::with_capacity(alloc_size),
 	    	span_ids: Vec::with_capacity(alloc_size),

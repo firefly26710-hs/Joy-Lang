@@ -6,5 +6,4 @@ pub enum TypeIssue{
     LiteralOutOfRange{ expected_type_string: String},
     MismatchType {expected_type : String,  actual_type : String},
     UnaryMismatchType {unary_op : String, right_type : String},
-    
 }

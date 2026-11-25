@@ -59,24 +59,7 @@ impl Parser {
         }
     }
 
-    pub fn parse_break(&mut self) -> Result<NodeIdx, ParserIssue>{
-
-        self.eat();
-
-        self.matches_token(&Token::Scolon)?;
-
-        self.push_leaf(Token::BrkKw, NONE)
-    }
-
-    pub fn parse_ctn(&mut self) -> Result<NodeIdx, ParserIssue>{
-
-        self.eat();
-
-        self.matches_token(&Token::Scolon)?;
-
-        self.push_leaf(Token::CtnKw, NONE)
-
-    }
+    
 
 
 

@@ -1,10 +1,10 @@
-use crate::parser::tree::node::Key;
 use crate::lexer::center::lex::Lexer;
 use crate::lexer::diagnostic::source::data::Error;
 use crate::lexer::tokenizer::source::interval::Interval;
 use crate::lexer::tokenizer::source::token::Token;
 use crate::parser::stmt::data::stmt_data::Stmt;
 use crate::parser::tree::ast::{AST, NONE};
+use crate::parser::tree::node::Key;
 
 pub struct Parser{
     pub input : String,

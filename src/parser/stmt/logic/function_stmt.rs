@@ -73,7 +73,8 @@ impl Parser{
 
         let start = self.ast.edge_start();
 
-        self.push_leaf(Token::Ident, self.curr_func_key)?;
+        let ident_node_idx =self.push_leaf(Token::Ident, self.curr_func_key)?;
+        self.ast.edges.push(ident_node_idx);
         if expr_idx != None{
             self.ast.edges.push(expr_idx.unwrap())
         }else{
