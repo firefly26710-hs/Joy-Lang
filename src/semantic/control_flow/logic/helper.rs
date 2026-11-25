@@ -12,6 +12,13 @@ impl Semantic{
         self.flow.stmt_datas.push(new_stmt_data);
         self.flow.kw_idxs.push(kw_idx);
     }
+    
+    pub fn collect_branch_stmt_data(&mut self, stmt_kind: StmtKind, kw_idx : NodeIdx,depth : u8){
+        let new_stmt_data = StmtData::new(stmt_kind, depth);
+        self.flow.stmt_datas.push(new_stmt_data);
+        self.flow.kw_idxs.push(kw_idx);
+        
+    }
 
     pub fn print_control_flow(&self){
         println!("=============== Control Flow ===============");

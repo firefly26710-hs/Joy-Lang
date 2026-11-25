@@ -71,7 +71,7 @@ fn diag_test() {
    // lexer.print_output();
     let mut parser = Parser::init(lexer);
      parser.build_tree();
-   // parser.print_node();
+    parser.print_node();
 
     let mut semantic = Semantic::init(parser);
     semantic.analyze();

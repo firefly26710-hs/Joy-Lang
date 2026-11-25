@@ -7,8 +7,8 @@ impl Semantic {
     pub fn analyze(&mut self) {
         self.collect_control_flow();
         if self.error.has_error { self.output_semantic_error(); }
-        self.analyze_flow_context();
         self.print_control_flow();
+        self.analyze_flow_context();
         self.check_return_pos();
         if self.error.has_error { self.output_semantic_error(); }
     }

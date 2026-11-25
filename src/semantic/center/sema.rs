@@ -16,7 +16,6 @@ pub struct Semantic{
     pub f_symbol  : FunctionSymbol,
     pub flow      : Flow,
     pub error     : Error,
-    pub cur_depth : u8,
 
 }
 
@@ -33,7 +32,6 @@ impl Semantic{
             v_symbol  : VariableSymbol::init(),
             f_symbol  : FunctionSymbol::init(),
             error     : parser.error,
-            cur_depth : 0,
         }
         
     }

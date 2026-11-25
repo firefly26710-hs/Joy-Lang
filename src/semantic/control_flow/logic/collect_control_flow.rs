@@ -11,9 +11,8 @@ impl Semantic {
 
         for i in 0..len {
             self.assign_function(self.edges[start..=end][i]);
-            self.collect_stmt_data(&Token::FuncKw, self.edges[start..=end][i], self.cur_depth);
-            self.collect_scope(self.edges[start..=end][i]);
-            self.cur_depth -= 1;
+            self.collect_stmt_data(&Token::FuncKw, self.edges[start..=end][i], 0);
+            self.collect_scope(self.edges[start..=end][i], 1);
         }
     }
 }
