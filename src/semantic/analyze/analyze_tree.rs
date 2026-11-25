@@ -10,6 +10,7 @@ impl Semantic {
             let depth = self.flow.stmt_datas[i].depth;
             let stmt_idx = self.flow.kw_idxs[i] as usize;
             match stmt_kind {
+
                 StmtKind::VarStmt    => self.analyze_var(stmt_idx, depth),
                 StmtKind::IfStmt     => self.analyze_if(stmt_idx, depth),
                 StmtKind::ForStmt    => self.analyze_for(stmt_idx, depth),
@@ -21,7 +22,7 @@ impl Semantic {
                 StmtKind::CallStmt   => self.analyze_call(stmt_idx, depth),
                 StmtKind::PrintStmt  => self.analyze_print(stmt_idx, depth),
                 StmtKind::UpdateStmt => self.analyze_update(stmt_idx, depth),
-                _ => unreachable!()
+                StmtKind::ElifStmt | StmtKind::ElseStmt => continue,
             }
         }
     }
