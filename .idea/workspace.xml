@@ -12,7 +12,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8d06d8-26bf-44f7-8fa3-8534debefe3c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/parser/types/data.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/parser/types/data.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/target/.rustc_info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,47 +50,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Cargo.Build `Run comp`.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Run comp.executor&quot;: &quot;Run&quot;,
-    &quot;CidrDebugProfileConversion&quot;: &quot;true&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;joyc-expr&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/fireflylover/Ubuntu-Performance-Monitor&quot;,
-    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
-    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/codegen.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/expr.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/mod.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/stmt.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/par/node.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/llvm/stmt.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lex/lexer/mod.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/center/lex.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/diagnostic/collect_logic.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/tokenize/collect.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/tokenizer/logic/helper.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/codegen.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/diagnostic/source/mod.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/diagnostic/source/msg_data.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/expr.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/function.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/stmt.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/parser/diagnostic/parser_diag.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/parser/diagnostic/source/issue.rs&quot;: &quot;true&quot;,
-    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Cargo.Build `Run comp`.executor": "Run",
+    "Cargo.Run comp.executor": "Run",
+    "CidrDebugProfileConversion": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.rust.reset.selective.auto.import": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "joyc-scope",
+    "last_opened_file_path": "/home/fireflylover/Ubuntu-Performance-Monitor",
+    "node.js.detected.package.jshint": "true",
+    "node.js.selected.package.jshint": "",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/codegen.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/expr.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/mod.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/gen/stmt.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/.emacs.d/projects/comp/src/par/node.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/llvm/stmt.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lex/lexer/mod.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/center/lex.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/diagnostic/collect_logic.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/tokenize/collect.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/lexer/tokenizer/logic/helper.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/codegen.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/diagnostic/source/mod.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/diagnostic/source/msg_data.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/expr.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/function.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/llvm/stmt.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/parser/diagnostic/parser_diag.rs": "true",
+    "org.rust.disableDetachedFileInspection/home/fireflylover/pjs/comp/src/parser/diagnostic/source/issue.rs": "true",
+    "org.rust.first.attach.projects": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/parser/diagnostic/logic" />
