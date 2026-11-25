@@ -28,7 +28,7 @@ impl Semantic{
     }
 }
 
-fn kw_to_stmt_ty(kw_tok : &Token) -> StmtKind{
+pub fn kw_to_stmt_ty(kw_tok : &Token) -> StmtKind{
     match kw_tok{
         Token::VarKw   => StmtKind::VarStmt,
         Token::IfKw    => StmtKind::IfStmt,

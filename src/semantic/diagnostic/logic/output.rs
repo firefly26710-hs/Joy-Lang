@@ -167,6 +167,9 @@ impl Semantic{
             },
             ScopeIssue::FunctionNotFound {unknown_fn_string} => {
                 format!("cannot find function '{unknown_fn_string}'")
+            },
+            ScopeIssue::DuplicateFunctionName {fn_string} => {
+                format!("found duplicate function name '{fn_string}'")
             }
         };
 

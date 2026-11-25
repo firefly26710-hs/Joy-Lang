@@ -53,6 +53,30 @@ impl Semantic{
         );
     }
 
+    pub fn error_duplicate_function_name(&mut self, name_key : Key){
+        self.error.has_error = true;
+
+        let span_id = self.error.span_ids[name_key as usize] as usize;
+        let line = span_id + 1;
+
+        let interval = &self.intervals[name_key as usize];
+        let start = interval.start as usize;
+        let end = interval.end as usize;
+
+        let fn_string = self.input[start..end].to_string();
+        let issue = ScopeIssue::DuplicateFunctionName {fn_string };
+
+        self.error.scope_msg_data.push(
+            ScopeMsgData::new(
+                issue.clone(),
+                line,
+                start,
+                end,
+                span_id
+            )
+        );
+    }
+
     pub fn error_out_of_loop(&mut self, kw_node_idx : NodeIdx){
         self.error.has_error = true;
 

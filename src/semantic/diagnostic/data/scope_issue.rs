@@ -3,5 +3,6 @@ pub enum ScopeIssue{
     VariableNotInScope{ var_string: String},
     FunctionNotFound{ unknown_fn_string: String},
     OutOfLoop{kw : String},
+    DuplicateFunctionName{fn_string : String}
 }
 

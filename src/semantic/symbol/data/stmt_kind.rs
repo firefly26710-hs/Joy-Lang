@@ -1,7 +1,10 @@
+#[derive(Debug, Clone, PartialEq)]
 
 pub enum StmtKind {
     VarStmt,
     IfStmt ,
+    ElifStmt,
+    ElseStmt,
     ForStmt ,
     WhileStmt,
     RetStmt,
@@ -25,6 +28,8 @@ pub fn from_stmt_kind_to_string(kind : &StmtKind) -> String{
         StmtKind::FuncStmt=> "FuncStmt",
         StmtKind::CallStmt => "CallStmt",
         StmtKind::PrintStmt => "PrintStmt",
-        StmtKind::UpdateStmt => "UpdateStmt"
+        StmtKind::UpdateStmt => "UpdateStmt",
+        StmtKind::ElifStmt  => "ElifStmt",
+        StmtKind::ElseStmt  => "ElseStmt"
     }.to_string()
 }

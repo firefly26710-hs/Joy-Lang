@@ -21,6 +21,7 @@ impl Semantic {
                 StmtKind::CallStmt   => self.analyze_call(stmt_idx, depth),
                 StmtKind::PrintStmt  => self.analyze_print(stmt_idx, depth),
                 StmtKind::UpdateStmt => self.analyze_update(stmt_idx, depth),
+                _ => unreachable!()
             }
         }
     }

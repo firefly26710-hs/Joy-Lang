@@ -32,7 +32,8 @@ impl Semantic {
                 let name_str = &self.input[name_start..name_end];
                 let cur_name_str = &self.input[cur_name_start..cur_name_end];
                 if name_str == cur_name_str {
-                    panic!("Duplicate Function Name");
+                   self.error_duplicate_function_name(name_key);
+                    return;
                 }
             }
         }
@@ -158,12 +159,6 @@ impl Semantic {
         scope_name_key: Key,
         cur_depth: u8,
     ) {
-        let len = self.v_symbol.var_keys.len();
-        for i in 0..len {
-            if self.matches_str(var_key, self.v_symbol.var_keys[i]) {
-                panic!("Duplicate variable name");
-            }
-        }
         self.v_symbol.var_keys.push(var_key);
         self.v_symbol.var_types.push(var_ty);
         self.v_symbol
