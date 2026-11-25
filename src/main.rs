@@ -54,16 +54,8 @@ fn main(){
 fn diag_test() {
     let input = "
     fn main() = void{
-        if 1 == 1{
-            var x = 5;
-            return;
-        }elif 2 == 1{
-            var x = 6;
-            return;
-        }else{
-            var x = 7;
-            return;
-        }
+        var x = 5;
+        var x = 6;
         return;
     }
     "

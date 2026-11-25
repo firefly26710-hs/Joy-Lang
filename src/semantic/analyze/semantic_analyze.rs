@@ -1,5 +1,6 @@
 use crate::parser::tree::ast::NONE;
 use crate::semantic::center::sema::Semantic;
+use crate::semantic::symbol::data::stmt_kind::StmtKind;
 use crate::semantic::symbol::data::ty::Type;
 
 impl Semantic {
@@ -23,20 +24,29 @@ impl Semantic {
         let mut l = 0;
         let mut r = 1;
 
-        if len == 1{
-            let ret_type = self.f_symbol.ret_types.last().unwrap();
-            if ret_type != &Type::void{
-                panic!("unexpected return type");
+
+        while r < len && l < r {
+            if self.flow.stmt_datas[l].kind == StmtKind::FuncStmt{
+                let
             }
+
+
+            if r == len{
+
+            }
+
+
+            let l_depth = self.flow.stmt_datas[l].depth;
+            let r_depth = self.flow.stmt_datas[r].depth;
+            while r < len && self.flow.stmt_datas[r].depth == r_depth {
+                r += 1;
+
+            }
+
+
+
         }
-
-
-        while r < len && l < r{
-        }
-
 
 
     }
-
-
 }
