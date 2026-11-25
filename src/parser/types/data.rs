@@ -1,0 +1,32 @@
+use crate::lexer::tokenizer::source::interval::Interval;
+use crate::parser::tree::node::Key;
+use crate::parser::types::typ::Type;
+const VAR_PART_ALLOC_SIZE: usize = 256;
+const FUNC_PART_ALLOC_SIZE : usize = 128;
+
+pub struct Table{
+    pub var_keys      : Vec<Key>,
+    pub var_types     : Vec<Type>,
+    pub func_keys     : Vec<Key>,
+    pub param_idxs    : Vec<Interval>,
+    pub ret_types     : Vec<Type>,
+    pub var_key_start : usize
+}
+
+impl Table{
+    pub fn init() -> Self{
+        Self{
+            var_keys    : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
+            var_types   : Vec::with_capacity(VAR_PART_ALLOC_SIZE),
+            func_keys   : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+            param_idxs  : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+            ret_types   : Vec::with_capacity(FUNC_PART_ALLOC_SIZE),
+            var_key_start : 0
+        }
+    }
+
+    
+
+    
+}
+

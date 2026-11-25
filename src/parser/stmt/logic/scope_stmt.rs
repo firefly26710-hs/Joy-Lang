@@ -42,7 +42,7 @@ impl Parser{
 
     fn matches_stmts(&mut self) -> Result<NodeIdx, ParserIssue>{
         match self.peek(){
-            Token::Val | Token::Var => self.parse_var(),
+            Token::Var => self.parse_var(),
             Token::If     => self.parse_if(),
             Token::For    => self.parse_for(),
             Token::While  => self.parse_while(),
