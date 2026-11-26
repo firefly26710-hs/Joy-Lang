@@ -12,7 +12,7 @@ use std::env;
 use std::fs::File;
 use std::io::Read;
 
-fn main(){
+fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         panic!("No file in {:?}", args[0]);
@@ -29,8 +29,7 @@ fn main(){
     lexer.tokenize();
     // lexer.print_output();
     let mut parser = Parser::init(lexer);
-     parser.build_tree();
-
+    parser.build_tree();
 
     let mut semantic = Semantic::init(parser);
     semantic.analyze()
@@ -47,7 +46,6 @@ fn main(){
     //
     //     main_fn.call();
     // }
-
 }
 
 #[test]
@@ -56,17 +54,19 @@ fn diag_test() {
     fn main() = void{
         var x = 5;
         var x = 6;
-        return;
+        if x == 5{
+            return;
+        }   
     }
     "
     .to_string();
     let input = input + "\n\0\0\0";
     let mut lexer = Lexer::init(input, "main.joy".to_string());
     lexer.tokenize();
-   // lexer.print_output();
+    // lexer.print_output();
     let mut parser = Parser::init(lexer);
-     parser.build_tree();
-    parser.print_node();
+    parser.build_tree();
+    //parser.print_node();
 
     let mut semantic = Semantic::init(parser);
     semantic.analyze();
